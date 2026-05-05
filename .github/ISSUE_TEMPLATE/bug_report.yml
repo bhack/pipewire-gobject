@@ -1,0 +1,58 @@
+name: Bug Report
+description: Report a crash, build problem, binding issue, or unexpected behavior.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. This project is experimental; please include enough environment detail to reproduce the issue.
+  - type: input
+    id: version
+    attributes:
+      label: pipewire-gobject version or commit
+      placeholder: "0.1.0 or git commit"
+    validations:
+      required: true
+  - type: input
+    id: pipewire_version
+    attributes:
+      label: PipeWire version
+      placeholder: "pkg-config --modversion libpipewire-0.3"
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Consumer language
+      options:
+        - C
+        - Python/PyGObject
+        - GJS
+        - Vala
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproducer
+      description: Minimal code, commands, or steps that reproduce the issue.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Meson logs, Python traceback, PipeWire log, or relevant terminal output.
+      render: text
+

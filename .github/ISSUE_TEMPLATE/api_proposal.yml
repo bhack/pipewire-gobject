@@ -1,0 +1,55 @@
+name: API Proposal
+description: Propose a new public Pwg API or a change to existing behavior.
+title: "api: "
+labels:
+  - api
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Public API is unstable in 0.x, but proposals should preserve the project boundary: safe GI app-owned streams, not a general PipeWire or WirePlumber replacement.
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What application workflow needs this API?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_api
+    attributes:
+      label: Proposed API shape
+      description: Function, property, signal, or type names if you have them.
+      render: c
+    validations:
+      required: false
+  - type: dropdown
+    id: consumers
+    attributes:
+      label: Primary GI consumers
+      multiple: true
+      options:
+        - Python/PyGObject
+        - GJS
+        - Vala
+        - C
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Boundary with WirePlumber
+      description: Why does this belong in Pwg instead of WirePlumber's graph/control-plane API?
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety expectations
+      options:
+        - label: This does not expose raw pw_stream, pw_buffer, spa_buffer, or spa_pod ownership to GI consumers.
+          required: true
+        - label: This does not add routing policy or session-manager behavior.
+          required: true
+
