@@ -1,0 +1,9 @@
+/build/
+/build-*/
+/install-root*/
+*.o
+*.so
+*.so.*
+*.gir
+*.typelib
+__pycache__/

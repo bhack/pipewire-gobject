@@ -1,0 +1,41 @@
+name: Community Scope Feedback
+description: Discuss project scope, WirePlumber overlap, or upstream placement.
+title: "scope: "
+labels:
+  - scope
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is for feedback on the project boundary: standalone Pwg project, WirePlumber extension, PipeWire companion library, or another shape.
+  - type: dropdown
+    id: perspective
+    attributes:
+      label: Perspective
+      options:
+        - PipeWire user
+        - WirePlumber user
+        - Application developer
+        - Distribution/package maintainer
+        - PipeWire/WirePlumber contributor
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Feedback
+      description: What boundary or project organization would you prefer, and why?
+    validations:
+      required: true
+  - type: textarea
+    id: concerns
+    attributes:
+      label: Concerns
+      description: API overlap, maintenance, packaging, stability, or ecosystem concerns.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Existing APIs or project homes that should be considered.
+

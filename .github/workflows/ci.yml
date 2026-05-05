@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  distro:
+    name: Debian packaged PipeWire
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+
+    steps:
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            git \
+            meson \
+            ninja-build \
+            pkg-config \
+            libglib2.0-dev \
+            libpipewire-0.3-dev \
+            gobject-introspection \
+            libgirepository1.0-dev \
+            python3-gi \
+            pipewire \
+            libspa-0.2-modules
+
+      - uses: actions/checkout@v6
+
+      - name: Build
+        run: |
+          meson setup build
+          meson compile -C build
+
+      - name: Test
+        run: meson test -C build --print-errorlogs
+
+      - name: Install check
+        run: DESTDIR="$PWD/install-root" meson install -C build --no-rebuild
+
+      - name: Dist check
+        run: |
+          git config --global --add safe.directory "$PWD"
+          meson dist -C build
+
+      - name: Live PipeWire smoke test
+        run: |
+          mkdir -p /tmp/pwg-runtime
+          chmod 700 /tmp/pwg-runtime
+          export XDG_RUNTIME_DIR=/tmp/pwg-runtime
+          pipewire >/tmp/pwg-pipewire.log 2>&1 &
+          pw_pid=$!
+          trap 'kill "$pw_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          GI_TYPELIB_PATH="$PWD/build" \
+          LD_LIBRARY_PATH="$PWD/build" \
+          python3 tests/test_live_pipewire.py
+
+  pipewire-source:
+    name: PipeWire ${{ matrix.pipewire_version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pipewire_version:
+          - "1.0.2"
+          - "1.6.4"
+
+    env:
+      PIPEWIRE_PREFIX: /tmp/pipewire-${{ matrix.pipewire_version }}
+      PIPEWIRE_TARBALL: https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/${{ matrix.pipewire_version }}/pipewire-${{ matrix.pipewire_version }}.tar.bz2
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            meson \
+            ninja-build \
+            pkg-config \
+            python3 \
+            python3-gi \
+            ca-certificates \
+            curl \
+            libglib2.0-dev \
+            libdbus-1-dev \
+            gobject-introspection \
+            libgirepository1.0-dev
+
+      - name: Cache PipeWire prefix
+        id: pipewire-cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.PIPEWIRE_PREFIX }}
+          key: ${{ runner.os }}-pipewire-${{ matrix.pipewire_version }}-minimal-v1
+
+      - name: Build PipeWire
+        if: steps.pipewire-cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          workdir="$(mktemp -d)"
+          curl -L --fail -o "$workdir/pipewire.tar.bz2" "$PIPEWIRE_TARBALL"
+          tar -xf "$workdir/pipewire.tar.bz2" -C "$workdir"
+          meson setup "$workdir/build" "$workdir/pipewire-${{ matrix.pipewire_version }}" \
+            --prefix="$PIPEWIRE_PREFIX" \
+            -Dauto_features=disabled \
+            -Dtests=disabled \
+            -Dexamples=disabled \
+            -Dsession-managers=[]
+          meson compile -C "$workdir/build"
+          meson install -C "$workdir/build"
+
+      - name: Verify PipeWire version
+        run: |
+          export PKG_CONFIG_PATH="$PIPEWIRE_PREFIX/lib/x86_64-linux-gnu/pkgconfig:$PIPEWIRE_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+          test "$(pkg-config --modversion libpipewire-0.3)" = "${{ matrix.pipewire_version }}"
+
+      - name: Build and test
+        run: |
+          export PKG_CONFIG_PATH="$PIPEWIRE_PREFIX/lib/x86_64-linux-gnu/pkgconfig:$PIPEWIRE_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export LD_LIBRARY_PATH="$PIPEWIRE_PREFIX/lib/x86_64-linux-gnu:$PIPEWIRE_PREFIX/lib:$LD_LIBRARY_PATH"
+          meson setup build
+          meson compile -C build
+          meson test -C build --print-errorlogs
+
+      - name: Install check
+        run: |
+          export LD_LIBRARY_PATH="$PIPEWIRE_PREFIX/lib/x86_64-linux-gnu:$PIPEWIRE_PREFIX/lib:$LD_LIBRARY_PATH"
+          DESTDIR="$PWD/install-root" meson install -C build --no-rebuild
