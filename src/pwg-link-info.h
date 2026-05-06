@@ -162,20 +162,6 @@ PWG_API
 gboolean pwg_link_info_get_feedback(PwgLinkInfo *self);
 
 /**
- * pwg_link_info_get_async:
- * @self: a link info wrapper.
- *
- * Gets whether the PipeWire `link.async` property is true.
- *
- * Returns: whether the wrapped link is marked as async.
- *
- * Since: 0.1
- * Stability: Unstable
- */
-PWG_API
-gboolean pwg_link_info_get_async(PwgLinkInfo *self);
-
-/**
  * pwg_link_info_dup_object_serial:
  * @self: a link info wrapper.
  *

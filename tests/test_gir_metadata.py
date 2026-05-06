@@ -271,7 +271,6 @@ for method_name in (
     "get_id",
     "get_passive",
     "get_feedback",
-    "get_async",
 ):
     assert link_info.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
 for method_name in (
