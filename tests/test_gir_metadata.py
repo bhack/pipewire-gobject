@@ -171,6 +171,7 @@ interface_type_param = global_is_interface.find(
 assert interface_type_param is not None
 assert interface_type_param.attrib.get("nullable") is None
 assert global_class.find("gir:method[@name='is_client']", GIR_NS) is not None
+assert global_class.find("gir:method[@name='is_device']", GIR_NS) is not None
 assert global_class.find("gir:method[@name='is_node']", GIR_NS) is not None
 assert global_class.find("gir:method[@name='is_port']", GIR_NS) is not None
 assert global_class.find("gir:method[@name='is_metadata']", GIR_NS) is not None
@@ -209,6 +210,43 @@ for method_name in (
     assert client_dup is not None
     assert client_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
     assert client_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+
+device_info = namespace.find("gir:class[@name='DeviceInfo']", GIR_NS)
+assert device_info is not None
+assert device_info.attrib[f"{{{C_URI}}}type"] == "PwgDeviceInfo"
+assert device_info.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_device_info_get_type"
+device_info_constructor = device_info.find("gir:constructor[@name='new_from_global']", GIR_NS)
+assert device_info_constructor is not None
+assert device_info_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert device_info_constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+device_info_global_param = device_info_constructor.find(
+    "gir:parameters/gir:parameter[@name='global']",
+    GIR_NS,
+)
+assert device_info_global_param is not None
+assert device_info_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
+device_info_get_global = device_info.find("gir:method[@name='get_global']", GIR_NS)
+assert device_info_get_global is not None
+assert device_info_get_global.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "none"
+assert device_info_get_global.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Global"
+assert device_info.find("gir:method[@name='get_id']", GIR_NS) is not None
+for method_name in (
+    "dup_name",
+    "dup_description",
+    "dup_nick",
+    "dup_api",
+    "dup_class",
+    "dup_form_factor",
+    "dup_bus",
+    "dup_vendor_name",
+    "dup_product_name",
+    "dup_media_class",
+    "dup_object_serial",
+):
+    device_dup = device_info.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert device_dup is not None
+    assert device_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert device_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 
 node_info = namespace.find("gir:class[@name='NodeInfo']", GIR_NS)
 assert node_info is not None
