@@ -8,6 +8,8 @@
 #include "pwg.h"
 
 #define PWG_STREAM_MAX_PENDING_BLOCKS 64
+#define PWG_STREAM_DEFAULT_RATE 48000
+#define PWG_STREAM_DEFAULT_CHANNELS 2
 
 typedef struct {
   GBytes *data;
@@ -720,6 +722,11 @@ pwg_stream_start(PwgStream *self, GError **error)
 {
   struct pw_properties *props;
   const struct spa_pod *params[1];
+  const struct spa_audio_info_raw capture_format = SPA_AUDIO_INFO_RAW_INIT(
+    .format = SPA_AUDIO_FORMAT_F32,
+    .rate = PWG_STREAM_DEFAULT_RATE,
+    .channels = PWG_STREAM_DEFAULT_CHANNELS,
+    .position = {SPA_AUDIO_CHANNEL_FL, SPA_AUDIO_CHANNEL_FR});
   uint8_t pod_buffer[1024];
   struct spa_pod_builder builder = SPA_POD_BUILDER_INIT(pod_buffer, sizeof(pod_buffer));
 
@@ -777,7 +784,7 @@ pwg_stream_start(PwgStream *self, GError **error)
   params[0] = spa_format_audio_raw_build(
     &builder,
     SPA_PARAM_EnumFormat,
-    &SPA_AUDIO_INFO_RAW_INIT(.format = SPA_AUDIO_FORMAT_F32));
+    &capture_format);
 
   if (pw_stream_connect(
         self->stream,

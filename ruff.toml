@@ -14,3 +14,4 @@ select = [
 "examples/python/*.py" = ["E402"]
 "tests/test_import.py" = ["E402"]
 "tests/test_live_pipewire.py" = ["E402"]
+"tests/test_live_stream_audio.py" = ["E402"]
