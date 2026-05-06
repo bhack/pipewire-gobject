@@ -92,7 +92,7 @@ if nodes.get_n_items() > 0:
         print(node_info.dup_name() or "", node_info.dup_media_class() or "")
 ```
 
-For read-only node parameter inspection, bind the same global with
+For node parameter inspection, bind the same global with
 [class@Pwg.Node]. The live node proxy exposes copied [class@Pwg.ParamInfo]
 descriptors and emits copied [class@Pwg.Param] values when enumeration results
 arrive:

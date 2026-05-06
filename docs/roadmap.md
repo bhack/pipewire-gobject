@@ -12,7 +12,7 @@ It must not become a WirePlumber session manager. WirePlumber-specific policy,
 routing decisions, default-device policy, smart filters, Lua scripts, and daemon
 behavior remain out of scope.
 
-## 0.1: Foundation
+## 0.1: Foundation (Implemented)
 
 The first preview establishes the library and GIR shape:
 
@@ -34,33 +34,33 @@ The first preview establishes the library and GIR shape:
 - Python examples for registry and node listing, default metadata resolution,
   peak levels, and audio blocks.
 
-## 0.2: Discovery And Metadata
+## 0.2: Discovery And Metadata (Implemented)
 
-The next useful layer is generic app-side graph visibility without importing
+This layer adds generic app-side graph visibility without importing
 WirePlumber policy concepts:
 
-- typed wrapper objects for additional global interfaces such as ports,
-  clients, devices, links, and metadata objects;
+- typed wrapper objects for clients, devices, links, ports, nodes, and
+  metadata-facing discovery;
 - richer property helpers that are safe and idiomatic from GI languages;
 - additional discovery filters for application properties and common
   object-specific keys;
-- clear object lifetime rules for globals that disappear;
+- generated API reference support through `gi-docgen`;
 - broader live smoke tests for metadata and discovery updates.
 
-## 0.3: Params And Control Helpers
+## 0.3: Params And Control Helpers (Implemented)
 
 Applications also need limited control APIs, but not a raw low-level SPA API:
 
-- safe builders for common params used by applications;
-- enough SPA POD helpers for simple node params without exposing raw ownership;
-- typed convenience helpers where common PipeWire params are stable enough;
-- read-only live node parameter inspection before writable controls;
-- async or sync completion patterns that behave predictably from PyGObject and
-  GJS;
+- read-only live node parameter inspection through `Pwg.Node`,
+  `Pwg.ParamInfo`, and copied `Pwg.Param` values;
+- typed raw audio format helpers for copied Format parameters;
+- copied `Props` builders for simple volume and mute updates;
+- `Pwg.Node.set_param()` with explicit queued-request semantics rather than
+  applied-state confirmation;
 - tests that inspect generated GIR for ownership, nullable values, and thrown
   errors.
 
-## 0.4: Stream Maturity
+## 0.4: Stream Maturity (Next Checkpoint)
 
 The stream API should become useful beyond peak-meter demos:
 
@@ -70,6 +70,20 @@ The stream API should become useful beyond peak-meter demos:
 - clearer capture/playback/monitor constructors;
 - target selection by object serial or node name where PipeWire supports it;
 - examples that feed real analyzer/filter use cases.
+
+Completing this milestone is the next useful project checkpoint. At that point
+the library should have discovery, metadata, limited control helpers, and a
+credible app-owned stream API. The project should then be validated against
+real consumers before expanding wrapper coverage further.
+
+The validation targets should be concrete:
+
+- a filter/analyzer application experiment that removes app-specific JACK or
+  custom C glue where the generic API can support it;
+- a small mixer or panel-applet style example that lists useful nodes and
+  exercises limited copied `Props` updates;
+- a stream/analyzer example that proves copied audio blocks are enough for
+  real-time UI analysis without exposing raw PipeWire buffers.
 
 ## Later: Higher-Level Application Workflows
 
