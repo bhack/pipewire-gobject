@@ -171,6 +171,10 @@ interface_type_param = global_is_interface.find(
 assert interface_type_param is not None
 assert interface_type_param.attrib.get("nullable") is None
 assert global_class.find("gir:method[@name='is_node']", GIR_NS) is not None
+for method_name in ("is_port", "is_link", "is_client", "is_device"):
+    method = global_class.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert method is not None
+    assert method.attrib["version"] == "0.2"
 assert global_class.find("gir:method[@name='is_metadata']", GIR_NS) is not None
 assert global_class.find("gir:property[@name='interface-type']", GIR_NS) is not None
 
@@ -204,6 +208,86 @@ for method_name in (
     assert node_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
     assert node_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 
+for class_name, c_type, method_names in (
+    (
+        "PortInfo",
+        "PwgPortInfo",
+        (
+            "dup_port_id",
+            "dup_node_id",
+            "dup_name",
+            "dup_direction",
+            "dup_alias",
+            "dup_object_serial",
+        ),
+    ),
+    (
+        "LinkInfo",
+        "PwgLinkInfo",
+        (
+            "dup_link_id",
+            "dup_input_node_id",
+            "dup_input_port_id",
+            "dup_output_node_id",
+            "dup_output_port_id",
+            "dup_object_serial",
+        ),
+    ),
+    (
+        "ClientInfo",
+        "PwgClientInfo",
+        (
+            "dup_client_id",
+            "dup_name",
+            "dup_api",
+            "dup_application_name",
+            "dup_process_id",
+            "dup_object_serial",
+        ),
+    ),
+    (
+        "DeviceInfo",
+        "PwgDeviceInfo",
+        (
+            "dup_device_id",
+            "dup_name",
+            "dup_description",
+            "dup_api",
+            "dup_device_class",
+            "dup_object_serial",
+        ),
+    ),
+    (
+        "MetadataInfo",
+        "PwgMetadataInfo",
+        (
+            "dup_name",
+            "dup_object_serial",
+        ),
+    ),
+):
+    info_class = namespace.find(f"gir:class[@name='{class_name}']", GIR_NS)
+    assert info_class is not None
+    assert info_class.attrib[f"{{{C_URI}}}type"] == c_type
+    constructor = info_class.find("gir:constructor[@name='new_from_global']", GIR_NS)
+    assert constructor is not None
+    assert constructor.attrib["version"] == "0.2"
+    assert constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+    global_param = constructor.find("gir:parameters/gir:parameter[@name='global']", GIR_NS)
+    assert global_param is not None
+    assert global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
+    get_global = info_class.find("gir:method[@name='get_global']", GIR_NS)
+    assert get_global is not None
+    assert get_global.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "none"
+    assert get_global.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Global"
+    assert info_class.find("gir:method[@name='get_id']", GIR_NS) is not None
+    for method_name in method_names:
+        method = info_class.find(f"gir:method[@name='{method_name}']", GIR_NS)
+        assert method is not None
+        assert method.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+        assert method.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+
 registry = namespace.find("gir:class[@name='Registry']", GIR_NS)
 assert registry is not None
 assert registry.attrib[f"{{{C_URI}}}type"] == "PwgRegistry"
@@ -234,9 +318,17 @@ for method_name in (
     "dup_globals_by_property",
     "dup_globals_by_interface",
     "dup_globals_by_media_class",
+    "dup_node_infos",
+    "dup_port_infos",
+    "dup_link_infos",
+    "dup_client_infos",
+    "dup_device_infos",
+    "dup_metadata_infos",
 ):
     registry_filter = registry.find(f"gir:method[@name='{method_name}']", GIR_NS)
     assert registry_filter is not None
+    if method_name.endswith("_infos"):
+        assert registry_filter.attrib["version"] == "0.2"
     assert registry_filter.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
     assert registry_filter.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Gio.ListModel"
 
@@ -314,7 +406,7 @@ assert error_enum.attrib[f"{{{GLIB_URI}}}error-domain"] == "pwg-error-quark"
 assert namespace.find("gir:function[@name='error_quark']", GIR_NS) is not None
 
 for node in namespace.findall(".//*[@version]", GIR_NS):
-    assert node.attrib["version"] == "0.1"
+    assert node.attrib["version"] in {"0.1", "0.2"}
     assert node.attrib["stability"] == "Unstable"
 
 for class_node in namespace.findall("gir:class", GIR_NS):

@@ -279,6 +279,7 @@ pwg_global_dup_name(PwgGlobal *self)
 {
   static const char * const keys[] = {
     PW_KEY_NODE_NAME,
+    PW_KEY_PORT_NAME,
     PW_KEY_DEVICE_NAME,
     PW_KEY_CLIENT_NAME,
     PW_KEY_FACTORY_NAME,
@@ -340,6 +341,38 @@ pwg_global_is_node(PwgGlobal *self)
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
 
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Node);
+}
+
+gboolean
+pwg_global_is_port(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Port);
+}
+
+gboolean
+pwg_global_is_link(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Link);
+}
+
+gboolean
+pwg_global_is_client(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Client);
+}
+
+gboolean
+pwg_global_is_device(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Device);
 }
 
 gboolean

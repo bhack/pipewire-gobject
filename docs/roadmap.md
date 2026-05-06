@@ -34,18 +34,25 @@ The first preview establishes the library and GIR shape:
 - Python examples for registry and node listing, default metadata resolution,
   peak levels, and audio blocks.
 
-## 0.2: Discovery And Metadata
+## 0.2: Graph Discovery
 
 The next useful layer is generic app-side graph visibility without importing
 WirePlumber policy concepts:
 
-- typed wrapper objects for additional global interfaces such as ports,
-  clients, and metadata objects;
+- typed wrapper objects for ports, links, clients, devices, and metadata
+  objects;
+- registry helpers that return `Gio.ListModel` snapshots of typed graph info
+  wrappers;
 - richer property helpers that are safe and idiomatic from GI languages;
+- broader live smoke tests for metadata and discovery updates.
+
+Still-open follow-up work for this area:
+
+- clear object lifetime rules for globals that disappear;
 - additional discovery filters for application properties and common
   object-specific keys;
-- clear object lifetime rules for globals that disappear;
-- broader live smoke tests for metadata and discovery updates.
+- convenience APIs for turning immutable graph descriptors into live proxies
+  where that can be modeled safely.
 
 ## 0.3: Params And Control Helpers
 

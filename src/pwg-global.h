@@ -159,6 +159,54 @@ PWG_API
 gboolean pwg_global_is_node(PwgGlobal *self);
 
 /**
+ * pwg_global_is_port:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: whether this global is a PipeWire port.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_port(PwgGlobal *self);
+
+/**
+ * pwg_global_is_link:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: whether this global is a PipeWire link.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_link(PwgGlobal *self);
+
+/**
+ * pwg_global_is_client:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: whether this global is a PipeWire client.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_client(PwgGlobal *self);
+
+/**
+ * pwg_global_is_device:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: whether this global is a PipeWire device.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_device(PwgGlobal *self);
+
+/**
  * pwg_global_is_metadata:
  * @self: a PipeWire global descriptor.
  *

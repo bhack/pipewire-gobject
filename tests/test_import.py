@@ -5,13 +5,18 @@ gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
 Pwg.init()
-assert Pwg.get_library_version() == "0.1.0"
+assert Pwg.get_library_version() == "0.2.0"
 assert isinstance(Pwg.get_pipewire_library_version(), str)
 
 core = Pwg.Core.new()
 assert core.get_connected() is False
 assert isinstance(core.get_library_version(), str)
 assert hasattr(Pwg, "NodeInfo")
+assert hasattr(Pwg, "PortInfo")
+assert hasattr(Pwg, "LinkInfo")
+assert hasattr(Pwg, "ClientInfo")
+assert hasattr(Pwg, "DeviceInfo")
+assert hasattr(Pwg, "MetadataInfo")
 
 registry = Pwg.Registry.new(core)
 assert registry.get_core() == core
@@ -23,6 +28,12 @@ assert registry.lookup_global_by_object_serial("1") is None
 assert registry.dup_globals_by_property("node.name", "missing").get_n_items() == 0
 assert registry.dup_globals_by_interface("PipeWire:Interface:Node").get_n_items() == 0
 assert registry.dup_globals_by_media_class("Audio/Sink").get_n_items() == 0
+assert registry.dup_node_infos().get_n_items() == 0
+assert registry.dup_port_infos().get_n_items() == 0
+assert registry.dup_link_infos().get_n_items() == 0
+assert registry.dup_client_infos().get_n_items() == 0
+assert registry.dup_device_infos().get_n_items() == 0
+assert registry.dup_metadata_infos().get_n_items() == 0
 
 metadata = Pwg.Metadata.new(core, "default")
 assert metadata.get_core() == core

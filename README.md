@@ -18,14 +18,16 @@ default-device behavior, and session-manager logic. See
 
 ## Current Prototype Scope
 
-The `0.1` prototype currently exposes:
+The current `0.2` development prototype exposes:
 
 - `Pwg.Core`: create a PipeWire context/core connection.
 - `Pwg.Registry`: discover, look up, and filter PipeWire globals through
   `Gio.ListModel`.
 - `Pwg.Global`: immutable descriptors for discovered PipeWire globals with
   common property accessors.
-- `Pwg.NodeInfo`: immutable node-focused view of a `Pwg.Global`.
+- `Pwg.NodeInfo`, `Pwg.PortInfo`, `Pwg.LinkInfo`, `Pwg.ClientInfo`,
+  `Pwg.DeviceInfo`, and `Pwg.MetadataInfo`: immutable typed views of
+  `Pwg.Global` objects for common graph interfaces.
 - `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata,
   including default audio node-name helpers.
 - `Pwg.Stream`: high-level audio capture stream with optional copied sample
@@ -37,8 +39,8 @@ The `0.1` prototype currently exposes:
 - Python import smoke test through PyGObject.
 
 Richer live proxy helpers, params, and higher-level application workflows for
-filters, analyzers, stream tools, mixers, and panel applets are roadmap items,
-not stable implemented API yet.
+filters, analyzers, stream tools, mixers, and panel applets remain roadmap
+items, not stable implemented API yet.
 
 ## Non-Goals For The Prototype
 
@@ -115,8 +117,8 @@ Pwg import ok
 ```
 
 The `examples/python/` directory includes small PyGObject examples for registry
-and node listing, default metadata resolution, peak-meter level signals, and
-copied audio block delivery.
+listing, graph info listing, default metadata resolution, peak-meter level
+signals, and copied audio block delivery.
 
 Minimal peak-meter usage:
 
@@ -159,7 +161,7 @@ python3 tests/test_live_pipewire.py
 Expected shape:
 
 ```text
-pwg-version 0.1.0
+pwg-version 0.2.0
 pipewire-version 1.x.y
 version 1.x.y
 core True
@@ -175,6 +177,12 @@ registry-node-name NAME
 registry-node-description DESCRIPTION
 registry-node-media-class MEDIA_CLASS
 registry-node-object-serial SERIAL
+registry-node-info-count N
+registry-port-info-count N
+registry-link-info-count N
+registry-client-info-count N
+registry-device-info-count N
+registry-metadata-info-count N
 registry-running-after-stop False
 metadata-start True
 metadata-running True
@@ -210,8 +218,8 @@ signals, and properties:
 - Public types are GObject wrappers, not raw PipeWire or SPA structs.
 - PipeWire registry data is exposed as immutable `Pwg.Global` objects and
   `Gio.ListModel`, not as raw registry/proxy pointers.
-- Node discovery data can be viewed through immutable `Pwg.NodeInfo` wrappers;
-  live node proxy/control APIs are separate future work.
+- Graph discovery data can be viewed through immutable typed info wrappers;
+  live proxy/control APIs are separate future work.
 - PipeWire stream callbacks stay in C; stream audio data is exposed as safe
   signal/property values instead of raw realtime buffers.
 - Audio sample access uses copied `Pwg.AudioBlock` objects with `GLib.Bytes`,

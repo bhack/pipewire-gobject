@@ -178,4 +178,76 @@ PWG_API
 GListModel *pwg_registry_dup_globals_by_media_class(PwgRegistry *self,
                                                     const char *media_class);
 
+/**
+ * pwg_registry_dup_node_infos:
+ * @self: a registry wrapper.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgNodeInfo objects.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_node_infos(PwgRegistry *self);
+
+/**
+ * pwg_registry_dup_port_infos:
+ * @self: a registry wrapper.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgPortInfo objects.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_port_infos(PwgRegistry *self);
+
+/**
+ * pwg_registry_dup_link_infos:
+ * @self: a registry wrapper.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgLinkInfo objects.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_link_infos(PwgRegistry *self);
+
+/**
+ * pwg_registry_dup_client_infos:
+ * @self: a registry wrapper.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgClientInfo objects.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_client_infos(PwgRegistry *self);
+
+/**
+ * pwg_registry_dup_device_infos:
+ * @self: a registry wrapper.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgDeviceInfo objects.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_device_infos(PwgRegistry *self);
+
+/**
+ * pwg_registry_dup_metadata_infos:
+ * @self: a registry wrapper.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgMetadataInfo objects.
+ *
+ * Since: 0.2
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_metadata_infos(PwgRegistry *self);
+
 G_END_DECLS

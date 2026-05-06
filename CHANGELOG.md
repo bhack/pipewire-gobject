@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 - Unreleased
+
+- Add immutable typed graph info wrappers for port, link, client, device, and
+  metadata globals.
+- Add `Pwg.Registry` helpers that return `Gio.ListModel` snapshots of node,
+  port, link, client, device, and metadata info wrappers.
+- Add `Pwg.Global` helpers for port, link, client, and device interface checks.
+- Add a Python graph-listing example for nodes, ports, links, clients,
+  devices, and metadata objects.
+- Bump the development version to `0.2.0`.
+
 ## 0.1.0 - 2026-05-06
 
 - Reframe the project roadmap around a generic app-facing PipeWire GIR layer

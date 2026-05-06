@@ -3,8 +3,14 @@
 #include <pipewire/pipewire.h>
 
 #include "pwg-core-private.h"
+#include "pwg-client-info.h"
+#include "pwg-device-info.h"
 #include "pwg-error.h"
 #include "pwg-global-private.h"
+#include "pwg-link-info.h"
+#include "pwg-metadata-info.h"
+#include "pwg-node-info.h"
+#include "pwg-port-info.h"
 
 struct _PwgRegistry {
   GObject parent_instance;
@@ -106,6 +112,77 @@ pwg_registry_dup_matching_globals(PwgRegistry *self,
   }
 
   return G_LIST_MODEL(g_steal_pointer(&matches));
+}
+
+typedef GObject *(*PwgRegistryInfoNewFunc)(PwgGlobal *global);
+
+static GListModel *
+pwg_registry_dup_info_model(PwgRegistry *self,
+                            GType item_type,
+                            PwgRegistryInfoNewFunc new_func)
+{
+  g_autoptr(GListStore) matches = NULL;
+  guint n_items;
+
+  matches = g_list_store_new(item_type);
+  n_items = g_list_model_get_n_items(G_LIST_MODEL(self->globals));
+  for (guint i = 0; i < n_items; i++) {
+    g_autoptr(PwgGlobal) global = g_list_model_get_item(G_LIST_MODEL(self->globals), i);
+    g_autoptr(GObject) info = new_func(global);
+
+    if (info != NULL)
+      g_list_store_append(matches, info);
+  }
+
+  return G_LIST_MODEL(g_steal_pointer(&matches));
+}
+
+static GObject *
+pwg_registry_new_node_info(PwgGlobal *global)
+{
+  PwgNodeInfo *info = pwg_node_info_new_from_global(global);
+
+  return info != NULL ? G_OBJECT(info) : NULL;
+}
+
+static GObject *
+pwg_registry_new_port_info(PwgGlobal *global)
+{
+  PwgPortInfo *info = pwg_port_info_new_from_global(global);
+
+  return info != NULL ? G_OBJECT(info) : NULL;
+}
+
+static GObject *
+pwg_registry_new_link_info(PwgGlobal *global)
+{
+  PwgLinkInfo *info = pwg_link_info_new_from_global(global);
+
+  return info != NULL ? G_OBJECT(info) : NULL;
+}
+
+static GObject *
+pwg_registry_new_client_info(PwgGlobal *global)
+{
+  PwgClientInfo *info = pwg_client_info_new_from_global(global);
+
+  return info != NULL ? G_OBJECT(info) : NULL;
+}
+
+static GObject *
+pwg_registry_new_device_info(PwgGlobal *global)
+{
+  PwgDeviceInfo *info = pwg_device_info_new_from_global(global);
+
+  return info != NULL ? G_OBJECT(info) : NULL;
+}
+
+static GObject *
+pwg_registry_new_metadata_info(PwgGlobal *global)
+{
+  PwgMetadataInfo *info = pwg_metadata_info_new_from_global(global);
+
+  return info != NULL ? G_OBJECT(info) : NULL;
 }
 
 static PwgGlobal *
@@ -611,4 +688,52 @@ pwg_registry_dup_globals_by_media_class(PwgRegistry *self,
   g_return_val_if_fail(media_class != NULL, NULL);
 
   return pwg_registry_dup_matching_globals(self, pwg_registry_match_media_class, (gpointer) media_class);
+}
+
+GListModel *
+pwg_registry_dup_node_infos(PwgRegistry *self)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+
+  return pwg_registry_dup_info_model(self, PWG_TYPE_NODE_INFO, pwg_registry_new_node_info);
+}
+
+GListModel *
+pwg_registry_dup_port_infos(PwgRegistry *self)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+
+  return pwg_registry_dup_info_model(self, PWG_TYPE_PORT_INFO, pwg_registry_new_port_info);
+}
+
+GListModel *
+pwg_registry_dup_link_infos(PwgRegistry *self)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+
+  return pwg_registry_dup_info_model(self, PWG_TYPE_LINK_INFO, pwg_registry_new_link_info);
+}
+
+GListModel *
+pwg_registry_dup_client_infos(PwgRegistry *self)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+
+  return pwg_registry_dup_info_model(self, PWG_TYPE_CLIENT_INFO, pwg_registry_new_client_info);
+}
+
+GListModel *
+pwg_registry_dup_device_infos(PwgRegistry *self)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+
+  return pwg_registry_dup_info_model(self, PWG_TYPE_DEVICE_INFO, pwg_registry_new_device_info);
+}
+
+GListModel *
+pwg_registry_dup_metadata_infos(PwgRegistry *self)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+
+  return pwg_registry_dup_info_model(self, PWG_TYPE_METADATA_INFO, pwg_registry_new_metadata_info);
 }
