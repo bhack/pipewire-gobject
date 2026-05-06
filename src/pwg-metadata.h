@@ -133,6 +133,70 @@ PWG_API
 char *pwg_metadata_dup_value_type(PwgMetadata *self, guint subject, const char *key);
 
 /**
+ * pwg_metadata_dup_default_audio_sink_name:
+ * @self: a metadata wrapper.
+ *
+ * Reads the standard `default.audio.sink` metadata key and returns the
+ * selected PipeWire `node.name`.
+ *
+ * Returns: (nullable) (transfer full): the default audio sink node name, or
+ *   %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_metadata_dup_default_audio_sink_name(PwgMetadata *self);
+
+/**
+ * pwg_metadata_dup_default_audio_source_name:
+ * @self: a metadata wrapper.
+ *
+ * Reads the standard `default.audio.source` metadata key and returns the
+ * selected PipeWire `node.name`.
+ *
+ * Returns: (nullable) (transfer full): the default audio source node name, or
+ *   %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_metadata_dup_default_audio_source_name(PwgMetadata *self);
+
+/**
+ * pwg_metadata_dup_configured_audio_sink_name:
+ * @self: a metadata wrapper.
+ *
+ * Reads the standard `default.configured.audio.sink` metadata key and returns
+ * the user-configured PipeWire `node.name`.
+ *
+ * Returns: (nullable) (transfer full): the configured audio sink node name, or
+ *   %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_metadata_dup_configured_audio_sink_name(PwgMetadata *self);
+
+/**
+ * pwg_metadata_dup_configured_audio_source_name:
+ * @self: a metadata wrapper.
+ *
+ * Reads the standard `default.configured.audio.source` metadata key and returns
+ * the user-configured PipeWire `node.name`.
+ *
+ * Returns: (nullable) (transfer full): the configured audio source node name,
+ *   or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_metadata_dup_configured_audio_source_name(PwgMetadata *self);
+
+/**
  * pwg_metadata_set:
  * @self: a metadata wrapper.
  * @subject: the PipeWire global id associated with the metadata.

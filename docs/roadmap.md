@@ -24,12 +24,14 @@ The first preview establishes the library and GIR shape:
   helpers for app-side discovery.
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, and `clear()`.
+- `Pwg.Metadata` helpers for standard default and configured audio sink/source
+  node names.
 - `Pwg.Stream` for app-owned audio capture.
 - `Pwg.AudioFormat` and `Pwg.AudioBlock` for copied audio data.
 - `Pwg.AudioCapture` as a compatibility wrapper around `Pwg.Stream`.
 - GIR metadata and public-symbol tests.
-- Python examples for registry and node listing, metadata reads, peak levels,
-  and audio blocks.
+- Python examples for registry and node listing, default metadata resolution,
+  peak levels, and audio blocks.
 
 ## 0.2: Discovery And Metadata
 
@@ -42,7 +44,7 @@ WirePlumber policy concepts:
 - additional discovery filters for application properties and common
   object-specific keys;
 - clear object lifetime rules for globals that disappear;
-- live smoke tests for metadata and discovery updates.
+- broader live smoke tests for metadata and discovery updates.
 
 ## 0.3: Params And Control Helpers
 
@@ -72,7 +74,7 @@ The stream API should become useful beyond peak-meter demos:
 Once the object model holds up, grow toward high-level app workflows:
 
 - volume/mute helpers where they can be modeled cleanly;
-- default-node metadata helpers;
+- richer default-node metadata and control helpers;
 - app stream lists suitable for panel applets;
 - mixer-friendly node and route views;
 - examples that cover pavucontrol-like inspection and simple control flows.

@@ -9,6 +9,8 @@
 - Add an experimental `0.x` API roadmap.
 - Add `Pwg.Metadata` for named PipeWire metadata discovery, cached reads,
   change signals, `set()`, and `clear()`.
+- Add `Pwg.Metadata` helpers for standard default and configured audio
+  sink/source node names.
 - Add `Pwg.Global` convenience accessors and `Pwg.Registry` lookup/filter
   helpers for common discovery properties.
 - Add a canonical Debian trixie development `Dockerfile`, Ruff configuration,

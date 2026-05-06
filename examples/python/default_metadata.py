@@ -3,37 +3,55 @@ import gi
 gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
-DEFAULT_AUDIO_SINK_KEY = "default.audio.sink"
-DEFAULT_CONFIGURED_AUDIO_SINK_KEY = "default.configured.audio.sink"
-
-
 Pwg.init()
 
 core = Pwg.Core.new()
+registry = Pwg.Registry.new(core)
 metadata = Pwg.Metadata.new(core, "default")
+registry.start()
 metadata.start()
 
 loop = GLib.MainLoop()
 
 
 def maybe_done(*_args):
-    if metadata.get_bound():
+    if metadata.get_bound() and registry.get_globals().get_n_items() > 0:
         loop.quit()
         return False
     return True
 
 
+registry.connect("global-added", maybe_done)
 metadata.connect("notify::bound", maybe_done)
 GLib.timeout_add(2000, loop.quit)
 loop.run()
 
+
+def print_node(label, node_name):
+    print(label, node_name or "")
+    if not node_name:
+        return
+
+    node = registry.lookup_global_by_property("node.name", node_name)
+    if node is None:
+        return
+
+    print(
+        f"{label}.global",
+        node.get_id(),
+        node.dup_media_class() or "",
+        node.dup_description() or "",
+    )
+
+
 if not metadata.get_bound():
     print("default metadata not found")
 else:
-    default_sink = metadata.dup_value(0, DEFAULT_AUDIO_SINK_KEY)
-    configured_sink = metadata.dup_value(0, DEFAULT_CONFIGURED_AUDIO_SINK_KEY)
-    print("default.audio.sink", default_sink or "")
-    print("default.configured.audio.sink", configured_sink or "")
+    print_node("default.audio.sink", metadata.dup_default_audio_sink_name())
+    print_node("default.audio.source", metadata.dup_default_audio_source_name())
+    print_node("default.configured.audio.sink", metadata.dup_configured_audio_sink_name())
+    print_node("default.configured.audio.source", metadata.dup_configured_audio_source_name())
 
 metadata.stop()
+registry.stop()
 core.disconnect()
