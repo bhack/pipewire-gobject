@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 - Unreleased
 
 - Reframe the project roadmap around a generic app-facing PipeWire GIR layer
   for discovery, metadata, control helpers, and streams.
@@ -9,9 +9,10 @@
 - Add an experimental `0.x` API roadmap.
 - Add `Pwg.Metadata` for named PipeWire metadata discovery, cached reads,
   change signals, `set()`, and `clear()`.
-
-## 0.1.0 - 2026-05-05
-
+- Add `Pwg.Global` convenience accessors and `Pwg.Registry` lookup/filter
+  helpers for common discovery properties.
+- Add a canonical Debian trixie development `Dockerfile`, Ruff configuration,
+  and strict warning CI checks.
 - Add `Pwg.init()` and library/PipeWire version helpers.
 - Add initial `Pwg.Core` GObject wrapper.
 - Add `Pwg.Registry` and `Pwg.Global` for safe PipeWire global discovery.

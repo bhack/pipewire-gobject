@@ -4,7 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 EXPECTED_PUBLIC_SYMBOLS = {
     "pwg_audio_block_get_data",
     "pwg_audio_block_get_format",
@@ -40,12 +39,19 @@ EXPECTED_PUBLIC_SYMBOLS = {
     "pwg_get_library_version",
     "pwg_get_pipewire_library_version",
     "pwg_global_dup_property",
+    "pwg_global_dup_description",
+    "pwg_global_dup_media_class",
+    "pwg_global_dup_name",
+    "pwg_global_dup_object_serial",
     "pwg_global_get_id",
     "pwg_global_get_interface_type",
     "pwg_global_get_permissions",
     "pwg_global_get_properties",
     "pwg_global_get_type",
     "pwg_global_get_version",
+    "pwg_global_is_interface",
+    "pwg_global_is_metadata",
+    "pwg_global_is_node",
     "pwg_init",
     "pwg_metadata_clear",
     "pwg_metadata_dup_value",
@@ -63,7 +69,12 @@ EXPECTED_PUBLIC_SYMBOLS = {
     "pwg_registry_get_globals",
     "pwg_registry_get_running",
     "pwg_registry_get_type",
+    "pwg_registry_dup_globals_by_interface",
+    "pwg_registry_dup_globals_by_media_class",
+    "pwg_registry_dup_globals_by_property",
     "pwg_registry_lookup_global",
+    "pwg_registry_lookup_global_by_object_serial",
+    "pwg_registry_lookup_global_by_property",
     "pwg_registry_new",
     "pwg_registry_start",
     "pwg_registry_stop",

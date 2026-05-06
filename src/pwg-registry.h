@@ -104,4 +104,78 @@ GListModel *pwg_registry_get_globals(PwgRegistry *self);
 PWG_API
 PwgGlobal *pwg_registry_lookup_global(PwgRegistry *self, guint id);
 
+/**
+ * pwg_registry_lookup_global_by_property:
+ * @self: a registry wrapper.
+ * @key: a PipeWire property key.
+ * @value: a PipeWire property value.
+ *
+ * Returns: (nullable) (transfer full): the first matching global, or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+PwgGlobal *pwg_registry_lookup_global_by_property(PwgRegistry *self,
+                                                  const char *key,
+                                                  const char *value);
+
+/**
+ * pwg_registry_lookup_global_by_object_serial:
+ * @self: a registry wrapper.
+ * @object_serial: a PipeWire object serial string.
+ *
+ * Returns: (nullable) (transfer full): the first matching global, or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+PwgGlobal *pwg_registry_lookup_global_by_object_serial(PwgRegistry *self,
+                                                       const char *object_serial);
+
+/**
+ * pwg_registry_dup_globals_by_property:
+ * @self: a registry wrapper.
+ * @key: a PipeWire property key.
+ * @value: a PipeWire property value.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgGlobal objects.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_globals_by_property(PwgRegistry *self,
+                                                 const char *key,
+                                                 const char *value);
+
+/**
+ * pwg_registry_dup_globals_by_interface:
+ * @self: a registry wrapper.
+ * @interface_type: a PipeWire interface type name.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgGlobal objects.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_globals_by_interface(PwgRegistry *self,
+                                                  const char *interface_type);
+
+/**
+ * pwg_registry_dup_globals_by_media_class:
+ * @self: a registry wrapper.
+ * @media_class: a PipeWire media class.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgGlobal objects.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_registry_dup_globals_by_media_class(PwgRegistry *self,
+                                                    const char *media_class);
+
 G_END_DECLS

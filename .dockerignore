@@ -1,0 +1,16 @@
+.git
+.pytest_cache
+.ruff_cache
+__pycache__/
+*.py[cod]
+
+build/
+build-*/
+dist/
+install-root/
+meson-logs/
+meson-private/
+
+*.so
+*.typelib
+*.gir

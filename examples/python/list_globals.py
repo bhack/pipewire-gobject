@@ -3,7 +3,6 @@ import gi
 gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
-
 Pwg.init()
 
 core = Pwg.Core.new()
@@ -27,8 +26,10 @@ loop.run()
 globals_model = registry.get_globals()
 for index in range(globals_model.get_n_items()):
     global_ = globals_model.get_item(index)
-    name = global_.dup_property("node.name") or global_.dup_property("application.name") or ""
-    print(global_.get_id(), global_.get_interface_type(), name)
+    name = global_.dup_name() or ""
+    media_class = global_.dup_media_class() or ""
+    object_serial = global_.dup_object_serial() or ""
+    print(global_.get_id(), global_.get_interface_type(), object_serial, media_class, name)
 
 registry.stop()
 core.disconnect()

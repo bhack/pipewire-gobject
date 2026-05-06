@@ -4,7 +4,6 @@ gi.require_version("GLib", "2.0")
 gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
-
 Pwg.init()
 assert Pwg.get_library_version() == "0.1.0"
 assert isinstance(Pwg.get_pipewire_library_version(), str)
@@ -18,6 +17,11 @@ assert registry.get_core() == core
 assert registry.get_running() is False
 assert registry.get_globals().get_n_items() == 0
 assert registry.lookup_global(0) is None
+assert registry.lookup_global_by_property("node.name", "missing") is None
+assert registry.lookup_global_by_object_serial("1") is None
+assert registry.dup_globals_by_property("node.name", "missing").get_n_items() == 0
+assert registry.dup_globals_by_interface("PipeWire:Interface:Node").get_n_items() == 0
+assert registry.dup_globals_by_media_class("Audio/Sink").get_n_items() == 0
 
 metadata = Pwg.Metadata.new(core, "default")
 assert metadata.get_core() == core

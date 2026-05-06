@@ -56,7 +56,8 @@ and GI consumers receive GObject properties, signals, immutable descriptors,
 The current prototype exposes:
 
 - `Pwg.Core` for minimal PipeWire core connection handling;
-- `Pwg.Registry` and `Pwg.Global` for immutable, minimal global discovery;
+- `Pwg.Registry` and `Pwg.Global` for immutable global discovery, common
+  property accessors, and snapshot filter helpers;
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, and `clear()`;
 - `Pwg.Stream` for high-level audio capture;
@@ -64,9 +65,9 @@ The current prototype exposes:
   sample bytes;
 - `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`.
 
-The next API areas to design are typed discovery helpers, node/global property
-helpers, richer metadata conveniences, params, and a shape suitable for
-mixer/panel applications. See [roadmap.md](roadmap.md).
+The next API areas to design are typed node/global wrapper objects, richer
+metadata conveniences, params, and a shape suitable for mixer/panel
+applications. See [roadmap.md](roadmap.md).
 
 The generated namespace is `Pwg-0.1`. It does not track PipeWire release
 numbers. The current dependency floor is `libpipewire-0.3 >= 1.0.2`.

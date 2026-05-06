@@ -79,6 +79,84 @@ pwg_registry_find_global(PwgRegistry *self, guint id, guint *position)
 }
 
 static gboolean
+pwg_registry_global_property_equals(PwgGlobal *global,
+                                    const char *key,
+                                    const char *value)
+{
+  g_autofree char *global_value = pwg_global_dup_property(global, key);
+
+  return g_strcmp0(global_value, value) == 0;
+}
+
+static GListModel *
+pwg_registry_dup_matching_globals(PwgRegistry *self,
+                                  gboolean (*match_func)(PwgGlobal *global, gpointer userdata),
+                                  gpointer userdata)
+{
+  g_autoptr(GListStore) matches = NULL;
+  guint n_items;
+
+  matches = g_list_store_new(PWG_TYPE_GLOBAL);
+  n_items = g_list_model_get_n_items(G_LIST_MODEL(self->globals));
+  for (guint i = 0; i < n_items; i++) {
+    g_autoptr(PwgGlobal) global = g_list_model_get_item(G_LIST_MODEL(self->globals), i);
+
+    if (match_func(global, userdata))
+      g_list_store_append(matches, global);
+  }
+
+  return G_LIST_MODEL(g_steal_pointer(&matches));
+}
+
+static PwgGlobal *
+pwg_registry_lookup_matching_global(PwgRegistry *self,
+                                    gboolean (*match_func)(PwgGlobal *global, gpointer userdata),
+                                    gpointer userdata)
+{
+  guint n_items;
+
+  n_items = g_list_model_get_n_items(G_LIST_MODEL(self->globals));
+  for (guint i = 0; i < n_items; i++) {
+    g_autoptr(PwgGlobal) global = g_list_model_get_item(G_LIST_MODEL(self->globals), i);
+
+    if (match_func(global, userdata))
+      return g_object_ref(global);
+  }
+
+  return NULL;
+}
+
+typedef struct {
+  const char *key;
+  const char *value;
+} PwgRegistryPropertyMatch;
+
+static gboolean
+pwg_registry_match_property(PwgGlobal *global, gpointer userdata)
+{
+  PwgRegistryPropertyMatch *match = userdata;
+
+  return pwg_registry_global_property_equals(global, match->key, match->value);
+}
+
+static gboolean
+pwg_registry_match_interface(PwgGlobal *global, gpointer userdata)
+{
+  const char *interface_type = userdata;
+
+  return pwg_global_is_interface(global, interface_type);
+}
+
+static gboolean
+pwg_registry_match_media_class(PwgGlobal *global, gpointer userdata)
+{
+  const char *media_class = userdata;
+  g_autofree char *global_media_class = pwg_global_dup_media_class(global);
+
+  return g_strcmp0(global_media_class, media_class) == 0;
+}
+
+static gboolean
 pwg_registry_dispatch_event(gpointer userdata)
 {
   PwgRegistryEvent *event = userdata;
@@ -475,4 +553,62 @@ pwg_registry_lookup_global(PwgRegistry *self, guint id)
   g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
 
   return pwg_registry_find_global(self, id, NULL);
+}
+
+PwgGlobal *
+pwg_registry_lookup_global_by_property(PwgRegistry *self,
+                                       const char *key,
+                                       const char *value)
+{
+  PwgRegistryPropertyMatch match = {key, value};
+
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+  g_return_val_if_fail(key != NULL, NULL);
+  g_return_val_if_fail(value != NULL, NULL);
+
+  return pwg_registry_lookup_matching_global(self, pwg_registry_match_property, &match);
+}
+
+PwgGlobal *
+pwg_registry_lookup_global_by_object_serial(PwgRegistry *self,
+                                            const char *object_serial)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+  g_return_val_if_fail(object_serial != NULL, NULL);
+
+  return pwg_registry_lookup_global_by_property(self, PW_KEY_OBJECT_SERIAL, object_serial);
+}
+
+GListModel *
+pwg_registry_dup_globals_by_property(PwgRegistry *self,
+                                     const char *key,
+                                     const char *value)
+{
+  PwgRegistryPropertyMatch match = {key, value};
+
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+  g_return_val_if_fail(key != NULL, NULL);
+  g_return_val_if_fail(value != NULL, NULL);
+
+  return pwg_registry_dup_matching_globals(self, pwg_registry_match_property, &match);
+}
+
+GListModel *
+pwg_registry_dup_globals_by_interface(PwgRegistry *self,
+                                      const char *interface_type)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+  g_return_val_if_fail(interface_type != NULL, NULL);
+
+  return pwg_registry_dup_matching_globals(self, pwg_registry_match_interface, (gpointer) interface_type);
+}
+
+GListModel *
+pwg_registry_dup_globals_by_media_class(PwgRegistry *self,
+                                        const char *media_class)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
+  g_return_val_if_fail(media_class != NULL, NULL);
+
+  return pwg_registry_dup_matching_globals(self, pwg_registry_match_media_class, (gpointer) media_class);
 }

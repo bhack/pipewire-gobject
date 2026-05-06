@@ -19,6 +19,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  python-lint:
+    name: Python lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Ruff
+        run: |
+          python3 -m venv /tmp/ruff
+          /tmp/ruff/bin/pip install --upgrade pip
+          /tmp/ruff/bin/pip install ruff==0.15.12
+
+      - name: Ruff
+        run: /tmp/ruff/bin/ruff check .
+
   distro:
     name: Debian packaged PipeWire
     runs-on: ubuntu-latest
@@ -54,6 +70,12 @@ jobs:
 
       - name: Test
         run: meson test -C build --print-errorlogs
+
+      - name: Strict warning check
+        run: |
+          meson setup build-strict -Dwerror=true
+          meson compile -C build-strict
+          meson test -C build-strict --print-errorlogs
 
       - name: Install check
         run: DESTDIR="$PWD/install-root" meson install -C build --no-rebuild

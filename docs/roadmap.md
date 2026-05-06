@@ -20,25 +20,27 @@ The first preview establishes the library and GIR shape:
 - `Pwg.Core` for basic PipeWire connection lifecycle.
 - `Pwg.Registry` and `Pwg.Global` for immutable global discovery through
   `Gio.ListModel`.
+- Common `Pwg.Global` property accessors and `Pwg.Registry` lookup/filter
+  helpers for app-side discovery.
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, and `clear()`.
 - `Pwg.Stream` for app-owned audio capture.
 - `Pwg.AudioFormat` and `Pwg.AudioBlock` for copied audio data.
 - `Pwg.AudioCapture` as a compatibility wrapper around `Pwg.Stream`.
 - GIR metadata and public-symbol tests.
-- Python examples for registry listing, metadata reads, peak levels, and audio
-  blocks.
+- Python examples for registry and node listing, metadata reads, peak levels,
+  and audio blocks.
 
 ## 0.2: Discovery And Metadata
 
 The next useful layer is generic app-side graph visibility without importing
 WirePlumber policy concepts:
 
-- typed helpers for common global interfaces such as nodes, ports, clients, and
-  metadata objects;
-- property access helpers that are safe and idiomatic from GI languages;
-- optional discovery filters for media class, node name, object serial, and
-  application properties;
+- typed wrapper objects for common global interfaces such as nodes, ports,
+  clients, and metadata objects;
+- richer property helpers that are safe and idiomatic from GI languages;
+- additional discovery filters for application properties and common
+  object-specific keys;
 - clear object lifetime rules for globals that disappear;
 - live smoke tests for metadata and discovery updates.
 
