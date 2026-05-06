@@ -212,16 +212,21 @@ pwg_stream_dispatch_pending(gpointer userdata)
 static void
 pwg_stream_queue_dispatch_locked(PwgStream *self)
 {
+  GSource *source;
+
   if (self->dispatch_pending)
     return;
 
   self->dispatch_pending = TRUE;
-  g_main_context_invoke_full(
-    self->main_context,
-    G_PRIORITY_DEFAULT,
+  source = g_idle_source_new();
+  g_source_set_priority(source, G_PRIORITY_DEFAULT);
+  g_source_set_callback(
+    source,
     pwg_stream_dispatch_pending,
     g_object_ref(self),
     g_object_unref);
+  g_source_attach(source, self->main_context);
+  g_source_unref(source);
 }
 
 static void
@@ -290,6 +295,47 @@ pwg_stream_queue_audio_block(PwgStream *self,
 }
 
 static void
+pwg_stream_handle_f32_audio(PwgStream *self,
+                            const void *data,
+                            gsize size,
+                            guint rate,
+                            guint channels)
+{
+  const guint bytes_per_sample = sizeof(float);
+  const char *sample_format = "F32";
+  const float *samples;
+  guint n_samples;
+  guint n_frames;
+  guint n;
+  gdouble peak = 0.0;
+
+  if (data == NULL || size < bytes_per_sample || channels == 0)
+    return;
+
+  n_samples = size / bytes_per_sample;
+  n_frames = n_samples / channels;
+  if (n_frames == 0)
+    return;
+
+  samples = data;
+  for (n = 0; n < n_samples; n++)
+    peak = MAX(peak, fabs(samples[n]));
+
+  pwg_stream_queue_peak(self, peak);
+  if (g_atomic_int_get(&self->deliver_audio_blocks))
+    pwg_stream_queue_audio_block(
+      self,
+      data,
+      n_samples * bytes_per_sample,
+      sample_format,
+      rate,
+      channels,
+      bytes_per_sample,
+      n_frames,
+      peak);
+}
+
+static void
 pwg_stream_on_process(void *userdata)
 {
   PwgStream *self = PWG_STREAM(userdata);
@@ -298,15 +344,8 @@ pwg_stream_on_process(void *userdata)
   struct spa_data *spa_data;
   struct spa_chunk *chunk;
   guint8 *audio_data;
-  float *samples;
-  guint n_samples;
   guint n_channels;
-  guint n_frames;
   guint rate;
-  guint bytes_per_sample;
-  guint n;
-  gdouble peak = 0.0;
-  const char *sample_format;
 
   buffer = pw_stream_dequeue_buffer(self->stream);
   if (buffer == NULL)
@@ -331,33 +370,28 @@ pwg_stream_on_process(void *userdata)
     goto done;
 
   audio_data = (guint8 *)spa_data->data + chunk->offset;
-  n_samples = chunk->size / sizeof(float);
-  n_frames = n_samples / n_channels;
   rate = self->format.info.raw.rate;
-  bytes_per_sample = pwg_stream_sample_format_bytes_per_sample(
-    self->format.info.raw.format);
-  sample_format = pwg_stream_sample_format_name(self->format.info.raw.format);
-
-  samples = (float *)audio_data;
-  for (n = 0; n < n_samples; n++)
-    peak = MAX(peak, fabs(samples[n]));
-
-  pwg_stream_queue_peak(self, peak);
-  if (g_atomic_int_get(&self->deliver_audio_blocks))
-    pwg_stream_queue_audio_block(
-      self,
-      audio_data,
-      chunk->size,
-      sample_format,
-      rate,
-      n_channels,
-      bytes_per_sample,
-      n_frames,
-      peak);
+  pwg_stream_handle_f32_audio(self, audio_data, chunk->size, rate, n_channels);
 
 done:
   pw_stream_queue_buffer(self->stream, buffer);
 }
+
+#ifdef PWG_STREAM_TESTING
+void
+_pwg_stream_test_push_f32_audio(PwgStream *self,
+                                const float *samples,
+                                guint n_samples,
+                                guint rate,
+                                guint channels)
+{
+  g_return_if_fail(PWG_IS_STREAM(self));
+
+  self->running = TRUE;
+  pwg_stream_queue_format(self, "F32", rate, channels, sizeof(float));
+  pwg_stream_handle_f32_audio(self, samples, n_samples * sizeof(float), rate, channels);
+}
+#endif
 
 static void
 pwg_stream_on_param_changed(void *userdata, uint32_t id, const struct spa_pod *param)
