@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-05-06
 
 - Reframe the project roadmap around a generic app-facing PipeWire GIR layer
   for discovery, metadata, control helpers, and streams.
