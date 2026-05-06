@@ -27,8 +27,58 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect C/C++ analysis changes
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          run_codeql=true
+          event="${{ github.event_name }}"
+
+          if [ "$event" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.sha }}"
+            run_codeql=false
+          elif [ "$event" = "push" ]; then
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+            if [[ "$base" =~ ^0+$ ]]; then
+              run_codeql=true
+            else
+              run_codeql=false
+            fi
+          else
+            base=""
+            head=""
+            run_codeql=true
+          fi
+
+          if [ -n "$base" ] && [ "$run_codeql" = "false" ]; then
+            git diff --name-only "$base" "$head" > changed-files.txt
+            cat changed-files.txt
+
+            while IFS= read -r path; do
+              case "$path" in
+                src/*|meson.build|.github/workflows/codeql.yml)
+                  run_codeql=true
+                  ;;
+              esac
+            done < changed-files.txt
+          fi
+
+          echo "run_codeql=$run_codeql" >> "$GITHUB_OUTPUT"
+          echo "run_codeql=$run_codeql"
+
+      - name: Skip notice
+        if: steps.changes.outputs.run_codeql != 'true'
+        run: echo "No C/C++ analysis-relevant files changed; Analyze C/C++ check is satisfied."
 
       - name: Install dependencies
+        if: steps.changes.outputs.run_codeql == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
@@ -43,14 +93,17 @@ jobs:
             python3-gi
 
       - name: Initialize CodeQL
+        if: steps.changes.outputs.run_codeql == 'true'
         uses: github/codeql-action/init@v4
         with:
           languages: c-cpp
 
       - name: Build
+        if: steps.changes.outputs.run_codeql == 'true'
         run: |
           meson setup build-codeql
           meson compile -C build-codeql
 
       - name: Perform CodeQL analysis
+        if: steps.changes.outputs.run_codeql == 'true'
         uses: github/codeql-action/analyze@v4
