@@ -1,23 +1,29 @@
 # pipewire-gobject
 
-Experimental GObject/GObject-Introspection wrapper around PipeWire.
+Experimental GObject/GObject-Introspection binding layer for PipeWire.
 
-This project is a prototype for exposing a safe PipeWire API to Python, GJS,
-Vala, and other GI consumers. It is not a complete PipeWire binding yet. It is
-intended to complement WirePlumber's GI control-plane API with application-owned
-PipeWire data streams.
+This project is a prototype for exposing a safe, high-level, app-facing
+PipeWire API to Python, GJS, Vala, and other GI consumers. It is not a complete
+PipeWire binding yet, and it is not a mechanical one-to-one binding of the C
+API.
 
-Use WirePlumber GI for graph, policy, routing, metadata, and session-manager
-work. Use this project only for the narrower app-owned stream/data-plane
-experiment. See [docs/rationale.md](docs/rationale.md) and
-[docs/community-feedback.md](docs/community-feedback.md) for the proposed
-community boundary.
+The intended direction is a standalone GIR layer for application code that
+needs PipeWire discovery, metadata, control helpers, and app-owned streams,
+without implementing WirePlumber-specific session management. WirePlumber's
+daemon and Lua scripts remain responsible for policy, routing decisions,
+default-device behavior, and session-manager logic. See
+[docs/rationale.md](docs/rationale.md),
+[docs/community-feedback.md](docs/community-feedback.md), and
+[docs/roadmap.md](docs/roadmap.md) for the proposed boundary and roadmap.
 
-## Current Scope
+## Current Prototype Scope
+
+The `0.1` prototype currently exposes:
 
 - `Pwg.Core`: create a PipeWire context/core connection.
 - `Pwg.Registry`: discover PipeWire globals through a `Gio.ListModel`.
 - `Pwg.Global`: immutable descriptors for discovered PipeWire globals.
+- `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata.
 - `Pwg.Stream`: high-level audio capture stream with optional copied sample
   block delivery.
 - `Pwg.AudioFormat`: immutable negotiated audio format descriptor.
@@ -26,11 +32,15 @@ community boundary.
 - GIR and typelib generation through Meson.
 - Python import smoke test through PyGObject.
 
+Richer node/global helpers, params, and mixer/panel-oriented APIs are roadmap
+items, not stable implemented API yet.
+
 ## Non-Goals For The Prototype
 
-- Replacing WirePlumber.
-- Reimplementing WirePlumber's graph, policy, metadata, node, port, link, or
-  session-manager APIs.
+- Replacing the WirePlumber daemon, Lua scripts, or session manager.
+- Reimplementing WirePlumber-specific policy, routing decisions, smart filters,
+  default-device policy, or daemon behavior.
+- Exposing a low-level one-to-one binding for every PipeWire C type.
 - Exposing raw `pw_stream`, `pw_buffer`, `spa_buffer`, or SPA POD ownership to
   dynamic languages.
 - Providing stable ABI/API guarantees.
@@ -38,9 +48,13 @@ community boundary.
 ## Status
 
 This repository is suitable for an experimental public `0.x` preview and is
-seeking feedback on scope. The most important open question is whether a safe
-GI app-stream layer should live standalone, under a PipeWire/WirePlumber
-umbrella, or be reshaped before any stability promise.
+seeking feedback on scope. Early upstream feedback suggests a standalone
+PipeWire GIR layer could be useful for audio streaming/filter apps, mixer apps,
+panel applets, and similar high-level-language consumers, as long as the API
+does not become WirePlumber's session-management API.
+
+The API is intentionally unstable while the object model and project boundary
+are reviewed.
 
 ## Build
 
@@ -84,7 +98,8 @@ Pwg import ok
 ```
 
 The `examples/python/` directory includes small PyGObject examples for registry
-listing, peak-meter level signals, and copied audio block delivery.
+listing, metadata reads, peak-meter level signals, and copied audio block
+delivery.
 
 Minimal peak-meter usage:
 
@@ -135,6 +150,13 @@ registry-start True
 registry-count N
 registry-first ID TYPE
 registry-running-after-stop False
+metadata-start True
+metadata-running True
+metadata-bound True
+metadata-set True
+metadata-changed 0 pwg.test Spa:String test-value
+metadata-clear-key True
+metadata-running-after-stop False
 stream-deliver-audio-blocks True
 stream-start True
 stream-running True

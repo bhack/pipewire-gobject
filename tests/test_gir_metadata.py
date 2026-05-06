@@ -180,6 +180,56 @@ global_param = global_added.find("gir:parameters/gir:parameter[@name='global']",
 assert global_param is not None
 assert global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
 
+metadata = namespace.find("gir:class[@name='Metadata']", GIR_NS)
+assert metadata is not None
+assert metadata.attrib[f"{{{C_URI}}}type"] == "PwgMetadata"
+assert metadata.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_metadata_get_type"
+
+metadata_constructor = metadata.find("gir:constructor[@name='new']", GIR_NS)
+assert metadata_constructor is not None
+assert metadata_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+metadata_core_param = metadata_constructor.find("gir:parameters/gir:parameter[@name='core']", GIR_NS)
+assert metadata_core_param is not None
+assert metadata_core_param.find("gir:type", GIR_NS).attrib["name"] == "Core"
+assert metadata_core_param.attrib["transfer-ownership"] == "none"
+
+metadata_start = metadata.find("gir:method[@name='start']", GIR_NS)
+assert metadata_start is not None
+assert metadata_start.attrib.get("throws") == "1"
+metadata_dup_value = metadata.find("gir:method[@name='dup_value']", GIR_NS)
+assert metadata_dup_value is not None
+metadata_dup_value_return = metadata_dup_value.find("gir:return-value", GIR_NS)
+assert metadata_dup_value_return.attrib["transfer-ownership"] == "full"
+assert metadata_dup_value_return.attrib.get("nullable") == "1"
+metadata_dup_value_type = metadata.find("gir:method[@name='dup_value_type']", GIR_NS)
+assert metadata_dup_value_type is not None
+metadata_dup_value_type_return = metadata_dup_value_type.find("gir:return-value", GIR_NS)
+assert metadata_dup_value_type_return.attrib["transfer-ownership"] == "full"
+assert metadata_dup_value_type_return.attrib.get("nullable") == "1"
+metadata_set = metadata.find("gir:method[@name='set']", GIR_NS)
+assert metadata_set is not None
+assert metadata_set.attrib.get("throws") == "1"
+metadata_type_param = metadata_set.find("gir:parameters/gir:parameter[@name='type']", GIR_NS)
+assert metadata_type_param is not None
+assert metadata_type_param.attrib.get("nullable") == "1"
+metadata_value_param = metadata_set.find("gir:parameters/gir:parameter[@name='value']", GIR_NS)
+assert metadata_value_param is not None
+assert metadata_value_param.attrib.get("nullable") == "1"
+metadata_clear = metadata.find("gir:method[@name='clear']", GIR_NS)
+assert metadata_clear is not None
+assert metadata_clear.attrib.get("throws") == "1"
+metadata_changed = metadata.find("glib:signal[@name='changed']", GIR_NS)
+assert metadata_changed is not None
+metadata_key_param = metadata_changed.find("gir:parameters/gir:parameter[@name='key']", GIR_NS)
+assert metadata_key_param is not None
+assert metadata_key_param.attrib.get("nullable") == "1"
+metadata_type_signal_param = metadata_changed.find("gir:parameters/gir:parameter[@name='type']", GIR_NS)
+assert metadata_type_signal_param is not None
+assert metadata_type_signal_param.attrib.get("nullable") == "1"
+metadata_value_signal_param = metadata_changed.find("gir:parameters/gir:parameter[@name='value']", GIR_NS)
+assert metadata_value_signal_param is not None
+assert metadata_value_signal_param.attrib.get("nullable") == "1"
+
 error_enum = namespace.find("gir:enumeration[@name='Error']", GIR_NS)
 assert error_enum is not None
 assert error_enum.attrib["version"] == "0.1"
@@ -201,6 +251,56 @@ for class_node in namespace.findall("gir:class", GIR_NS):
         for prop in class_node.findall("gir:property", GIR_NS)
     }
     assert property_names.isdisjoint(method_names)
+
+disallowed_collection_types = {
+    "GLib.Array",
+    "GLib.PtrArray",
+    "GLib.ByteArray",
+    "GLib.List",
+    "GLib.SList",
+    "GLib.Queue",
+    "GLib.HashTable",
+}
+disallowed_c_collection_types = {
+    "GArray",
+    "GPtrArray",
+    "GByteArray",
+    "GList",
+    "GSList",
+    "GQueue",
+    "GHashTable",
+}
+
+for type_node in namespace.findall(".//gir:type", GIR_NS):
+    assert type_node.attrib.get("name") not in disallowed_collection_types
+    c_type = type_node.attrib.get(f"{{{C_URI}}}type", "")
+    c_type = c_type.removeprefix("const ").replace("*", "").strip()
+    assert c_type not in disallowed_c_collection_types
+
+callable_tags = {"callback", "constructor", "function", "method"}
+for callable_node in namespace.iter():
+    tag = callable_node.tag.rsplit("}", 1)[-1]
+    if tag not in callable_tags:
+        continue
+
+    out_parameters = 0
+    for parameter in callable_node.findall("gir:parameters/gir:parameter", GIR_NS):
+        direction = parameter.attrib.get("direction", "in")
+        assert direction != "inout"
+        if direction == "out":
+            out_parameters += 1
+    assert out_parameters <= 1
+
+assert namespace.findall(".//gir:callback", GIR_NS) == []
+assert namespace.findall(".//gir:varargs", GIR_NS) == []
+
+for record_node in namespace.findall("gir:record", GIR_NS):
+    assert record_node.attrib["name"].endswith("Class")
+    field_names = [
+        field.attrib["name"]
+        for field in record_node.findall("gir:field", GIR_NS)
+    ]
+    assert field_names == ["parent_class"]
 
 for elem in namespace.iter():
     c_type = elem.attrib.get(f"{{{C_URI}}}type", "")

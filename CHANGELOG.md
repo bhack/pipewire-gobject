@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Reframe the project roadmap around a generic app-facing PipeWire GIR layer
+  for discovery, metadata, control helpers, and streams.
+- Document that WirePlumber session management, policy, routing decisions, Lua
+  scripts, and daemon behavior remain out of scope.
+- Add an experimental `0.x` API roadmap.
+- Add `Pwg.Metadata` for named PipeWire metadata discovery, cached reads,
+  change signals, `set()`, and `clear()`.
+
 ## 0.1.0 - 2026-05-05
 
 - Add `Pwg.init()` and library/PipeWire version helpers.
