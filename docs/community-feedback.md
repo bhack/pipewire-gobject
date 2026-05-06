@@ -29,8 +29,8 @@ been made.
 
 That feedback changes the long-term target: this project should not be only an
 app-stream wrapper. Ideally, it should grow toward a generic
-high-level-language PipeWire API that can support audio streaming and filter
-apps, mixer apps, panel applets, and similar tools.
+high-level-language PipeWire API that can support audio streaming, filters,
+analyzers, effects, stream tools, mixer apps, panel applets, and similar tools.
 
 The explicit boundary remains that it should not implement WirePlumber-specific
 session-management APIs. Session management is expected to remain inside the
@@ -39,9 +39,9 @@ WirePlumber daemon, handled by Lua scripts rather than GIR consumers.
 ## Problem
 
 GI languages need a safe way to use PipeWire without every application carrying
-custom C glue. The useful API surface is broader than streams: panel applets,
-mixer apps, filter apps, and audio tools need discovery, metadata, properties,
-params, and app-owned streams.
+custom C glue. The useful API surface is broader than streams: filters,
+analyzers, effects, audio tools, panel applets, and mixer apps need discovery,
+metadata, properties, params, and app-owned streams.
 
 At the same time, exposing raw PipeWire pointers, SPA POD ownership, realtime
 buffers, and low-level callbacks directly to dynamic languages would be unsafe
@@ -67,8 +67,9 @@ The current prototype exposes:
 - `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`.
 
 The next API areas to design are additional typed global wrapper objects,
-metadata conveniences, params, and a shape suitable for mixer/panel
-applications. See [roadmap.md](roadmap.md).
+metadata conveniences, params, and a shape suitable for generic audio
+applications, including filter/analyzer tools and mixer/panel workflows. See
+[roadmap.md](roadmap.md).
 
 The generated namespace is `Pwg-0.1`. It does not track PipeWire release
 numbers. The current dependency floor is `libpipewire-0.3 >= 1.0.2`.
@@ -88,7 +89,8 @@ This project does not aim to:
 ## Questions For Maintainers And Users
 
 1. Is the generic app-facing binding boundary correct?
-2. Which APIs are essential before mixer/panel/filter applications can use it?
+2. Which APIs are essential before filter, analyzer, mixer, and panel
+   applications can use it?
 3. Should metadata and params be exposed as high-level typed helpers, generic
    POD-like builders, or both?
 4. Which parts of discovery should be modeled as immutable globals versus live

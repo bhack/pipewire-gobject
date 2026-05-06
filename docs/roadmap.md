@@ -4,9 +4,9 @@ This roadmap is for experimental `0.x` development. It is a direction of travel,
 not a stability promise.
 
 The target is a standalone, high-level, GI-friendly PipeWire binding layer for
-applications. It should be useful for audio streaming and filter apps, mixer
-apps, panel applets, and similar tools written in Python, GJS, Vala, or other
-GI languages.
+applications. It should be useful for audio streaming, filters, analyzers,
+effects, stream tools, mixer apps, panel applets, and similar tools written in
+Python, GJS, Vala, or other GI languages.
 
 It must not become a WirePlumber session manager. WirePlumber-specific policy,
 routing decisions, default-device policy, smart filters, Lua scripts, and daemon
@@ -70,12 +70,15 @@ The stream API should become useful beyond peak-meter demos:
 - target selection by object serial or node name where PipeWire supports it;
 - examples that feed real analyzer/filter use cases.
 
-## Later: Mixer And Panel App Use Cases
+## Later: Higher-Level Application Workflows
 
 Once the object model holds up, grow toward high-level app workflows:
 
+- filter, analyzer, and effect-app helpers where generic PipeWire APIs can
+  support them cleanly;
 - volume/mute helpers where they can be modeled cleanly;
 - richer default-node metadata and control helpers;
 - app stream lists suitable for panel applets;
 - mixer-friendly node and route views;
-- examples that cover pavucontrol-like inspection and simple control flows.
+- examples that cover both audio-tool workflows and pavucontrol-like
+  inspection/control flows.
