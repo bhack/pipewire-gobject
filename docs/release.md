@@ -13,14 +13,20 @@ This checklist is for the first public `0.x` releases.
    ```
 
 3. Run the container smoke test from `AGENTS.md`.
-4. Verify the installed layout:
+4. Build the generated API reference:
+
+   ```bash
+   meson compile -C build docs
+   ```
+
+5. Verify the installed layout:
 
    ```bash
    rm -rf install-root
    DESTDIR="$PWD/install-root" meson install -C build --no-rebuild
    ```
 
-5. Build a release archive:
+6. Build a release archive:
 
    ```bash
    meson dist -C build
@@ -48,24 +54,24 @@ This checklist is for the first public `0.x` releases.
      -f prerelease=true
    ```
 
-6. Verify CI has passed against:
+7. Verify CI has passed against:
 
    - the declared minimum PipeWire dependency,
    - the current Debian packaged PipeWire dependency,
    - the latest pinned stable PipeWire dependency.
 
-7. Review the public scope docs before announcement:
+8. Review the public scope docs before announcement:
 
    - `docs/rationale.md`
    - `docs/support-policy.md`
    - `docs/community-feedback.md`
 
-8. Inspect the generated GIR for namespace, ownership, nullable, `throws`,
+9. Inspect the generated GIR for namespace, ownership, nullable, `throws`,
    signal parameter names, property getter links, and the `Pwg.Error` domain.
    The `gir-metadata` test should cover the expected public contract.
-9. Inspect exported symbols when adding public C API. The `public-symbols` test
+10. Inspect exported symbols when adding public C API. The `public-symbols` test
    should cover the expected `PWG_API` surface.
-10. Check new public API against the GObject and GI bindable API references:
+11. Check new public API against the GObject and GI bindable API references:
 
    - <https://docs.gtk.org/gobject/concepts.html#conventions>
    - <https://gi.readthedocs.io/en/latest/writingbindableapis.html>
@@ -73,9 +79,9 @@ This checklist is for the first public `0.x` releases.
    - <https://gi.readthedocs.io/en/latest/writingbindings/libgirepository.html>
    - <https://gi.readthedocs.io/en/latest/buildsystems/meson.html>
 
-11. Do not announce API stability for `0.x` releases. Mention that the ABI/API is
+12. Do not announce API stability for `0.x` releases. Mention that the ABI/API is
    experimental and may change.
-12. Keep the live stream test limitation visible in release notes if it has not
+13. Keep the live stream test limitation visible in release notes if it has not
     been replaced by a deterministic graph test: the current smoke test verifies
     stream start/stop against a temporary PipeWire daemon, but not negotiated
     audio block delivery.

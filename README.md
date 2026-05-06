@@ -146,6 +146,19 @@ finally:
     stream.stop()
 ```
 
+## API Reference
+
+The generated API reference is built from the installed GIR metadata and the
+GI annotations in the public headers. It is not committed to the repository.
+
+With `gi-docgen` installed:
+
+```bash
+meson compile -C build docs
+```
+
+The HTML output is written to `build/api-docs/`.
+
 ## Live PipeWire Smoke Test
 
 With a PipeWire daemon available:

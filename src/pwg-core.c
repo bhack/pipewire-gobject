@@ -59,6 +59,14 @@ pwg_core_class_init(PwgCoreClass *klass)
   object_class->get_property = pwg_core_get_property;
   object_class->dispose = pwg_core_dispose;
 
+  /**
+   * PwgCore:connected:
+   *
+   * Whether this object has an active PipeWire core connection.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_CONNECTED] = g_param_spec_boolean(
     "connected",
     "Connected",

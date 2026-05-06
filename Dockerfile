@@ -10,6 +10,7 @@ RUN apt-get update \
       ca-certificates \
       clang-format \
       clang-tidy \
+      gi-docgen \
       git \
       gobject-introspection \
       libgirepository1.0-dev \

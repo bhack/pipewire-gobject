@@ -110,6 +110,14 @@ pwg_audio_block_class_init(PwgAudioBlockClass *klass)
   object_class->set_property = pwg_audio_block_set_property;
   object_class->finalize = pwg_audio_block_finalize;
 
+  /**
+   * PwgAudioBlock:format:
+   *
+   * Audio format descriptor for this block.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_FORMAT] = g_param_spec_object(
     "format",
     "Format",
@@ -117,6 +125,14 @@ pwg_audio_block_class_init(PwgAudioBlockClass *klass)
     PWG_TYPE_AUDIO_FORMAT,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioBlock:data:
+   *
+   * Copied interleaved audio sample bytes.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_DATA] = g_param_spec_boxed(
     "data",
     "Data",
@@ -124,6 +140,14 @@ pwg_audio_block_class_init(PwgAudioBlockClass *klass)
     G_TYPE_BYTES,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioBlock:n-frames:
+   *
+   * Number of interleaved frames in the block.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_N_FRAMES] = g_param_spec_uint(
     "n-frames",
     "N frames",
@@ -133,6 +157,14 @@ pwg_audio_block_class_init(PwgAudioBlockClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioBlock:sequence:
+   *
+   * Monotonic stream-local block sequence number.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_SEQUENCE] = g_param_spec_uint64(
     "sequence",
     "Sequence",
@@ -142,6 +174,14 @@ pwg_audio_block_class_init(PwgAudioBlockClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioBlock:peak:
+   *
+   * Absolute sample peak in this block.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_PEAK] = g_param_spec_double(
     "peak",
     "Peak",
