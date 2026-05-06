@@ -40,7 +40,7 @@ The next useful layer is generic app-side graph visibility without importing
 WirePlumber policy concepts:
 
 - typed wrapper objects for additional global interfaces such as ports,
-  clients, and metadata objects;
+  clients, devices, links, and metadata objects;
 - richer property helpers that are safe and idiomatic from GI languages;
 - additional discovery filters for application properties and common
   object-specific keys;
