@@ -36,8 +36,9 @@ The `0.1` prototype currently exposes:
 - GIR and typelib generation through Meson.
 - Python import smoke test through PyGObject.
 
-Richer live proxy helpers, params, and mixer/panel-oriented APIs are roadmap
-items, not stable implemented API yet.
+Richer live proxy helpers, params, and higher-level application workflows for
+filters, analyzers, stream tools, mixers, and panel applets are roadmap items,
+not stable implemented API yet.
 
 ## Non-Goals For The Prototype
 
