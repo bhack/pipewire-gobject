@@ -46,7 +46,6 @@ def main() -> None:
             link.dup_input_port_id() or "",
             "passive" if link.get_passive() else "",
             "feedback" if link.get_feedback() else "",
-            "async" if link.get_async() else "",
         )
 
     registry.stop()

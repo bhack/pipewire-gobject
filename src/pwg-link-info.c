@@ -131,14 +131,6 @@ pwg_link_info_get_feedback(PwgLinkInfo *self)
   return pwg_link_info_property_is_true(self, PW_KEY_LINK_FEEDBACK);
 }
 
-gboolean
-pwg_link_info_get_async(PwgLinkInfo *self)
-{
-  g_return_val_if_fail(PWG_IS_LINK_INFO(self), FALSE);
-
-  return pwg_link_info_property_is_true(self, PW_KEY_LINK_ASYNC);
-}
-
 char *
 pwg_link_info_dup_object_serial(PwgLinkInfo *self)
 {

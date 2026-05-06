@@ -90,7 +90,6 @@ EXPECTED_PUBLIC_SYMBOLS = {
     "pwg_link_info_dup_object_serial",
     "pwg_link_info_dup_output_node_id",
     "pwg_link_info_dup_output_port_id",
-    "pwg_link_info_get_async",
     "pwg_link_info_get_feedback",
     "pwg_link_info_get_global",
     "pwg_link_info_get_id",
