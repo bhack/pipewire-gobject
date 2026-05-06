@@ -15,7 +15,8 @@ The proposed boundary is:
 
 - `pipewire-gobject`: generic PipeWire application APIs such as core lifecycle,
   registry/discovery, globals, node/global properties, metadata, limited params,
-  app-owned streams, and safe copied/reduced stream data.
+  limited copied parameter updates, app-owned streams, and safe copied/reduced
+  stream data.
 - WirePlumber: session-management policy, routing decisions, default-device
   behavior, smart filters, Lua scripts, and daemon behavior.
 
@@ -58,20 +59,23 @@ The current prototype exposes:
 - `Pwg.Core` for minimal PipeWire core connection handling;
 - `Pwg.Registry` and `Pwg.Global` for immutable global discovery, common
   property accessors, and snapshot filter helpers;
-- `Pwg.NodeInfo` for node-focused views of immutable global descriptors;
-- `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` for live read-only node
-  parameter inspection with copied parameter data;
+- `Pwg.ClientInfo`, `Pwg.DeviceInfo`, `Pwg.LinkInfo`, `Pwg.NodeInfo`, and
+  `Pwg.PortInfo` for focused views of immutable global descriptors;
+- `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` for live node parameter
+  inspection, typed raw audio format reads, copied parameter data, copied
+  `Props` builders, and limited queued parameter updates;
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, `clear()`, and default audio node-name helpers;
 - `Pwg.Stream` for high-level audio capture;
 - `Pwg.AudioFormat` and `Pwg.AudioBlock` for immutable copied audio metadata and
   sample bytes;
-- `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`.
+- `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`;
+- generated API reference support with `gi-docgen`.
 
-The next API areas to design are additional typed global wrapper objects,
-metadata conveniences, params, and a shape suitable for generic audio
-applications, including filter/analyzer tools and mixer/panel workflows. See
-[roadmap.md](roadmap.md).
+The next checkpoint is stream maturity: deterministic stream tests, clearer
+stream constructors, target selection helpers where PipeWire supports them, and
+examples that prove the API against real filter/analyzer and mixer/panel
+workflows. See [roadmap.md](roadmap.md).
 
 The generated namespace is `Pwg-0.1`. It does not track PipeWire release
 numbers. The current dependency floor is `libpipewire-0.3 >= 1.0.2`.
