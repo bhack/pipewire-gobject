@@ -100,6 +100,11 @@ writes. In this setup container root maps back to the host user; passing
 make `/work` unwritable. Keeping `--rm` is fine: it removes only the stopped
 container, not the cached image layers or the bind-mounted `build/` directory.
 
+Do not run source-built PipeWire compatibility jobs for ordinary local
+iteration. They are intentionally covered by GitHub CI with cached prefixes;
+reproduce them locally only when debugging a version-specific failure or when
+changing the declared PipeWire dependency floor.
+
 ### Live Smoke Test
 
 Clean container smoke test with a temporary PipeWire daemon:
