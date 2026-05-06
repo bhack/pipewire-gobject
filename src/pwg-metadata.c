@@ -150,26 +150,45 @@ static char *
 pwg_metadata_dup_name_from_json(const char *value)
 {
   struct spa_json iter;
-  const char *json_name = NULL;
-  int json_name_length;
-  g_autofree char *name = NULL;
+  struct spa_json object;
+  const char *json_value = NULL;
+  int json_value_length;
 
-  if (spa_json_begin_object(&iter, value, strlen(value)) <= 0)
+  spa_json_init(&iter, value, strlen(value));
+  if (spa_json_enter_object(&iter, &object) <= 0)
     return NULL;
 
-  json_name_length = spa_json_object_find(&iter, "name", &json_name);
-  if (json_name_length <= 0)
-    return NULL;
+  while ((json_value_length = spa_json_next(&object, &json_value)) > 0) {
+    g_autofree char *key = NULL;
+    g_autofree char *name = NULL;
 
-  name = g_malloc((gsize) json_name_length + 1);
-  if (spa_json_parse_stringn(
-        json_name,
-        json_name_length,
-        name,
-        json_name_length + 1) <= 0)
-    return NULL;
+    key = g_malloc((gsize) json_value_length + 1);
+    if (spa_json_parse_stringn(
+          json_value,
+          json_value_length,
+          key,
+          json_value_length + 1) <= 0)
+      return NULL;
 
-  return name[0] != '\0' ? g_steal_pointer(&name) : NULL;
+    json_value_length = spa_json_next(&object, &json_value);
+    if (json_value_length <= 0)
+      return NULL;
+
+    if (g_strcmp0(key, "name") != 0)
+      continue;
+
+    name = g_malloc((gsize) json_value_length + 1);
+    if (spa_json_parse_stringn(
+          json_value,
+          json_value_length,
+          name,
+          json_value_length + 1) <= 0)
+      return NULL;
+
+    return name[0] != '\0' ? g_steal_pointer(&name) : NULL;
+  }
+
+  return NULL;
 }
 
 static char *
