@@ -11,6 +11,7 @@ assert isinstance(Pwg.get_pipewire_library_version(), str)
 core = Pwg.Core.new()
 assert core.get_connected() is False
 assert isinstance(core.get_library_version(), str)
+assert hasattr(Pwg, "NodeInfo")
 
 registry = Pwg.Registry.new(core)
 assert registry.get_core() == core

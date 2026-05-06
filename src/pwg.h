@@ -49,5 +49,6 @@ G_END_DECLS
 #include "pwg-error.h"
 #include "pwg-global.h"
 #include "pwg-metadata.h"
+#include "pwg-node-info.h"
 #include "pwg-registry.h"
 #include "pwg-stream.h"

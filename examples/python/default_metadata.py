@@ -36,11 +36,15 @@ def print_node(label, node_name):
     if node is None:
         return
 
+    node_info = Pwg.NodeInfo.new_from_global(node)
+    if node_info is None:
+        return
+
     print(
         f"{label}.global",
-        node.get_id(),
-        node.dup_media_class() or "",
-        node.dup_description() or "",
+        node_info.get_id(),
+        node_info.dup_media_class() or "",
+        node_info.dup_description() or "",
     )
 
 

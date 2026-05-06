@@ -55,6 +55,36 @@ if first.dup_object_serial() is not None:
     assert registry.lookup_global_by_object_serial(first.dup_object_serial()) is not None
 print("registry-first", first.get_id(), first.get_interface_type())
 
+node_probe_stream = Pwg.Stream.new_audio_capture(None, True)
+assert node_probe_stream.start()
+node_loop = GLib.MainLoop()
+
+
+def node_maybe_done(*_args):
+    if registry.dup_globals_by_interface("PipeWire:Interface:Node").get_n_items() > 0:
+        node_loop.quit()
+        return False
+    return True
+
+
+registry.connect("global-added", node_maybe_done)
+GLib.timeout_add(50, node_maybe_done)
+GLib.timeout_add(2000, node_loop.quit)
+node_loop.run()
+node_globals = registry.dup_globals_by_interface("PipeWire:Interface:Node")
+node_count = node_globals.get_n_items()
+print("registry-node-count", node_count)
+assert node_count > 0
+node_info = Pwg.NodeInfo.new_from_global(node_globals.get_item(0))
+assert node_info is not None
+assert node_info.get_global().is_node() is True
+assert node_info.get_id() == node_info.get_global().get_id()
+print("registry-node-name", node_info.dup_name() or "")
+print("registry-node-description", node_info.dup_description() or "")
+print("registry-node-media-class", node_info.dup_media_class() or "")
+print("registry-node-object-serial", node_info.dup_object_serial() or "")
+node_probe_stream.stop()
+
 registry.stop()
 print("registry-running-after-stop", registry.get_running())
 

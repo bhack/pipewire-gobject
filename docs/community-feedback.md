@@ -58,6 +58,7 @@ The current prototype exposes:
 - `Pwg.Core` for minimal PipeWire core connection handling;
 - `Pwg.Registry` and `Pwg.Global` for immutable global discovery, common
   property accessors, and snapshot filter helpers;
+- `Pwg.NodeInfo` for node-focused views of immutable global descriptors;
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, `clear()`, and default audio node-name helpers;
 - `Pwg.Stream` for high-level audio capture;
@@ -65,7 +66,7 @@ The current prototype exposes:
   sample bytes;
 - `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`.
 
-The next API areas to design are typed node/global wrapper objects, additional
+The next API areas to design are additional typed global wrapper objects,
 metadata conveniences, params, and a shape suitable for mixer/panel
 applications. See [roadmap.md](roadmap.md).
 

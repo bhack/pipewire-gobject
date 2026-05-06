@@ -13,6 +13,7 @@
   sink/source node names.
 - Add `Pwg.Global` convenience accessors and `Pwg.Registry` lookup/filter
   helpers for common discovery properties.
+- Add `Pwg.NodeInfo` as an immutable node-focused view of `Pwg.Global`.
 - Add a canonical Debian trixie development `Dockerfile`, Ruff configuration,
   and strict warning CI checks.
 - Add `Pwg.init()` and library/PipeWire version helpers.

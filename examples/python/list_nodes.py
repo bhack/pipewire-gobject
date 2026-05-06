@@ -41,7 +41,10 @@ def main() -> None:
         nodes = registry.dup_globals_by_interface(NODE_INTERFACE)
 
     for index in range(nodes.get_n_items()):
-        node = nodes.get_item(index)
+        node = Pwg.NodeInfo.new_from_global(nodes.get_item(index))
+        if node is None:
+            continue
+
         print(
             node.get_id(),
             node.dup_object_serial() or "",
