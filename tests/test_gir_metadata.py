@@ -171,6 +171,7 @@ interface_type_param = global_is_interface.find(
 assert interface_type_param is not None
 assert interface_type_param.attrib.get("nullable") is None
 assert global_class.find("gir:method[@name='is_node']", GIR_NS) is not None
+assert global_class.find("gir:method[@name='is_port']", GIR_NS) is not None
 assert global_class.find("gir:method[@name='is_metadata']", GIR_NS) is not None
 assert global_class.find("gir:property[@name='interface-type']", GIR_NS) is not None
 
@@ -203,6 +204,40 @@ for method_name in (
     assert node_dup is not None
     assert node_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
     assert node_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+
+port_info = namespace.find("gir:class[@name='PortInfo']", GIR_NS)
+assert port_info is not None
+assert port_info.attrib[f"{{{C_URI}}}type"] == "PwgPortInfo"
+assert port_info.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_port_info_get_type"
+port_info_constructor = port_info.find("gir:constructor[@name='new_from_global']", GIR_NS)
+assert port_info_constructor is not None
+assert port_info_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert port_info_constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+port_info_global_param = port_info_constructor.find(
+    "gir:parameters/gir:parameter[@name='global']",
+    GIR_NS,
+)
+assert port_info_global_param is not None
+assert port_info_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
+port_info_get_global = port_info.find("gir:method[@name='get_global']", GIR_NS)
+assert port_info_get_global is not None
+assert port_info_get_global.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "none"
+assert port_info_get_global.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Global"
+assert port_info.find("gir:method[@name='get_id']", GIR_NS) is not None
+assert port_info.find("gir:method[@name='get_physical']", GIR_NS) is not None
+for method_name in (
+    "dup_name",
+    "dup_description",
+    "dup_alias",
+    "dup_direction",
+    "dup_audio_channel",
+    "dup_media_class",
+    "dup_object_serial",
+):
+    port_dup = port_info.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert port_dup is not None
+    assert port_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert port_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 
 registry = namespace.find("gir:class[@name='Registry']", GIR_NS)
 assert registry is not None

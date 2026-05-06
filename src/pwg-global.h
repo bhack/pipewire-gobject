@@ -194,6 +194,20 @@ PWG_API
 gboolean pwg_global_is_node(PwgGlobal *self);
 
 /**
+ * pwg_global_is_port:
+ * @self: a PipeWire global descriptor.
+ *
+ * Checks whether this global describes a PipeWire port.
+ *
+ * Returns: whether this global is a PipeWire port.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_port(PwgGlobal *self);
+
+/**
  * pwg_global_is_metadata:
  * @self: a PipeWire global descriptor.
  *
