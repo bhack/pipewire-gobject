@@ -41,6 +41,8 @@ public API and ABI as unstable unless a future release policy says otherwise.
   PipeWire compatibility CI.
 - `.github/workflows/codeql.yml`: CodeQL C/C++ analysis.
 - `.github/workflows/dependency-review.yml`: GitHub dependency review for PRs.
+- `.github/workflows/release.yml`: tag/manual release archive builder and
+  GitHub prerelease publisher.
 - `.github/dependabot.yml`: weekly GitHub Actions dependency updates.
 - `Dockerfile`: canonical Debian trixie development and validation image.
 - `ruff.toml`: Python lint configuration for tests and examples.

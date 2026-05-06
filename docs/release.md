@@ -26,6 +26,28 @@ This checklist is for the first public `0.x` releases.
    meson dist -C build
    ```
 
+   For published releases, prefer the GitHub release workflow so the archive is
+   built from the pushed tag in CI rather than uploaded from a local checkout.
+   Pushing a bare version tag triggers the workflow and creates a draft
+   prerelease by default:
+
+   ```bash
+   version=X.Y.Z
+   git tag -a "$version" -m "pipewire-gobject $version"
+   git push origin "$version"
+   ```
+
+   To rerun the release build for an existing tag, dispatch the workflow
+   manually:
+
+   ```bash
+   gh workflow run release.yml --ref main \
+     -f tag_name="$version" \
+     -f create_github_release=true \
+     -f draft=true \
+     -f prerelease=true
+   ```
+
 6. Verify CI has passed against:
 
    - the declared minimum PipeWire dependency,
