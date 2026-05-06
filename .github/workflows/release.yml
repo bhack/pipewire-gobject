@@ -1,0 +1,200 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Bare version tag to release, for example 0.1.0"
+        required: true
+        type: string
+      create_github_release:
+        description: "Create or update the GitHub release with CI-built assets"
+        required: true
+        default: true
+        type: boolean
+      draft:
+        description: "Create a draft GitHub release when the release does not exist"
+        required: true
+        default: true
+        type: boolean
+      prerelease:
+        description: "Mark the GitHub release as a prerelease"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}-${{ inputs.tag_name || '' }}
+  cancel-in-progress: false
+
+jobs:
+  dist:
+    name: Build release archive
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+
+    steps:
+      - name: Resolve release inputs
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            tag_name="${{ inputs.tag_name }}"
+            create_release="${{ inputs.create_github_release }}"
+            draft="${{ inputs.draft }}"
+            prerelease="${{ inputs.prerelease }}"
+          else
+            tag_name="${GITHUB_REF_NAME}"
+            create_release="true"
+            draft="true"
+            prerelease="true"
+          fi
+
+          if [ -z "$tag_name" ]; then
+            echo "::error::tag_name is required"
+            exit 1
+          fi
+
+          if [[ "$tag_name" == v* ]]; then
+            echo "::error::Use bare version tags such as 0.1.0, not v0.1.0"
+            exit 1
+          fi
+
+          if ! [[ "$tag_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9][A-Za-z0-9.-]*)?$ ]]; then
+            echo "::error::Tag must look like a version, for example 0.1.0"
+            exit 1
+          fi
+
+          {
+            echo "tag_name=$tag_name"
+            echo "version=$tag_name"
+            echo "create_release=$create_release"
+            echo "draft=$draft"
+            echo "prerelease=$prerelease"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            gh \
+            git \
+            gobject-introspection \
+            libgirepository1.0-dev \
+            libglib2.0-dev \
+            libpipewire-0.3-dev \
+            libspa-0.2-modules \
+            meson \
+            ninja-build \
+            pipewire \
+            pkg-config \
+            python3 \
+            python3-gi
+
+      - name: Check out release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.release.outputs.tag_name }}
+          fetch-depth: 0
+
+      - name: Build and test release archive
+        id: dist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config --global --add safe.directory "$PWD"
+
+          meson setup build-release
+          meson compile -C build-release
+          meson test -C build-release --print-errorlogs
+          DESTDIR="$PWD/install-root" meson install -C build-release --no-rebuild
+          meson dist -C build-release
+
+          project_version="$(
+            meson introspect build-release --projectinfo \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])'
+          )"
+
+          if [ "$project_version" != "${{ steps.release.outputs.version }}" ]; then
+            echo "::error::meson.build version $project_version does not match tag ${{ steps.release.outputs.version }}"
+            exit 1
+          fi
+
+          archive="build-release/meson-dist/pipewire-gobject-${project_version}.tar.xz"
+          checksum="${archive}.sha256sum"
+
+          if [ ! -f "$archive" ] || [ ! -f "$checksum" ]; then
+            echo "::error::Expected Meson dist archive and checksum were not created"
+            exit 1
+          fi
+
+          sha256sum "$archive"
+
+          {
+            echo "archive=$archive"
+            echo "checksum=$checksum"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipewire-gobject-${{ steps.release.outputs.version }}-dist
+          path: |
+            ${{ steps.dist.outputs.archive }}
+            ${{ steps.dist.outputs.checksum }}
+          if-no-files-found: error
+
+      - name: Create release notes
+        if: steps.release.outputs.create_release == 'true'
+        shell: bash
+        run: |
+          cat > release-notes.md <<'EOF'
+          Experimental 0.x preview of the standalone GI-friendly PipeWire binding layer.
+
+          This is a public preview, not an API/ABI stability promise. Review the changelog and documentation for the release-specific scope and limitations.
+          EOF
+
+      - name: Create or update GitHub release
+        if: steps.release.outputs.create_release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag_name="${{ steps.release.outputs.tag_name }}"
+          archive="${{ steps.dist.outputs.archive }}"
+          checksum="${{ steps.dist.outputs.checksum }}"
+
+          if gh release view "$tag_name" >/dev/null 2>&1; then
+            gh release upload "$tag_name" "$archive" "$checksum" --clobber
+            exit 0
+          fi
+
+          flags=()
+          if [ "${{ steps.release.outputs.draft }}" = "true" ]; then
+            flags+=(--draft)
+          fi
+          if [ "${{ steps.release.outputs.prerelease }}" = "true" ]; then
+            flags+=(--prerelease)
+          fi
+
+          gh release create "$tag_name" \
+            "$archive" \
+            "$checksum" \
+            --title "pipewire-gobject $tag_name" \
+            --notes-file release-notes.md \
+            "${flags[@]}"
