@@ -59,6 +59,8 @@ The current prototype exposes:
 - `Pwg.Registry` and `Pwg.Global` for immutable global discovery, common
   property accessors, and snapshot filter helpers;
 - `Pwg.NodeInfo` for node-focused views of immutable global descriptors;
+- `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` for live read-only node
+  parameter inspection with copied parameter data;
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, `clear()`, and default audio node-name helpers;
 - `Pwg.Stream` for high-level audio capture;

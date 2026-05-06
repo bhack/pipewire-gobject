@@ -13,6 +13,8 @@
   name and description helpers.
 - Add a Python port-listing example.
 - Add a Python graph summary example and broaden live discovery smoke coverage.
+- Add `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` as the first read-only
+  node parameter inspection API.
 
 ## 0.1.0 - 2026-05-06
 

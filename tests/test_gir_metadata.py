@@ -316,6 +316,126 @@ for method_name in (
     assert node_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
     assert node_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 
+node = namespace.find("gir:class[@name='Node']", GIR_NS)
+assert node is not None
+assert node.attrib[f"{{{C_URI}}}type"] == "PwgNode"
+assert node.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_node_get_type"
+node_constructor = node.find("gir:constructor[@name='new']", GIR_NS)
+assert node_constructor is not None
+assert node_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert node_constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+node_core_param = node_constructor.find("gir:parameters/gir:parameter[@name='core']", GIR_NS)
+assert node_core_param is not None
+assert node_core_param.find("gir:type", GIR_NS).attrib["name"] == "Core"
+node_global_param = node_constructor.find("gir:parameters/gir:parameter[@name='global']", GIR_NS)
+assert node_global_param is not None
+assert node_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
+node_start = node.find("gir:method[@name='start']", GIR_NS)
+assert node_start is not None
+assert node_start.attrib.get("throws") == "1"
+node_enum_params = node.find("gir:method[@name='enum_params']", GIR_NS)
+assert node_enum_params is not None
+assert node_enum_params.attrib.get("throws") == "1"
+node_enum_all_params = node.find("gir:method[@name='enum_all_params']", GIR_NS)
+assert node_enum_all_params is not None
+assert node_enum_all_params.attrib.get("throws") == "1"
+for method_name in (
+    "get_core",
+    "get_global",
+    "get_running",
+    "get_bound",
+    "get_param_infos",
+    "get_params",
+):
+    assert node.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+for property_name in (
+    "running",
+    "bound",
+    "param-infos",
+    "params",
+):
+    assert node.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
+node_param_signal = node.find("glib:signal[@name='param']", GIR_NS)
+assert node_param_signal is not None
+node_param_signal_param = node_param_signal.find("gir:parameters/gir:parameter[@name='param']", GIR_NS)
+assert node_param_signal_param is not None
+assert node_param_signal_param.find("gir:type", GIR_NS).attrib["name"] == "Param"
+
+param = namespace.find("gir:class[@name='Param']", GIR_NS)
+assert param is not None
+assert param.attrib[f"{{{C_URI}}}type"] == "PwgParam"
+assert param.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_param_get_type"
+for method_name in (
+    "get_seq",
+    "get_id",
+    "dup_name",
+    "get_index",
+    "get_next",
+    "get_pod_type",
+    "dup_pod_type_name",
+    "get_object_type",
+    "dup_object_type_name",
+    "get_object_id",
+    "dup_object_id_name",
+    "get_bytes",
+    "dup_summary",
+):
+    assert param.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+param_bytes = param.find("gir:method[@name='get_bytes']", GIR_NS)
+assert param_bytes.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert param_bytes.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "GLib.Bytes"
+for method_name in (
+    "dup_name",
+    "dup_pod_type_name",
+    "dup_object_type_name",
+    "dup_object_id_name",
+    "dup_summary",
+):
+    param_dup = param.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert param_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+for property_name in (
+    "seq",
+    "id",
+    "name",
+    "index",
+    "next",
+    "pod-type",
+    "pod-type-name",
+    "object-type",
+    "object-type-name",
+    "object-id",
+    "object-id-name",
+    "bytes",
+    "summary",
+):
+    assert param.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
+
+param_info = namespace.find("gir:class[@name='ParamInfo']", GIR_NS)
+assert param_info is not None
+assert param_info.attrib[f"{{{C_URI}}}type"] == "PwgParamInfo"
+assert param_info.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_param_info_get_type"
+for method_name in (
+    "get_id",
+    "dup_name",
+    "get_flags",
+    "get_readable",
+    "get_writable",
+    "get_serial",
+):
+    assert param_info.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+param_info_name = param_info.find("gir:method[@name='dup_name']", GIR_NS)
+assert param_info_name.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert param_info_name.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+for property_name in (
+    "id",
+    "name",
+    "flags",
+    "readable",
+    "writable",
+    "serial",
+):
+    assert param_info.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
+
 port_info = namespace.find("gir:class[@name='PortInfo']", GIR_NS)
 assert port_info is not None
 assert port_info.attrib[f"{{{C_URI}}}type"] == "PwgPortInfo"
