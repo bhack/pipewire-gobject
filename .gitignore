@@ -1,6 +1,7 @@
 /build/
 /build-*/
 /install-root*/
+/.agents/
 *.o
 *.so
 *.so.*
