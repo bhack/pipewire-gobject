@@ -107,7 +107,20 @@ if node is not None:
         print(param_info.get_id(), param_info.dup_name() or "")
 
     def on_param(_node, param):
-        print(param.get_id(), param.dup_name() or "", param.dup_summary())
+        print(
+            param.get_id(),
+            param.dup_name() or "",
+            param.dup_format_media_type_name() or "",
+            param.dup_format_media_subtype_name() or "",
+            param.dup_summary(),
+        )
+        audio_format = param.dup_audio_format()
+        if audio_format is not None:
+            print(
+                audio_format.get_sample_format(),
+                audio_format.get_rate(),
+                audio_format.get_channels(),
+            )
 
     node.connect("param", on_param)
     node.enum_all_params()

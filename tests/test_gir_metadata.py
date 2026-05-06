@@ -377,10 +377,19 @@ for method_name in (
     "dup_object_type_name",
     "get_object_id",
     "dup_object_id_name",
+    "get_format_media_type",
+    "dup_format_media_type_name",
+    "get_format_media_subtype",
+    "dup_format_media_subtype_name",
+    "dup_audio_format",
     "get_bytes",
     "dup_summary",
 ):
     assert param.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+param_audio_format = param.find("gir:method[@name='dup_audio_format']", GIR_NS)
+assert param_audio_format.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert param_audio_format.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+assert param_audio_format.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "AudioFormat"
 param_bytes = param.find("gir:method[@name='get_bytes']", GIR_NS)
 assert param_bytes.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
 assert param_bytes.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "GLib.Bytes"
@@ -389,10 +398,18 @@ for method_name in (
     "dup_pod_type_name",
     "dup_object_type_name",
     "dup_object_id_name",
+    "dup_format_media_type_name",
+    "dup_format_media_subtype_name",
     "dup_summary",
 ):
     param_dup = param.find(f"gir:method[@name='{method_name}']", GIR_NS)
     assert param_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+for method_name in (
+    "dup_format_media_type_name",
+    "dup_format_media_subtype_name",
+):
+    param_dup = param.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert param_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 for property_name in (
     "seq",
     "id",

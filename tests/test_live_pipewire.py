@@ -133,6 +133,7 @@ def node_param_maybe_done(*_args):
 
 
 def on_node_param(_node, param):
+    audio_format = param.dup_audio_format()
     print(
         "node-param",
         param.get_seq(),
@@ -140,8 +141,17 @@ def on_node_param(_node, param):
         param.dup_name() or "",
         param.get_pod_type(),
         param.dup_pod_type_name() or "",
+        param.dup_format_media_type_name() or "",
+        param.dup_format_media_subtype_name() or "",
         param.dup_summary(),
     )
+    if audio_format is not None:
+        print(
+            "node-param-audio-format",
+            audio_format.get_sample_format(),
+            audio_format.get_rate(),
+            audio_format.get_channels(),
+        )
     node_param_loop.quit()
 
 

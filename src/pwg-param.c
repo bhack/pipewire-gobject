@@ -1,5 +1,9 @@
 #include "pwg-param.h"
 
+#include <spa/param/audio/raw-utils.h>
+#include <spa/param/audio/raw-types.h>
+#include <spa/param/format-types.h>
+#include <spa/param/format-utils.h>
 #include <spa/debug/types.h>
 #include <spa/param/param-types.h>
 #include <spa/pod/iter.h>
@@ -93,6 +97,81 @@ pwg_param_object_id_name(guint object_type, guint object_id)
     return NULL;
 
   return spa_debug_type_find_short_name(id_root->values, object_id);
+}
+
+static gboolean
+pwg_param_parse_format(PwgParam *self, guint *media_type, guint *media_subtype)
+{
+  const struct spa_pod *pod;
+  uint32_t parsed_media_type = 0;
+  uint32_t parsed_media_subtype = 0;
+
+  pod = pwg_param_get_pod(self);
+  if (pod == NULL || SPA_POD_TYPE(pod) != SPA_TYPE_Object)
+    return FALSE;
+  if (SPA_POD_OBJECT_TYPE((const struct spa_pod_object *) pod) != SPA_TYPE_OBJECT_Format)
+    return FALSE;
+  if (spa_format_parse(pod, &parsed_media_type, &parsed_media_subtype) < 0)
+    return FALSE;
+
+  if (media_type != NULL)
+    *media_type = parsed_media_type;
+  if (media_subtype != NULL)
+    *media_subtype = parsed_media_subtype;
+
+  return TRUE;
+}
+
+static const char *
+pwg_param_audio_format_name(enum spa_audio_format format)
+{
+  return spa_debug_type_find_short_name(spa_type_audio_format, format);
+}
+
+static guint
+pwg_param_audio_format_bytes_per_sample(enum spa_audio_format format)
+{
+  switch (format) {
+  case SPA_AUDIO_FORMAT_U8:
+  case SPA_AUDIO_FORMAT_S8:
+  case SPA_AUDIO_FORMAT_ULAW:
+  case SPA_AUDIO_FORMAT_ALAW:
+  case SPA_AUDIO_FORMAT_U8P:
+  case SPA_AUDIO_FORMAT_S8P:
+    return 1;
+  case SPA_AUDIO_FORMAT_S16_LE:
+  case SPA_AUDIO_FORMAT_S16_BE:
+  case SPA_AUDIO_FORMAT_U16_LE:
+  case SPA_AUDIO_FORMAT_U16_BE:
+  case SPA_AUDIO_FORMAT_S16P:
+    return 2;
+  case SPA_AUDIO_FORMAT_S24_LE:
+  case SPA_AUDIO_FORMAT_S24_BE:
+  case SPA_AUDIO_FORMAT_U24_LE:
+  case SPA_AUDIO_FORMAT_U24_BE:
+  case SPA_AUDIO_FORMAT_S24P:
+    return 3;
+  case SPA_AUDIO_FORMAT_S24_32_LE:
+  case SPA_AUDIO_FORMAT_S24_32_BE:
+  case SPA_AUDIO_FORMAT_U24_32_LE:
+  case SPA_AUDIO_FORMAT_U24_32_BE:
+  case SPA_AUDIO_FORMAT_S32_LE:
+  case SPA_AUDIO_FORMAT_S32_BE:
+  case SPA_AUDIO_FORMAT_U32_LE:
+  case SPA_AUDIO_FORMAT_U32_BE:
+  case SPA_AUDIO_FORMAT_F32_LE:
+  case SPA_AUDIO_FORMAT_F32_BE:
+  case SPA_AUDIO_FORMAT_S24_32P:
+  case SPA_AUDIO_FORMAT_S32P:
+  case SPA_AUDIO_FORMAT_F32P:
+    return 4;
+  case SPA_AUDIO_FORMAT_F64_LE:
+  case SPA_AUDIO_FORMAT_F64_BE:
+  case SPA_AUDIO_FORMAT_F64P:
+    return 8;
+  default:
+    return 0;
+  }
 }
 
 static guint
@@ -616,6 +695,89 @@ pwg_param_dup_object_id_name(PwgParam *self)
   object_id = pwg_param_get_object_id(self);
   name = pwg_param_object_id_name(object_type, object_id);
   return name != NULL ? g_strdup(name) : NULL;
+}
+
+guint
+pwg_param_get_format_media_type(PwgParam *self)
+{
+  guint media_type = 0;
+
+  g_return_val_if_fail(PWG_IS_PARAM(self), 0);
+
+  if (!pwg_param_parse_format(self, &media_type, NULL))
+    return 0;
+
+  return media_type;
+}
+
+char *
+pwg_param_dup_format_media_type_name(PwgParam *self)
+{
+  guint media_type = 0;
+  const char *name;
+
+  g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
+
+  if (!pwg_param_parse_format(self, &media_type, NULL))
+    return NULL;
+
+  name = spa_debug_type_find_short_name(spa_type_media_type, media_type);
+  return name != NULL ? g_strdup(name) : NULL;
+}
+
+guint
+pwg_param_get_format_media_subtype(PwgParam *self)
+{
+  guint media_subtype = 0;
+
+  g_return_val_if_fail(PWG_IS_PARAM(self), 0);
+
+  if (!pwg_param_parse_format(self, NULL, &media_subtype))
+    return 0;
+
+  return media_subtype;
+}
+
+char *
+pwg_param_dup_format_media_subtype_name(PwgParam *self)
+{
+  guint media_subtype = 0;
+  const char *name;
+
+  g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
+
+  if (!pwg_param_parse_format(self, NULL, &media_subtype))
+    return NULL;
+
+  name = spa_debug_type_find_short_name(spa_type_media_subtype, media_subtype);
+  return name != NULL ? g_strdup(name) : NULL;
+}
+
+PwgAudioFormat *
+pwg_param_dup_audio_format(PwgParam *self)
+{
+  const struct spa_pod *pod;
+  guint media_type = 0;
+  guint media_subtype = 0;
+  struct spa_audio_info_raw raw_info = {0};
+  const char *sample_format;
+
+  g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
+
+  pod = pwg_param_get_pod(self);
+  if (!pwg_param_parse_format(self, &media_type, &media_subtype))
+    return NULL;
+  if (media_type != SPA_MEDIA_TYPE_audio || media_subtype != SPA_MEDIA_SUBTYPE_raw)
+    return NULL;
+  if (spa_format_audio_raw_parse(pod, &raw_info) < 0)
+    return NULL;
+
+  sample_format = pwg_param_audio_format_name(raw_info.format);
+  return pwg_audio_format_new(
+    sample_format != NULL ? sample_format : "unknown",
+    raw_info.rate,
+    raw_info.channels,
+    pwg_param_audio_format_bytes_per_sample(raw_info.format));
 }
 
 GBytes *
