@@ -401,6 +401,14 @@ pwg_global_is_device(PwgGlobal *self)
 }
 
 gboolean
+pwg_global_is_link(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Link);
+}
+
+gboolean
 pwg_global_is_port(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);

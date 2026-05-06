@@ -13,6 +13,7 @@ assert core.get_connected() is False
 assert isinstance(core.get_library_version(), str)
 assert hasattr(Pwg, "ClientInfo")
 assert hasattr(Pwg, "DeviceInfo")
+assert hasattr(Pwg, "LinkInfo")
 assert hasattr(Pwg, "NodeInfo")
 assert hasattr(Pwg, "PortInfo")
 
