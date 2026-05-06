@@ -47,6 +47,8 @@ default audio node-name helpers, registry lookup/filter helpers, typed
 client/device/node/port/link views for discovered globals, node parameter
 inspection, stream start/stop, and the compatibility capture wrapper.
 
-It does not yet assert negotiated format delivery, `level` signals, or
-`audio-block` signals. A future deterministic graph test should cover those
-before the stream data API is considered mature.
+A deterministic stream dispatch test covers negotiated format updates, `level`
+signals, and copied `audio-block` signal delivery from known F32 sample data.
+It does not yet prove those signals through a live PipeWire graph. A future
+deterministic graph test should cover real graph negotiation before the stream
+data API is considered mature.

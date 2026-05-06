@@ -64,8 +64,9 @@ Applications also need limited control APIs, but not a raw low-level SPA API:
 
 The stream API should become useful beyond peak-meter demos:
 
-- deterministic tests for negotiated audio format delivery;
-- tests for `level` and `audio-block` signal delivery;
+- deterministic tests for negotiated audio format, `level`, and `audio-block`
+  dispatch;
+- deterministic graph tests for live stream negotiation and delivery;
 - bounded buffering and backpressure behavior for copied blocks;
 - clearer capture/playback/monitor constructors;
 - target selection by object serial or node name where PipeWire supports it;

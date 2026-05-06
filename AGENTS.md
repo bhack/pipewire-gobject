@@ -69,6 +69,8 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `src/pwg-registry.*`: PipeWire registry discovery wrapper.
 - `src/pwg.h`: aggregate public include.
 - `tests/test_import.py`: PyGObject import and basic API smoke test.
+- `tests/test_stream_dispatch.c`: deterministic stream format, level, and
+  copied audio-block dispatch test.
 - `tests/test_symbols.py`: exported-symbol guard for the shared library.
 - `meson.build`: library, GIR, typelib, and test build rules.
 - `docs/roadmap.md`: experimental `0.x` scope and API growth plan.

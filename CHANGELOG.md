@@ -21,6 +21,8 @@ The release version will be assigned when the next tag is prepared.
 - Add typed raw audio format helpers for copied node parameters.
 - Add copied `Props` builders and `Pwg.Node.set_param()` for limited writable
   node parameter updates.
+- Add deterministic stream dispatch coverage for negotiated format updates,
+  `level` signals, and copied `audio-block` delivery.
 
 ## 0.1.0 - 2026-05-06
 

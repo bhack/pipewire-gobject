@@ -188,3 +188,18 @@ test(
   args: [files('tests/test_symbols.py'), meson.current_build_dir()],
   depends: pwg_lib,
 )
+
+stream_dispatch_test = executable(
+  'test-stream-dispatch',
+  pwg_sources + ['tests/test_stream_dispatch.c'],
+  dependencies: [glib_dep, gio_dep, gobject_dep, pipewire_dep],
+  include_directories: pwg_inc,
+  c_args: [
+    '-DBUILDING_PWG',
+    '-DPWG_STREAM_TESTING',
+    '-DPWG_VERSION="@0@"'.format(meson.project_version()),
+  ],
+  gnu_symbol_visibility: 'hidden',
+)
+
+test('stream-dispatch', stream_dispatch_test)
