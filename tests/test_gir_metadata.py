@@ -346,8 +346,15 @@ for method_name in (
     "get_bound",
     "get_param_infos",
     "get_params",
+    "set_param",
 ):
     assert node.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+node_set_param = node.find("gir:method[@name='set_param']", GIR_NS)
+assert node_set_param is not None
+assert node_set_param.attrib.get("throws") == "1"
+node_set_param_arg = node_set_param.find("gir:parameters/gir:parameter[@name='param']", GIR_NS)
+assert node_set_param_arg is not None
+assert node_set_param_arg.find("gir:type", GIR_NS).attrib["name"] == "Param"
 for property_name in (
     "running",
     "bound",
@@ -365,6 +372,14 @@ param = namespace.find("gir:class[@name='Param']", GIR_NS)
 assert param is not None
 assert param.attrib[f"{{{C_URI}}}type"] == "PwgParam"
 assert param.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_param_get_type"
+for constructor_name in (
+    "new_props_mute",
+    "new_props_volume",
+):
+    constructor = param.find(f"gir:constructor[@name='{constructor_name}']", GIR_NS)
+    assert constructor is not None
+    assert constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 for method_name in (
     "get_seq",
     "get_id",

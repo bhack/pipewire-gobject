@@ -13,7 +13,8 @@ G_BEGIN_DECLS
 /**
  * PwgParam:
  *
- * Immutable copied PipeWire parameter returned by node parameter enumeration.
+ * Immutable copied PipeWire parameter returned by node parameter enumeration or
+ * built by library constructors.
  *
  * Parameter objects own copied POD bytes and do not expose PipeWire or SPA
  * memory ownership to language bindings.
@@ -23,6 +24,36 @@ G_BEGIN_DECLS
  */
 PWG_API
 G_DECLARE_FINAL_TYPE(PwgParam, pwg_param, PWG, PARAM, GObject)
+
+/**
+ * pwg_param_new_props_volume:
+ * @volume: linear volume, where 0.0 is silence and 1.0 is unity gain.
+ *
+ * Builds a copied SPA `Props` parameter containing a `volume` property.
+ *
+ * Returns: (nullable) (transfer full): a copied parameter, or %NULL on invalid
+ *   input.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+PwgParam *pwg_param_new_props_volume(gdouble volume);
+
+/**
+ * pwg_param_new_props_mute:
+ * @mute: whether the target should be muted.
+ *
+ * Builds a copied SPA `Props` parameter containing a `mute` property.
+ *
+ * Returns: (nullable) (transfer full): a copied parameter, or %NULL if it could
+ *   not be built.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+PwgParam *pwg_param_new_props_mute(gboolean mute);
 
 /**
  * pwg_param_get_seq:

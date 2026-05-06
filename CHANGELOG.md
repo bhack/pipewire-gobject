@@ -16,6 +16,8 @@
 - Add `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` as the first read-only
   node parameter inspection API.
 - Add typed raw audio format helpers for copied node parameters.
+- Add copied `Props` builders and `Pwg.Node.set_param()` for limited writable
+  node parameter updates.
 
 ## 0.1.0 - 2026-05-06
 

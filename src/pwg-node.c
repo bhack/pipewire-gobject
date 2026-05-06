@@ -741,3 +741,47 @@ pwg_node_enum_all_params(PwgNode *self, GError **error)
 {
   return pwg_node_enum_params(self, PW_ID_ANY, 0, 0, error);
 }
+
+gboolean
+pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error)
+{
+  struct pw_thread_loop *thread_loop;
+  const struct spa_pod *pod;
+  int result;
+
+  g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
+  g_return_val_if_fail(PWG_IS_PARAM(param), FALSE);
+
+  if (self->node == NULL || !self->bound) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Node object is not bound");
+    return FALSE;
+  }
+
+  thread_loop = self->core != NULL ? pwg_core_get_thread_loop_internal(self->core) : NULL;
+  if (thread_loop == NULL) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "PipeWire core is not connected");
+    return FALSE;
+  }
+
+  pod = _pwg_param_get_pod(param);
+  if (pod == NULL) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Parameter has no valid SPA POD");
+    return FALSE;
+  }
+
+  pw_thread_loop_lock(thread_loop);
+  result = pw_node_set_param(self->node, pwg_param_get_id(param), 0, pod);
+  pw_thread_loop_unlock(thread_loop);
+
+  if (result < 0) {
+    g_set_error(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_PIPEWIRE,
+      "Could not set PipeWire node param: %s",
+      g_strerror(-result));
+    return FALSE;
+  }
+
+  return TRUE;
+}
