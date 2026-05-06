@@ -393,6 +393,14 @@ pwg_global_is_client(PwgGlobal *self)
 }
 
 gboolean
+pwg_global_is_device(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Device);
+}
+
+gboolean
 pwg_global_is_port(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);

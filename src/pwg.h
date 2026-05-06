@@ -51,6 +51,7 @@ G_END_DECLS
 #include "pwg-audio-format.h"
 #include "pwg-client-info.h"
 #include "pwg-core.h"
+#include "pwg-device-info.h"
 #include "pwg-error.h"
 #include "pwg-global.h"
 #include "pwg-metadata.h"

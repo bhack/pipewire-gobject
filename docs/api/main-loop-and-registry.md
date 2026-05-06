@@ -52,6 +52,20 @@ if clients.get_n_items() > 0:
         )
 ```
 
+For device-specific discovery, wrap a device global in [class@Pwg.DeviceInfo]:
+
+```python
+devices = registry.dup_globals_by_interface("PipeWire:Interface:Device")
+if devices.get_n_items() > 0:
+    device = Pwg.DeviceInfo.new_from_global(devices.get_item(0))
+    if device is not None:
+        print(
+            device.dup_description() or device.dup_nick() or device.dup_name() or "",
+            device.dup_api() or "",
+            device.dup_form_factor() or "",
+        )
+```
+
 For node-specific discovery, wrap a node global in [class@Pwg.NodeInfo]:
 
 ```python

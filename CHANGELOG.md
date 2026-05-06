@@ -6,6 +6,7 @@
   target.
 - Add `Pwg.ClientInfo` as an immutable client-focused view of `Pwg.Global`.
 - Add `Pwg.Global.is_client()` and a Python client-listing example.
+- Add `Pwg.DeviceInfo` as an immutable device-focused view of `Pwg.Global`.
 - Add `Pwg.PortInfo` as an immutable port-focused view of `Pwg.Global`.
 - Add `Pwg.Global.is_port()` and include port names/aliases in generic global
   name and description helpers.
