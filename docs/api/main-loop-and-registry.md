@@ -87,9 +87,30 @@ For node-specific discovery, wrap a node global in [class@Pwg.NodeInfo]:
 ```python
 nodes = registry.dup_globals_by_interface("PipeWire:Interface:Node")
 if nodes.get_n_items() > 0:
-    node = Pwg.NodeInfo.new_from_global(nodes.get_item(0))
-    if node is not None:
-        print(node.dup_name() or "", node.dup_media_class() or "")
+    node_info = Pwg.NodeInfo.new_from_global(nodes.get_item(0))
+    if node_info is not None:
+        print(node_info.dup_name() or "", node_info.dup_media_class() or "")
+```
+
+For read-only node parameter inspection, bind the same global with
+[class@Pwg.Node]. The live node proxy exposes copied [class@Pwg.ParamInfo]
+descriptors and emits copied [class@Pwg.Param] values when enumeration results
+arrive:
+
+```python
+node = Pwg.Node.new(core, nodes.get_item(0))
+if node is not None:
+    node.start()
+
+    for index in range(node.get_param_infos().get_n_items()):
+        param_info = node.get_param_infos().get_item(index)
+        print(param_info.get_id(), param_info.dup_name() or "")
+
+    def on_param(_node, param):
+        print(param.get_id(), param.dup_name() or "", param.dup_summary())
+
+    node.connect("param", on_param)
+    node.enum_all_params()
 ```
 
 For port-specific discovery, wrap a port global in [class@Pwg.PortInfo]:

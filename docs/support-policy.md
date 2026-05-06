@@ -44,8 +44,8 @@ a CI test fixture only; it is not part of this repository's source boundary.
 The current live smoke test verifies that a temporary PipeWire daemon can be
 used for core connection, registry discovery, metadata binding/change delivery,
 default audio node-name helpers, registry lookup/filter helpers, typed
-client/device/node/port/link views for discovered globals, stream start/stop,
-and the compatibility capture wrapper.
+client/device/node/port/link views for discovered globals, read-only node
+parameter inspection, stream start/stop, and the compatibility capture wrapper.
 
 It does not yet assert negotiated format delivery, `level` signals, or
 `audio-block` signals. A future deterministic graph test should cover those

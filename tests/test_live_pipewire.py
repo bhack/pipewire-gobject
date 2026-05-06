@@ -84,6 +84,82 @@ print("registry-node-description", node_info.dup_description() or "")
 print("registry-node-media-class", node_info.dup_media_class() or "")
 print("registry-node-object-serial", node_info.dup_object_serial() or "")
 
+node = Pwg.Node.new(core, node_info.get_global())
+assert node is not None
+assert node.get_core() == core
+assert node.get_global().get_id() == node_info.get_id()
+assert node.get_running() is False
+assert node.get_bound() is False
+assert node.get_param_infos().get_n_items() == 0
+assert node.get_params().get_n_items() == 0
+print("node-start", node.start())
+assert node.get_running() is True
+assert node.get_bound() is True
+
+node_info_loop = GLib.MainLoop()
+
+
+def node_info_maybe_done(*_args):
+    if node.get_param_infos().get_n_items() > 0:
+        node_info_loop.quit()
+        return False
+    return True
+
+
+node.get_param_infos().connect("items-changed", node_info_maybe_done)
+GLib.timeout_add(50, node_info_maybe_done)
+GLib.timeout_add(500, node_info_loop.quit)
+node_info_loop.run()
+node_param_info_count = node.get_param_infos().get_n_items()
+print("node-param-info-count", node_param_info_count)
+for index in range(min(node_param_info_count, 3)):
+    param_info = node.get_param_infos().get_item(index)
+    print(
+        "node-param-info",
+        param_info.get_id(),
+        param_info.dup_name() or "",
+        param_info.get_readable(),
+        param_info.get_writable(),
+    )
+
+node_param_loop = GLib.MainLoop()
+
+
+def node_param_maybe_done(*_args):
+    if node.get_params().get_n_items() > 0:
+        node_param_loop.quit()
+        return False
+    return True
+
+
+def on_node_param(_node, param):
+    print(
+        "node-param",
+        param.get_seq(),
+        param.get_id(),
+        param.dup_name() or "",
+        param.get_pod_type(),
+        param.dup_pod_type_name() or "",
+        param.dup_summary(),
+    )
+    node_param_loop.quit()
+
+
+node.connect("param", on_node_param)
+try:
+    node_param_seq = node.enum_all_params()
+except GLib.GError as exc:
+    print("node-enum-all-params-error", exc.message)
+else:
+    print("node-enum-all-params", node_param_seq)
+    node.get_params().connect("items-changed", node_param_maybe_done)
+    GLib.timeout_add(50, node_param_maybe_done)
+    GLib.timeout_add(500, node_param_loop.quit)
+    node_param_loop.run()
+    print("node-param-count", node.get_params().get_n_items())
+node.stop()
+print("node-running-after-stop", node.get_running())
+
 client_globals = registry.dup_globals_by_interface("PipeWire:Interface:Client")
 client_count = client_globals.get_n_items()
 print("registry-client-count", client_count)

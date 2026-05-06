@@ -59,7 +59,10 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `src/pwg-global.*`: immutable descriptors for PipeWire registry globals.
 - `src/pwg-link-info.*`: immutable link-focused view of a registry global.
 - `src/pwg-metadata.*`: named PipeWire metadata wrapper.
+- `src/pwg-node.*`: live read-only node proxy for parameter inspection.
 - `src/pwg-node-info.*`: immutable node-focused view of a registry global.
+- `src/pwg-param.*`: immutable copied node parameter enumeration result.
+- `src/pwg-param-info.*`: immutable node parameter capability descriptor.
 - `src/pwg-port-info.*`: immutable port-focused view of a registry global.
 - `src/pwg-registry.*`: PipeWire registry discovery wrapper.
 - `src/pwg.h`: aggregate public include.

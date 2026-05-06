@@ -54,6 +54,7 @@ Applications also need limited control APIs, but not a raw low-level SPA API:
 - safe builders for common params used by applications;
 - enough SPA POD helpers for simple node params without exposing raw ownership;
 - typed convenience helpers where common PipeWire params are stable enough;
+- read-only live node parameter inspection before writable controls;
 - async or sync completion patterns that behave predictably from PyGObject and
   GJS;
 - tests that inspect generated GIR for ownership, nullable values, and thrown
