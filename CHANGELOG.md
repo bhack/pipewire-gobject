@@ -4,6 +4,8 @@
 
 - Add generated API reference support with `gi-docgen` and a Meson `docs`
   target.
+- Add `Pwg.ClientInfo` as an immutable client-focused view of `Pwg.Global`.
+- Add `Pwg.Global.is_client()` and a Python client-listing example.
 - Add `Pwg.PortInfo` as an immutable port-focused view of `Pwg.Global`.
 - Add `Pwg.Global.is_port()` and include port names/aliases in generic global
   name and description helpers.

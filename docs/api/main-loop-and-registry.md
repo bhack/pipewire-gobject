@@ -38,6 +38,20 @@ The registry keeps immutable [class@Pwg.Global] descriptors in a
 can inspect a stable set of objects without holding the registry's internal
 model.
 
+For client-specific discovery, wrap a client global in [class@Pwg.ClientInfo]:
+
+```python
+clients = registry.dup_globals_by_interface("PipeWire:Interface:Client")
+if clients.get_n_items() > 0:
+    client = Pwg.ClientInfo.new_from_global(clients.get_item(0))
+    if client is not None:
+        print(
+            client.dup_app_name() or client.dup_name() or "",
+            client.dup_app_id() or "",
+            client.dup_process_binary() or "",
+        )
+```
+
 For node-specific discovery, wrap a node global in [class@Pwg.NodeInfo]:
 
 ```python

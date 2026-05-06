@@ -115,8 +115,8 @@ Pwg import ok
 ```
 
 The `examples/python/` directory includes small PyGObject examples for registry,
-node and port listing, default metadata resolution, peak-meter level signals,
-and copied audio block delivery.
+client, node and port listing, default metadata resolution, peak-meter level
+signals, and copied audio block delivery.
 
 Minimal peak-meter usage:
 
