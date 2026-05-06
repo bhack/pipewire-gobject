@@ -66,6 +66,22 @@ if devices.get_n_items() > 0:
         )
 ```
 
+For link-specific discovery, wrap a link global in [class@Pwg.LinkInfo]:
+
+```python
+links = registry.dup_globals_by_interface("PipeWire:Interface:Link")
+if links.get_n_items() > 0:
+    link = Pwg.LinkInfo.new_from_global(links.get_item(0))
+    if link is not None:
+        print(
+            link.dup_output_node_id() or "",
+            link.dup_output_port_id() or "",
+            "->",
+            link.dup_input_node_id() or "",
+            link.dup_input_port_id() or "",
+        )
+```
+
 For node-specific discovery, wrap a node global in [class@Pwg.NodeInfo]:
 
 ```python

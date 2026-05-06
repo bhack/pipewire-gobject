@@ -57,6 +57,7 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `src/pwg-defs.h`: public export macros for the C ABI.
 - `src/pwg-device-info.*`: immutable device-focused view of a registry global.
 - `src/pwg-global.*`: immutable descriptors for PipeWire registry globals.
+- `src/pwg-link-info.*`: immutable link-focused view of a registry global.
 - `src/pwg-metadata.*`: named PipeWire metadata wrapper.
 - `src/pwg-node-info.*`: immutable node-focused view of a registry global.
 - `src/pwg-port-info.*`: immutable port-focused view of a registry global.
