@@ -25,6 +25,7 @@ pwg_sources = [
   'src/pwg-error.c',
   'src/pwg-global.c',
   'src/pwg-metadata.c',
+  'src/pwg-node-info.c',
   'src/pwg-registry.c',
   'src/pwg-stream.c',
 ]
@@ -38,6 +39,7 @@ pwg_headers = [
   'src/pwg-error.h',
   'src/pwg-global.h',
   'src/pwg-metadata.h',
+  'src/pwg-node-info.h',
   'src/pwg.h',
   'src/pwg-registry.h',
   'src/pwg-stream.h',

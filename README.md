@@ -25,6 +25,7 @@ The `0.1` prototype currently exposes:
   `Gio.ListModel`.
 - `Pwg.Global`: immutable descriptors for discovered PipeWire globals with
   common property accessors.
+- `Pwg.NodeInfo`: immutable node-focused view of a `Pwg.Global`.
 - `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata,
   including default audio node-name helpers.
 - `Pwg.Stream`: high-level audio capture stream with optional copied sample
@@ -35,8 +36,8 @@ The `0.1` prototype currently exposes:
 - GIR and typelib generation through Meson.
 - Python import smoke test through PyGObject.
 
-Richer live node/proxy helpers, params, and mixer/panel-oriented APIs are
-roadmap items, not stable implemented API yet.
+Richer live proxy helpers, params, and mixer/panel-oriented APIs are roadmap
+items, not stable implemented API yet.
 
 ## Non-Goals For The Prototype
 
@@ -168,6 +169,11 @@ registry-first-description DESCRIPTION
 registry-first-media-class MEDIA_CLASS
 registry-first-object-serial SERIAL
 registry-first ID TYPE
+registry-node-count N
+registry-node-name NAME
+registry-node-description DESCRIPTION
+registry-node-media-class MEDIA_CLASS
+registry-node-object-serial SERIAL
 registry-running-after-stop False
 metadata-start True
 metadata-running True
@@ -203,6 +209,8 @@ signals, and properties:
 - Public types are GObject wrappers, not raw PipeWire or SPA structs.
 - PipeWire registry data is exposed as immutable `Pwg.Global` objects and
   `Gio.ListModel`, not as raw registry/proxy pointers.
+- Node discovery data can be viewed through immutable `Pwg.NodeInfo` wrappers;
+  live node proxy/control APIs are separate future work.
 - PipeWire stream callbacks stay in C; stream audio data is exposed as safe
   signal/property values instead of raw realtime buffers.
 - Audio sample access uses copied `Pwg.AudioBlock` objects with `GLib.Bytes`,

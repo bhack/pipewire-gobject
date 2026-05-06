@@ -52,6 +52,7 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `src/pwg-defs.h`: public export macros for the C ABI.
 - `src/pwg-global.*`: immutable descriptors for PipeWire registry globals.
 - `src/pwg-metadata.*`: named PipeWire metadata wrapper.
+- `src/pwg-node-info.*`: immutable node-focused view of a registry global.
 - `src/pwg-registry.*`: PipeWire registry discovery wrapper.
 - `src/pwg.h`: aggregate public include.
 - `tests/test_import.py`: PyGObject import and basic API smoke test.

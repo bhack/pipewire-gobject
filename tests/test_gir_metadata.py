@@ -174,6 +174,36 @@ assert global_class.find("gir:method[@name='is_node']", GIR_NS) is not None
 assert global_class.find("gir:method[@name='is_metadata']", GIR_NS) is not None
 assert global_class.find("gir:property[@name='interface-type']", GIR_NS) is not None
 
+node_info = namespace.find("gir:class[@name='NodeInfo']", GIR_NS)
+assert node_info is not None
+assert node_info.attrib[f"{{{C_URI}}}type"] == "PwgNodeInfo"
+assert node_info.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_node_info_get_type"
+node_info_constructor = node_info.find("gir:constructor[@name='new_from_global']", GIR_NS)
+assert node_info_constructor is not None
+assert node_info_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert node_info_constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+node_info_global_param = node_info_constructor.find(
+    "gir:parameters/gir:parameter[@name='global']",
+    GIR_NS,
+)
+assert node_info_global_param is not None
+assert node_info_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
+node_info_get_global = node_info.find("gir:method[@name='get_global']", GIR_NS)
+assert node_info_get_global is not None
+assert node_info_get_global.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "none"
+assert node_info_get_global.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Global"
+assert node_info.find("gir:method[@name='get_id']", GIR_NS) is not None
+for method_name in (
+    "dup_name",
+    "dup_description",
+    "dup_media_class",
+    "dup_object_serial",
+):
+    node_dup = node_info.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert node_dup is not None
+    assert node_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert node_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+
 registry = namespace.find("gir:class[@name='Registry']", GIR_NS)
 assert registry is not None
 assert registry.attrib[f"{{{C_URI}}}type"] == "PwgRegistry"

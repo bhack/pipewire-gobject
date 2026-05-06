@@ -22,6 +22,7 @@ The first preview establishes the library and GIR shape:
   `Gio.ListModel`.
 - Common `Pwg.Global` property accessors and `Pwg.Registry` lookup/filter
   helpers for app-side discovery.
+- `Pwg.NodeInfo` for node-focused views of immutable global descriptors.
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, and `clear()`.
 - `Pwg.Metadata` helpers for standard default and configured audio sink/source
@@ -38,7 +39,7 @@ The first preview establishes the library and GIR shape:
 The next useful layer is generic app-side graph visibility without importing
 WirePlumber policy concepts:
 
-- typed wrapper objects for common global interfaces such as nodes, ports,
+- typed wrapper objects for additional global interfaces such as ports,
   clients, and metadata objects;
 - richer property helpers that are safe and idiomatic from GI languages;
 - additional discovery filters for application properties and common
