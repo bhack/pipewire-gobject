@@ -15,6 +15,7 @@
 - Add a Python graph summary example and broaden live discovery smoke coverage.
 - Add `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` as the first read-only
   node parameter inspection API.
+- Add typed raw audio format helpers for copied node parameters.
 
 ## 0.1.0 - 2026-05-06
 

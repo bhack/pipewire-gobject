@@ -3,6 +3,7 @@
 #include <gio/gio.h>
 #include <glib-object.h>
 
+#include "pwg-audio-format.h"
 #include "pwg-defs.h"
 
 G_BEGIN_DECLS
@@ -177,6 +178,80 @@ guint pwg_param_get_object_id(PwgParam *self);
  */
 PWG_API
 char *pwg_param_dup_object_id_name(PwgParam *self);
+
+/**
+ * pwg_param_get_format_media_type:
+ * @self: a parameter object.
+ *
+ * Gets the SPA media type id when this parameter contains a SPA Format object.
+ *
+ * Returns: the SPA media type id, or 0 when this is not a Format parameter.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+guint pwg_param_get_format_media_type(PwgParam *self);
+
+/**
+ * pwg_param_dup_format_media_type_name:
+ * @self: a parameter object.
+ *
+ * Copies the short SPA media type name when this parameter contains a SPA
+ * Format object.
+ *
+ * Returns: (nullable) (transfer full): the short media type name, or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_param_dup_format_media_type_name(PwgParam *self);
+
+/**
+ * pwg_param_get_format_media_subtype:
+ * @self: a parameter object.
+ *
+ * Gets the SPA media subtype id when this parameter contains a SPA Format
+ * object.
+ *
+ * Returns: the SPA media subtype id, or 0 when this is not a Format parameter.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+guint pwg_param_get_format_media_subtype(PwgParam *self);
+
+/**
+ * pwg_param_dup_format_media_subtype_name:
+ * @self: a parameter object.
+ *
+ * Copies the short SPA media subtype name when this parameter contains a SPA
+ * Format object.
+ *
+ * Returns: (nullable) (transfer full): the short media subtype name, or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_param_dup_format_media_subtype_name(PwgParam *self);
+
+/**
+ * pwg_param_dup_audio_format:
+ * @self: a parameter object.
+ *
+ * Parses this parameter as a raw audio SPA Format object.
+ *
+ * Returns: (nullable) (transfer full): a parsed audio format descriptor, or
+ *   %NULL if this parameter is not a raw audio format.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+PwgAudioFormat *pwg_param_dup_audio_format(PwgParam *self);
 
 /**
  * pwg_param_get_bytes:

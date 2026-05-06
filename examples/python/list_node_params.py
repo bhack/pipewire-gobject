@@ -72,13 +72,26 @@ def main() -> None:
     enum_loop = GLib.MainLoop()
 
     def on_param(_node, param):
+        audio_format = param.dup_audio_format()
+        media_type = param.dup_format_media_type_name() or ""
+        media_subtype = param.dup_format_media_subtype_name() or ""
         print(
             "value",
             param.get_seq(),
             param.get_id(),
             param.dup_name() or "",
+            media_type,
+            media_subtype,
             param.dup_summary(),
         )
+        if audio_format is not None:
+            print(
+                "audio-format",
+                audio_format.get_sample_format(),
+                audio_format.get_rate(),
+                audio_format.get_channels(),
+                audio_format.get_bytes_per_sample(),
+            )
 
     node.connect("param", on_param)
     try:
