@@ -19,6 +19,14 @@ assert registry.get_running() is False
 assert registry.get_globals().get_n_items() == 0
 assert registry.lookup_global(0) is None
 
+metadata = Pwg.Metadata.new(core, "default")
+assert metadata.get_core() == core
+assert metadata.get_name() == "default"
+assert metadata.get_running() is False
+assert metadata.get_bound() is False
+assert metadata.dup_value(0, "default.audio.sink") is None
+assert metadata.dup_value_type(0, "default.audio.sink") is None
+
 audio_format = Pwg.AudioFormat.new("F32", 48000, 2, 4)
 assert audio_format.get_sample_format() == "F32"
 assert audio_format.get_rate() == 48000

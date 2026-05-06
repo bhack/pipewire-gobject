@@ -50,6 +50,48 @@ print("registry-first", first.get_id(), first.get_interface_type())
 registry.stop()
 print("registry-running-after-stop", registry.get_running())
 
+metadata = Pwg.Metadata.new(core, "settings")
+assert metadata.get_name() == "settings"
+print("metadata-start", metadata.start())
+print("metadata-running", metadata.get_running())
+
+metadata_loop = GLib.MainLoop()
+
+
+def metadata_maybe_done(*_args):
+    if metadata.get_bound():
+        metadata_loop.quit()
+        return False
+    return True
+
+
+metadata.connect("notify::bound", metadata_maybe_done)
+GLib.timeout_add(50, metadata_maybe_done)
+GLib.timeout_add(2000, metadata_loop.quit)
+metadata_loop.run()
+
+print("metadata-bound", metadata.get_bound())
+assert metadata.get_bound()
+
+changed_loop = GLib.MainLoop()
+
+
+def on_metadata_changed(_metadata, subject, key, value_type, value):
+    print("metadata-changed", subject, key, value_type, value)
+    if subject == 0 and key == "pwg.test":
+        changed_loop.quit()
+
+
+metadata.connect("changed", on_metadata_changed)
+print("metadata-set", metadata.set(0, "pwg.test", "Spa:String", "test-value"))
+GLib.timeout_add(2000, changed_loop.quit)
+changed_loop.run()
+assert metadata.dup_value(0, "pwg.test") == "test-value"
+assert metadata.dup_value_type(0, "pwg.test") == "Spa:String"
+print("metadata-clear-key", metadata.set(0, "pwg.test", "Spa:String", None))
+metadata.stop()
+print("metadata-running-after-stop", metadata.get_running())
+
 core.disconnect()
 
 stream = Pwg.Stream.new_audio_capture(None, True)

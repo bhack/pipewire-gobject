@@ -40,10 +40,9 @@ a CI test fixture only; it is not part of this repository's source boundary.
 ## Live Stream Coverage
 
 The current live smoke test verifies that a temporary PipeWire daemon can be
-used for core connection, registry discovery, stream start/stop, and the
-compatibility capture wrapper.
+used for core connection, registry discovery, metadata binding/change delivery,
+stream start/stop, and the compatibility capture wrapper.
 
 It does not yet assert negotiated format delivery, `level` signals, or
 `audio-block` signals. A future deterministic graph test should cover those
 before the stream data API is considered mature.
-
