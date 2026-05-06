@@ -6,6 +6,8 @@
 #include <spa/param/format-utils.h>
 #include <spa/debug/types.h>
 #include <spa/param/param-types.h>
+#include <spa/param/props.h>
+#include <spa/pod/builder.h>
 #include <spa/pod/iter.h>
 #include <spa/pod/pod.h>
 #include <spa/utils/type.h>
@@ -43,6 +45,8 @@ enum {
 
 static GParamSpec *properties[N_PROPS];
 
+#define PWG_PARAM_PROPS_BUFFER_SIZE 256
+
 static GBytes *
 pwg_param_empty_bytes(void)
 {
@@ -62,6 +66,14 @@ pwg_param_get_pod(PwgParam *self)
     return NULL;
 
   return pod;
+}
+
+const struct spa_pod *
+_pwg_param_get_pod(PwgParam *self)
+{
+  g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
+
+  return pwg_param_get_pod(self);
 }
 
 static const char *
@@ -572,6 +584,58 @@ _pwg_param_new(gint seq,
     "next", next,
     "bytes", bytes,
     NULL);
+}
+
+static PwgParam *
+pwg_param_new_props(gboolean has_volume,
+                    gdouble volume,
+                    gboolean has_mute,
+                    gboolean mute)
+{
+  uint8_t buffer[PWG_PARAM_PROPS_BUFFER_SIZE];
+  struct spa_pod_builder builder = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
+  struct spa_pod_frame frame;
+  struct spa_pod *pod;
+  g_autoptr(GBytes) bytes = NULL;
+
+  if (spa_pod_builder_push_object(&builder, &frame, SPA_TYPE_OBJECT_Props, SPA_PARAM_Props) < 0)
+    return NULL;
+
+  if (has_volume) {
+    if (spa_pod_builder_prop(&builder, SPA_PROP_volume, 0) < 0)
+      return NULL;
+    if (spa_pod_builder_float(&builder, (float) volume) < 0)
+      return NULL;
+  }
+
+  if (has_mute) {
+    if (spa_pod_builder_prop(&builder, SPA_PROP_mute, 0) < 0)
+      return NULL;
+    if (spa_pod_builder_bool(&builder, mute) < 0)
+      return NULL;
+  }
+
+  pod = spa_pod_builder_pop(&builder, &frame);
+  if (pod == NULL)
+    return NULL;
+
+  bytes = g_bytes_new(pod, SPA_POD_SIZE(pod));
+  return _pwg_param_new(0, SPA_PARAM_Props, 0, 0, bytes);
+}
+
+PwgParam *
+pwg_param_new_props_volume(gdouble volume)
+{
+  g_return_val_if_fail(volume >= 0.0, NULL);
+  g_return_val_if_fail(volume <= G_MAXFLOAT, NULL);
+
+  return pwg_param_new_props(TRUE, volume, FALSE, FALSE);
+}
+
+PwgParam *
+pwg_param_new_props_mute(gboolean mute)
+{
+  return pwg_param_new_props(FALSE, 0.0, TRUE, mute);
 }
 
 gint

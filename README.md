@@ -26,10 +26,11 @@ The `0.1` prototype currently exposes:
 - `Pwg.Global`: immutable descriptors for discovered PipeWire globals with
   common property accessors.
 - `Pwg.NodeInfo`: immutable node-focused view of a `Pwg.Global`.
-- `Pwg.Node`: live read-only node proxy for parameter inspection.
+- `Pwg.Node`: live node proxy for parameter inspection and limited copied
+  parameter updates.
 - `Pwg.ParamInfo` and `Pwg.Param`: copied node parameter descriptors and
   enumeration results, including typed raw audio format reads for SPA Format
-  parameters.
+  parameters and copied `Props` builders for limited control updates.
 - `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata,
   including default audio node-name helpers.
 - `Pwg.Stream`: high-level audio capture stream with optional copied sample
@@ -40,10 +41,10 @@ The `0.1` prototype currently exposes:
 - GIR and typelib generation through Meson.
 - Python import smoke test through PyGObject.
 
-Writable controls, additional typed parameter conveniences, richer live proxy
-helpers, and higher-level application workflows for filters, analyzers, stream
-tools, mixers, and panel applets are roadmap items, not stable implemented API
-yet.
+Additional typed parameter conveniences, richer live proxy helpers, confirmed
+control-update workflows, and higher-level application workflows for filters,
+analyzers, stream tools, mixers, and panel applets are roadmap items, not
+stable implemented API yet.
 
 ## Non-Goals For The Prototype
 

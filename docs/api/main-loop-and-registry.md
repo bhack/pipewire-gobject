@@ -126,6 +126,16 @@ if node is not None:
     node.enum_all_params()
 ```
 
+Nodes can also queue copied parameter updates that were built by this library.
+The return value only means PipeWire accepted the request for dispatch; it is
+not an applied-state acknowledgment:
+
+```python
+param = Pwg.Param.new_props_volume(0.75)
+if param is not None:
+    node.set_param(param)
+```
+
 For port-specific discovery, wrap a port global in [class@Pwg.PortInfo]:
 
 ```python

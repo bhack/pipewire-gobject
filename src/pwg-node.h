@@ -6,6 +6,7 @@
 #include "pwg-core.h"
 #include "pwg-defs.h"
 #include "pwg-global.h"
+#include "pwg-param.h"
 
 G_BEGIN_DECLS
 
@@ -14,11 +15,13 @@ G_BEGIN_DECLS
 /**
  * PwgNode:
  *
- * Live read-only PipeWire node proxy for parameter inspection.
+ * Live PipeWire node proxy for parameter inspection and limited parameter
+ * updates.
  *
  * Node objects bind a discovered node global and expose copied parameter info
- * and enumeration results. They do not expose raw PipeWire proxy ownership to
- * language bindings.
+ * and enumeration results. They can queue copied parameter updates built by
+ * this library, but they do not expose raw PipeWire proxy ownership to language
+ * bindings.
  *
  * Since: 0.1
  * Stability: Unstable
@@ -31,7 +34,8 @@ G_DECLARE_FINAL_TYPE(PwgNode, pwg_node, PWG, NODE, GObject)
  * @core: a PipeWire core wrapper.
  * @global: a PipeWire node global descriptor.
  *
- * Creates a live node proxy wrapper for read-only parameter inspection.
+ * Creates a live node proxy wrapper for parameter inspection and limited copied
+ * parameter updates.
  *
  * Returns: (nullable) (transfer full): a new node wrapper, or %NULL if @global
  *   is not a PipeWire node.
@@ -194,5 +198,24 @@ gint pwg_node_enum_params(PwgNode *self,
  */
 PWG_API
 gint pwg_node_enum_all_params(PwgNode *self, GError **error);
+
+/**
+ * pwg_node_set_param:
+ * @self: a node wrapper.
+ * @param: a copied parameter built or returned by this library.
+ * @error: return location for a #GError.
+ *
+ * Queues a parameter update on the bound node. A successful return means
+ * PipeWire accepted the request for dispatch; it does not confirm that the
+ * target applied the new value. Observe later node state or parameter events
+ * when application logic needs confirmation.
+ *
+ * Returns: %TRUE when the update request was queued.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error);
 
 G_END_DECLS

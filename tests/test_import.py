@@ -58,6 +58,16 @@ assert audio_block.get_n_frames() == 2
 assert audio_block.get_sequence() == 7
 assert audio_block.get_peak() == 0.0
 
+volume_param = Pwg.Param.new_props_volume(0.5)
+assert volume_param is not None
+assert volume_param.dup_name() == "Props"
+assert volume_param.dup_object_type_name() == "Props"
+assert volume_param.dup_summary().startswith("Object Props")
+mute_param = Pwg.Param.new_props_mute(True)
+assert mute_param is not None
+assert mute_param.dup_name() == "Props"
+assert mute_param.dup_object_type_name() == "Props"
+
 stream = Pwg.Stream.new_audio_capture(None, True)
 assert stream.get_running() is False
 assert stream.get_monitor() is True
