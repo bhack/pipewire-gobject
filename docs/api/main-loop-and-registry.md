@@ -48,5 +48,19 @@ if nodes.get_n_items() > 0:
         print(node.dup_name() or "", node.dup_media_class() or "")
 ```
 
+For port-specific discovery, wrap a port global in [class@Pwg.PortInfo]:
+
+```python
+ports = registry.dup_globals_by_interface("PipeWire:Interface:Port")
+if ports.get_n_items() > 0:
+    port = Pwg.PortInfo.new_from_global(ports.get_item(0))
+    if port is not None:
+        print(
+            port.dup_direction() or "",
+            port.dup_name() or "",
+            port.dup_audio_channel() or "",
+        )
+```
+
 The registry is a discovery API, not a session manager. It does not make routing
 or default-device policy decisions.

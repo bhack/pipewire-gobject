@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 - Unreleased
+
+- Add generated API reference support with `gi-docgen` and a Meson `docs`
+  target.
+- Add `Pwg.PortInfo` as an immutable port-focused view of `Pwg.Global`.
+- Add `Pwg.Global.is_port()` and include port names/aliases in generic global
+  name and description helpers.
+- Add a Python port-listing example.
+
 ## 0.1.0 - 2026-05-06
 
 - Reframe the project roadmap around a generic app-facing PipeWire GIR layer
