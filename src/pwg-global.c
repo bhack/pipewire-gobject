@@ -385,6 +385,14 @@ pwg_global_is_node(PwgGlobal *self)
 }
 
 gboolean
+pwg_global_is_client(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Client);
+}
+
+gboolean
 pwg_global_is_port(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);

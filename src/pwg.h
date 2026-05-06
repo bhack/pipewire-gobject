@@ -49,6 +49,7 @@ G_END_DECLS
 #include "pwg-audio-block.h"
 #include "pwg-audio-capture.h"
 #include "pwg-audio-format.h"
+#include "pwg-client-info.h"
 #include "pwg-core.h"
 #include "pwg-error.h"
 #include "pwg-global.h"
