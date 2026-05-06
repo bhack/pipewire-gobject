@@ -12,6 +12,7 @@
 - Add `Pwg.Global.is_port()` and include port names/aliases in generic global
   name and description helpers.
 - Add a Python port-listing example.
+- Add a Python graph summary example and broaden live discovery smoke coverage.
 
 ## 0.1.0 - 2026-05-06
 

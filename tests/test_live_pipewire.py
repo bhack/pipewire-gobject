@@ -83,6 +83,69 @@ print("registry-node-name", node_info.dup_name() or "")
 print("registry-node-description", node_info.dup_description() or "")
 print("registry-node-media-class", node_info.dup_media_class() or "")
 print("registry-node-object-serial", node_info.dup_object_serial() or "")
+
+client_globals = registry.dup_globals_by_interface("PipeWire:Interface:Client")
+client_count = client_globals.get_n_items()
+print("registry-client-count", client_count)
+for index in range(client_count):
+    client_info = Pwg.ClientInfo.new_from_global(client_globals.get_item(index))
+    assert client_info is not None
+    assert client_info.get_global().is_client() is True
+    assert client_info.get_id() == client_info.get_global().get_id()
+    print(
+        "registry-client",
+        client_info.dup_name() or "",
+        client_info.dup_app_name() or "",
+        client_info.dup_api() or "",
+    )
+
+device_globals = registry.dup_globals_by_interface("PipeWire:Interface:Device")
+device_count = device_globals.get_n_items()
+print("registry-device-count", device_count)
+for index in range(device_count):
+    device_info = Pwg.DeviceInfo.new_from_global(device_globals.get_item(index))
+    assert device_info is not None
+    assert device_info.get_global().is_device() is True
+    assert device_info.get_id() == device_info.get_global().get_id()
+    print(
+        "registry-device",
+        device_info.dup_name() or "",
+        device_info.dup_description() or "",
+        device_info.dup_api() or "",
+    )
+
+port_globals = registry.dup_globals_by_interface("PipeWire:Interface:Port")
+port_count = port_globals.get_n_items()
+print("registry-port-count", port_count)
+for index in range(port_count):
+    port_info = Pwg.PortInfo.new_from_global(port_globals.get_item(index))
+    assert port_info is not None
+    assert port_info.get_global().is_port() is True
+    assert port_info.get_id() == port_info.get_global().get_id()
+    print(
+        "registry-port",
+        port_info.dup_direction() or "",
+        port_info.dup_name() or "",
+        port_info.dup_audio_channel() or "",
+    )
+
+link_globals = registry.dup_globals_by_interface("PipeWire:Interface:Link")
+link_count = link_globals.get_n_items()
+print("registry-link-count", link_count)
+for index in range(link_count):
+    link_info = Pwg.LinkInfo.new_from_global(link_globals.get_item(index))
+    assert link_info is not None
+    assert link_info.get_global().is_link() is True
+    assert link_info.get_id() == link_info.get_global().get_id()
+    print(
+        "registry-link",
+        link_info.dup_output_node_id() or "",
+        link_info.dup_output_port_id() or "",
+        "->",
+        link_info.dup_input_node_id() or "",
+        link_info.dup_input_port_id() or "",
+    )
+
 node_probe_stream.stop()
 
 registry.stop()
