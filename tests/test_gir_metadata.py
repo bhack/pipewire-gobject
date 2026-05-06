@@ -4,7 +4,6 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-
 GIR_URI = "http://www.gtk.org/introspection/core/1.0"
 C_URI = "http://www.gtk.org/introspection/c/1.0"
 GLIB_URI = "http://www.gtk.org/introspection/glib/1.0"
@@ -153,6 +152,26 @@ assert global_class.attrib[f"{{{C_URI}}}type"] == "PwgGlobal"
 assert global_class.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_global_get_type"
 assert global_class.find("gir:method[@name='get_properties']", GIR_NS) is not None
 assert global_class.find("gir:method[@name='dup_property']", GIR_NS) is not None
+for method_name in (
+    "dup_name",
+    "dup_description",
+    "dup_media_class",
+    "dup_object_serial",
+):
+    global_dup = global_class.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert global_dup is not None
+    assert global_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert global_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+global_is_interface = global_class.find("gir:method[@name='is_interface']", GIR_NS)
+assert global_is_interface is not None
+interface_type_param = global_is_interface.find(
+    "gir:parameters/gir:parameter[@name='interface_type']",
+    GIR_NS,
+)
+assert interface_type_param is not None
+assert interface_type_param.attrib.get("nullable") is None
+assert global_class.find("gir:method[@name='is_node']", GIR_NS) is not None
+assert global_class.find("gir:method[@name='is_metadata']", GIR_NS) is not None
 assert global_class.find("gir:property[@name='interface-type']", GIR_NS) is not None
 
 registry = namespace.find("gir:class[@name='Registry']", GIR_NS)
@@ -173,6 +192,23 @@ assert registry_start.attrib.get("throws") == "1"
 globals_method = registry.find("gir:method[@name='get_globals']", GIR_NS)
 assert globals_method is not None
 assert globals_method.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Gio.ListModel"
+lookup_by_property = registry.find("gir:method[@name='lookup_global_by_property']", GIR_NS)
+assert lookup_by_property is not None
+assert lookup_by_property.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert lookup_by_property.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+lookup_by_object_serial = registry.find("gir:method[@name='lookup_global_by_object_serial']", GIR_NS)
+assert lookup_by_object_serial is not None
+assert lookup_by_object_serial.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert lookup_by_object_serial.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+for method_name in (
+    "dup_globals_by_property",
+    "dup_globals_by_interface",
+    "dup_globals_by_media_class",
+):
+    registry_filter = registry.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert registry_filter is not None
+    assert registry_filter.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert registry_filter.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Gio.ListModel"
 
 global_added = registry.find("glib:signal[@name='global-added']", GIR_NS)
 assert global_added is not None

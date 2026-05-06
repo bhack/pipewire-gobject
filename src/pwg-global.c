@@ -1,5 +1,9 @@
 #include "pwg-global.h"
 
+#include <pipewire/extensions/metadata.h>
+#include <pipewire/keys.h>
+#include <pipewire/pipewire.h>
+
 #include "pwg-global-private.h"
 
 struct _PwgGlobal {
@@ -24,6 +28,19 @@ enum {
 };
 
 static GParamSpec *properties[N_PROPS];
+
+static char *
+pwg_global_dup_first_property(PwgGlobal *self, const char * const *keys)
+{
+  for (gsize i = 0; keys[i] != NULL; i++) {
+    g_autofree char *value = pwg_global_dup_property(self, keys[i]);
+
+    if (value != NULL && value[0] != '\0')
+      return g_steal_pointer(&value);
+  }
+
+  return NULL;
+}
 
 static GVariant *
 pwg_global_empty_properties(void)
@@ -255,4 +272,80 @@ pwg_global_dup_property(PwgGlobal *self, const char *key)
     return g_strdup(value);
 
   return NULL;
+}
+
+char *
+pwg_global_dup_name(PwgGlobal *self)
+{
+  static const char * const keys[] = {
+    PW_KEY_NODE_NAME,
+    PW_KEY_DEVICE_NAME,
+    PW_KEY_CLIENT_NAME,
+    PW_KEY_FACTORY_NAME,
+    PW_KEY_METADATA_NAME,
+    PW_KEY_APP_NAME,
+    PW_KEY_OBJECT_PATH,
+    NULL,
+  };
+
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), NULL);
+
+  return pwg_global_dup_first_property(self, keys);
+}
+
+char *
+pwg_global_dup_description(PwgGlobal *self)
+{
+  static const char * const keys[] = {
+    PW_KEY_NODE_DESCRIPTION,
+    PW_KEY_DEVICE_DESCRIPTION,
+    PW_KEY_MODULE_DESCRIPTION,
+    PW_KEY_APP_NAME,
+    NULL,
+  };
+
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), NULL);
+
+  return pwg_global_dup_first_property(self, keys);
+}
+
+char *
+pwg_global_dup_media_class(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), NULL);
+
+  return pwg_global_dup_property(self, PW_KEY_MEDIA_CLASS);
+}
+
+char *
+pwg_global_dup_object_serial(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), NULL);
+
+  return pwg_global_dup_property(self, PW_KEY_OBJECT_SERIAL);
+}
+
+gboolean
+pwg_global_is_interface(PwgGlobal *self, const char *interface_type)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+  g_return_val_if_fail(interface_type != NULL, FALSE);
+
+  return g_strcmp0(self->interface_type, interface_type) == 0;
+}
+
+gboolean
+pwg_global_is_node(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Node);
+}
+
+gboolean
+pwg_global_is_metadata(PwgGlobal *self)
+{
+  g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
+
+  return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Metadata);
 }

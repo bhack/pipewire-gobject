@@ -84,4 +84,90 @@ GVariant *pwg_global_get_properties(PwgGlobal *self);
 PWG_API
 char *pwg_global_dup_property(PwgGlobal *self, const char *key);
 
+/**
+ * pwg_global_dup_name:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: (nullable) (transfer full): a common display or stable object name,
+ *   or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_global_dup_name(PwgGlobal *self);
+
+/**
+ * pwg_global_dup_description:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: (nullable) (transfer full): a human-readable description, or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_global_dup_description(PwgGlobal *self);
+
+/**
+ * pwg_global_dup_media_class:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: (nullable) (transfer full): the PipeWire media class, or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_global_dup_media_class(PwgGlobal *self);
+
+/**
+ * pwg_global_dup_object_serial:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: (nullable) (transfer full): the PipeWire object serial, or %NULL.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_global_dup_object_serial(PwgGlobal *self);
+
+/**
+ * pwg_global_is_interface:
+ * @self: a PipeWire global descriptor.
+ * @interface_type: a PipeWire interface type name.
+ *
+ * Returns: whether this global has @interface_type.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
+
+/**
+ * pwg_global_is_node:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: whether this global is a PipeWire node.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_node(PwgGlobal *self);
+
+/**
+ * pwg_global_is_metadata:
+ * @self: a PipeWire global descriptor.
+ *
+ * Returns: whether this global is a PipeWire metadata object.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_global_is_metadata(PwgGlobal *self);
+
 G_END_DECLS

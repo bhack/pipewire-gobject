@@ -3,7 +3,6 @@ import gi
 gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
-
 Pwg.init()
 print("pwg-version", Pwg.get_library_version())
 print("pipewire-version", Pwg.get_pipewire_library_version())
@@ -45,6 +44,15 @@ assert first.get_id() >= 0
 assert isinstance(first.get_interface_type(), str)
 assert first.get_properties() is not None
 assert registry.lookup_global(first.get_id()) is not None
+assert first.is_interface(first.get_interface_type()) is True
+print("registry-first-name", first.dup_name() or "")
+print("registry-first-description", first.dup_description() or "")
+print("registry-first-media-class", first.dup_media_class() or "")
+print("registry-first-object-serial", first.dup_object_serial() or "")
+matching_interface = registry.dup_globals_by_interface(first.get_interface_type())
+assert matching_interface.get_n_items() > 0
+if first.dup_object_serial() is not None:
+    assert registry.lookup_global_by_object_serial(first.dup_object_serial()) is not None
 print("registry-first", first.get_id(), first.get_interface_type())
 
 registry.stop()

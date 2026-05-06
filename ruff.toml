@@ -1,0 +1,16 @@
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+  "E4",
+  "E7",
+  "E9",
+  "F",
+  "I",
+]
+
+[lint.per-file-ignores]
+"examples/python/*.py" = ["E402"]
+"tests/test_import.py" = ["E402"]
+"tests/test_live_pipewire.py" = ["E402"]

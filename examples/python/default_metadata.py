@@ -3,7 +3,6 @@ import gi
 gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
-
 DEFAULT_AUDIO_SINK_KEY = "default.audio.sink"
 DEFAULT_CONFIGURED_AUDIO_SINK_KEY = "default.configured.audio.sink"
 

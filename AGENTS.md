@@ -42,6 +42,8 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `.github/workflows/codeql.yml`: CodeQL C/C++ analysis.
 - `.github/workflows/dependency-review.yml`: GitHub dependency review for PRs.
 - `.github/dependabot.yml`: weekly GitHub Actions dependency updates.
+- `Dockerfile`: canonical Debian trixie development and validation image.
+- `ruff.toml`: Python lint configuration for tests and examples.
 - `src/pwg-core.*`: minimal PipeWire core/context wrapper.
 - `src/pwg-audio-format.*`: immutable audio format descriptor.
 - `src/pwg-audio-block.*`: immutable copied audio sample block.
@@ -80,23 +82,14 @@ For faster container iteration, keep a local dev image and reuse the Meson
 `build/` directory:
 
 ```bash
-docker build -t pipewire-gobject-dev:trixie - <<'EOF'
-FROM debian:trixie-slim
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-      build-essential meson ninja-build pkg-config \
-      libglib2.0-dev libpipewire-0.3-dev \
-      gobject-introspection libgirepository1.0-dev python3 python3-gi \
-      pipewire libspa-0.2-modules \
- && rm -rf /var/lib/apt/lists/*
-EOF
+docker build -t pipewire-gobject-dev:trixie .
 
 docker run --rm -v "$PWD:/work" -w /work pipewire-gobject-dev:trixie sh -lc '
 set -e
 test -d build || meson setup build >/dev/null
 meson compile -C build >/dev/null
 meson test -C build --print-errorlogs
+ruff check .
 '
 ```
 
@@ -111,15 +104,8 @@ container, not the cached image layers or the bind-mounted `build/` directory.
 Clean container smoke test with a temporary PipeWire daemon:
 
 ```bash
-docker run --rm -v "$PWD:/work" -w /work debian:trixie-slim sh -lc '
+docker run --rm -v "$PWD:/work" -w /work pipewire-gobject-dev:trixie sh -lc '
 set -e
-export DEBIAN_FRONTEND=noninteractive
-apt-get update >/dev/null
-apt-get install -y --no-install-recommends \
-  build-essential meson ninja-build pkg-config \
-  libglib2.0-dev libpipewire-0.3-dev \
-  gobject-introspection libgirepository1.0-dev python3 python3-gi \
-  pipewire libspa-0.2-modules >/dev/null
 rm -rf build /tmp/pwg-runtime
 meson setup build >/dev/null
 meson compile -C build >/dev/null
@@ -132,6 +118,18 @@ trap "kill $pw_pid 2>/dev/null || true" EXIT
 sleep 1
 meson test -C build --print-errorlogs
 GI_TYPELIB_PATH=/work/build LD_LIBRARY_PATH=/work/build python3 tests/test_live_pipewire.py
+'
+```
+
+Strict compiler and GIR scanner warning check:
+
+```bash
+docker run --rm -v "$PWD:/work" -w /work pipewire-gobject-dev:trixie sh -lc '
+set -e
+rm -rf build-strict
+meson setup build-strict -Dwerror=true >/dev/null
+meson compile -C build-strict >/dev/null
+meson test -C build-strict --print-errorlogs
 '
 ```
 

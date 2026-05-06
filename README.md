@@ -21,8 +21,10 @@ default-device behavior, and session-manager logic. See
 The `0.1` prototype currently exposes:
 
 - `Pwg.Core`: create a PipeWire context/core connection.
-- `Pwg.Registry`: discover PipeWire globals through a `Gio.ListModel`.
-- `Pwg.Global`: immutable descriptors for discovered PipeWire globals.
+- `Pwg.Registry`: discover, look up, and filter PipeWire globals through
+  `Gio.ListModel`.
+- `Pwg.Global`: immutable descriptors for discovered PipeWire globals with
+  common property accessors.
 - `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata.
 - `Pwg.Stream`: high-level audio capture stream with optional copied sample
   block delivery.
@@ -32,8 +34,8 @@ The `0.1` prototype currently exposes:
 - GIR and typelib generation through Meson.
 - Python import smoke test through PyGObject.
 
-Richer node/global helpers, params, and mixer/panel-oriented APIs are roadmap
-items, not stable implemented API yet.
+Richer live node/proxy helpers, params, and mixer/panel-oriented APIs are
+roadmap items, not stable implemented API yet.
 
 ## Non-Goals For The Prototype
 
@@ -61,6 +63,18 @@ are reviewed.
 ```bash
 meson setup build
 meson test -C build --print-errorlogs
+```
+
+Canonical dev container:
+
+```bash
+docker build -t pipewire-gobject-dev:trixie .
+docker run --rm -v "$PWD:/work" -w /work pipewire-gobject-dev:trixie sh -lc '
+test -d build || meson setup build
+meson compile -C build
+meson test -C build --print-errorlogs
+ruff check .
+'
 ```
 
 Required development packages include GLib/GObject, GObject Introspection, and
@@ -98,8 +112,8 @@ Pwg import ok
 ```
 
 The `examples/python/` directory includes small PyGObject examples for registry
-listing, metadata reads, peak-meter level signals, and copied audio block
-delivery.
+and node listing, metadata reads, peak-meter level signals, and copied audio
+block delivery.
 
 Minimal peak-meter usage:
 
@@ -148,6 +162,10 @@ version 1.x.y
 core True
 registry-start True
 registry-count N
+registry-first-name NAME
+registry-first-description DESCRIPTION
+registry-first-media-class MEDIA_CLASS
+registry-first-object-serial SERIAL
 registry-first ID TYPE
 registry-running-after-stop False
 metadata-start True
