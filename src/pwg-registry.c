@@ -361,6 +361,14 @@ pwg_registry_class_init(PwgRegistryClass *klass)
   object_class->dispose = pwg_registry_dispose;
   object_class->finalize = pwg_registry_finalize;
 
+  /**
+   * PwgRegistry:core:
+   *
+   * PipeWire core used by this registry.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_CORE] = g_param_spec_object(
     "core",
     "Core",
@@ -368,6 +376,14 @@ pwg_registry_class_init(PwgRegistryClass *klass)
     PWG_TYPE_CORE,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgRegistry:running:
+   *
+   * Whether registry discovery is running.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_RUNNING] = g_param_spec_boolean(
     "running",
     "Running",
@@ -375,6 +391,14 @@ pwg_registry_class_init(PwgRegistryClass *klass)
     FALSE,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgRegistry:globals:
+   *
+   * A [iface@Gio.ListModel] of [class@Pwg.Global] objects.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_GLOBALS] = g_param_spec_object(
     "globals",
     "Globals",

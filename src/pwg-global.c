@@ -150,6 +150,14 @@ pwg_global_class_init(PwgGlobalClass *klass)
   object_class->set_property = pwg_global_set_property;
   object_class->finalize = pwg_global_finalize;
 
+  /**
+   * PwgGlobal:id:
+   *
+   * PipeWire global id.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_ID] = g_param_spec_uint(
     "id",
     "Id",
@@ -159,6 +167,14 @@ pwg_global_class_init(PwgGlobalClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgGlobal:permissions:
+   *
+   * PipeWire permissions bitmask visible to this client.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_PERMISSIONS] = g_param_spec_uint(
     "permissions",
     "Permissions",
@@ -168,6 +184,14 @@ pwg_global_class_init(PwgGlobalClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgGlobal:interface-type:
+   *
+   * PipeWire interface type name.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_INTERFACE_TYPE] = g_param_spec_string(
     "interface-type",
     "Interface type",
@@ -175,6 +199,14 @@ pwg_global_class_init(PwgGlobalClass *klass)
     NULL,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgGlobal:version:
+   *
+   * PipeWire interface version.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_VERSION] = g_param_spec_uint(
     "version",
     "Version",
@@ -184,6 +216,14 @@ pwg_global_class_init(PwgGlobalClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgGlobal:properties:
+   *
+   * PipeWire global properties as an `a{ss}` variant.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_PROPERTIES] = g_param_spec_variant(
     "properties",
     "Properties",

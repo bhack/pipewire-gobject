@@ -8,12 +8,25 @@ G_BEGIN_DECLS
 
 #define PWG_TYPE_GLOBAL (pwg_global_get_type())
 
+/**
+ * PwgGlobal:
+ *
+ * Immutable descriptor for one PipeWire registry global.
+ *
+ * The descriptor contains the global id, interface metadata, and a copied
+ * string-property map observed by the registry.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
 PWG_API
 G_DECLARE_FINAL_TYPE(PwgGlobal, pwg_global, PWG, GLOBAL, GObject)
 
 /**
  * pwg_global_get_id:
  * @self: a PipeWire global descriptor.
+ *
+ * Gets the PipeWire global id.
  *
  * Returns: the PipeWire global id.
  *
@@ -27,6 +40,8 @@ guint pwg_global_get_id(PwgGlobal *self);
  * pwg_global_get_permissions:
  * @self: a PipeWire global descriptor.
  *
+ * Gets the permissions bitmask visible to this client.
+ *
  * Returns: the PipeWire permissions bitmask visible to this client.
  *
  * Since: 0.1
@@ -38,6 +53,8 @@ guint pwg_global_get_permissions(PwgGlobal *self);
 /**
  * pwg_global_get_interface_type:
  * @self: a PipeWire global descriptor.
+ *
+ * Gets the PipeWire interface type name.
  *
  * Returns: (transfer none): the PipeWire interface type name.
  *
@@ -51,6 +68,8 @@ const char *pwg_global_get_interface_type(PwgGlobal *self);
  * pwg_global_get_version:
  * @self: a PipeWire global descriptor.
  *
+ * Gets the PipeWire interface version.
+ *
  * Returns: the PipeWire interface version.
  *
  * Since: 0.1
@@ -62,6 +81,8 @@ guint pwg_global_get_version(PwgGlobal *self);
 /**
  * pwg_global_get_properties:
  * @self: a PipeWire global descriptor.
+ *
+ * Gets a copy of the PipeWire global properties.
  *
  * Returns: (transfer full): the global properties as an `a{ss}` variant.
  *
@@ -76,6 +97,8 @@ GVariant *pwg_global_get_properties(PwgGlobal *self);
  * @self: a PipeWire global descriptor.
  * @key: a PipeWire property key.
  *
+ * Copies a single global property value.
+ *
  * Returns: (nullable) (transfer full): the property value, or %NULL.
  *
  * Since: 0.1
@@ -87,6 +110,8 @@ char *pwg_global_dup_property(PwgGlobal *self, const char *key);
 /**
  * pwg_global_dup_name:
  * @self: a PipeWire global descriptor.
+ *
+ * Copies the best available common name for this global.
  *
  * Returns: (nullable) (transfer full): a common display or stable object name,
  *   or %NULL.
@@ -101,6 +126,8 @@ char *pwg_global_dup_name(PwgGlobal *self);
  * pwg_global_dup_description:
  * @self: a PipeWire global descriptor.
  *
+ * Copies the best available human-readable description for this global.
+ *
  * Returns: (nullable) (transfer full): a human-readable description, or %NULL.
  *
  * Since: 0.1
@@ -113,6 +140,8 @@ char *pwg_global_dup_description(PwgGlobal *self);
  * pwg_global_dup_media_class:
  * @self: a PipeWire global descriptor.
  *
+ * Copies the PipeWire media class.
+ *
  * Returns: (nullable) (transfer full): the PipeWire media class, or %NULL.
  *
  * Since: 0.1
@@ -124,6 +153,8 @@ char *pwg_global_dup_media_class(PwgGlobal *self);
 /**
  * pwg_global_dup_object_serial:
  * @self: a PipeWire global descriptor.
+ *
+ * Copies the PipeWire object serial.
  *
  * Returns: (nullable) (transfer full): the PipeWire object serial, or %NULL.
  *
@@ -138,6 +169,8 @@ char *pwg_global_dup_object_serial(PwgGlobal *self);
  * @self: a PipeWire global descriptor.
  * @interface_type: a PipeWire interface type name.
  *
+ * Checks whether this global uses a PipeWire interface type.
+ *
  * Returns: whether this global has @interface_type.
  *
  * Since: 0.1
@@ -150,6 +183,8 @@ gboolean pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
  * pwg_global_is_node:
  * @self: a PipeWire global descriptor.
  *
+ * Checks whether this global describes a PipeWire node.
+ *
  * Returns: whether this global is a PipeWire node.
  *
  * Since: 0.1
@@ -161,6 +196,8 @@ gboolean pwg_global_is_node(PwgGlobal *self);
 /**
  * pwg_global_is_metadata:
  * @self: a PipeWire global descriptor.
+ *
+ * Checks whether this global describes a PipeWire metadata object.
  *
  * Returns: whether this global is a PipeWire metadata object.
  *

@@ -8,6 +8,17 @@ G_BEGIN_DECLS
 
 #define PWG_TYPE_CORE (pwg_core_get_type())
 
+/**
+ * PwgCore:
+ *
+ * Wrapper for a PipeWire core connection.
+ *
+ * Core objects own the PipeWire loop, context, and core handles used by
+ * registry and metadata helper objects.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
 PWG_API
 G_DECLARE_FINAL_TYPE(PwgCore, pwg_core, PWG, CORE, GObject)
 
@@ -28,6 +39,8 @@ PwgCore *pwg_core_new(void);
  * pwg_core_connect:
  * @self: a core wrapper.
  * @error: return location for a #GError.
+ *
+ * Connects this wrapper to PipeWire.
  *
  * Returns: %TRUE when the core connected or was already connected.
  *
@@ -53,6 +66,8 @@ void pwg_core_disconnect(PwgCore *self);
  * pwg_core_get_connected:
  * @self: a core wrapper.
  *
+ * Gets whether this wrapper currently has an active PipeWire connection.
+ *
  * Returns: whether this wrapper currently has an active PipeWire connection.
  *
  * Since: 0.1
@@ -64,6 +79,8 @@ gboolean pwg_core_get_connected(PwgCore *self);
 /**
  * pwg_core_get_library_version:
  * @self: a core wrapper.
+ *
+ * Gets the linked PipeWire library version string.
  *
  * Returns: (transfer none): the PipeWire library version string.
  *

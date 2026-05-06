@@ -9,6 +9,8 @@ project(
 gnome = import('gnome')
 pkg = import('pkgconfig')
 
+sh = find_program('sh')
+
 glib_dep = dependency('glib-2.0', version: '>=2.66')
 gio_dep = dependency('gio-2.0', version: '>=2.66')
 gobject_dep = dependency('gobject-2.0', version: '>=2.66')
@@ -89,6 +91,63 @@ pwg_gir = gnome.generate_gir(
 )
 
 pwg_typelib = pwg_gir[1]
+
+gi_docgen = find_program('gi-docgen', required: false)
+if gi_docgen.found()
+  docs_config = files('docs/pwg.toml')
+  docs_content = files(
+    'docs/api/getting-started.md',
+    'docs/api/main-loop-and-registry.md',
+    'docs/api/pipewire-version-policy.md',
+  )
+
+  api_docs_check = custom_target(
+    'api-docs-check',
+    input: [pwg_gir[0], docs_config],
+    output: 'api-docs-check.stamp',
+    command: [
+      sh,
+      '-c',
+      'set -e; "$1" check --quiet --fatal-warnings --add-include-path "$2" --config "$3" "$4"; touch "$5"',
+      'api-docs-check',
+      gi_docgen,
+      meson.current_build_dir(),
+      '@INPUT1@',
+      '@INPUT0@',
+      '@OUTPUT@',
+    ],
+    depends: pwg_typelib,
+    build_by_default: false,
+  )
+
+  api_docs = custom_target(
+    'api-docs',
+    input: [pwg_gir[0], docs_config, docs_content],
+    output: 'api-docs',
+    command: [
+      gi_docgen,
+      'generate',
+      '--quiet',
+      '--fatal-warnings',
+      '--add-include-path',
+      meson.current_build_dir(),
+      '--config',
+      '@INPUT1@',
+      '--content-dir',
+      meson.current_source_dir() / 'docs' / 'api',
+      '--output-dir',
+      '@OUTPUT@',
+      '--no-namespace-dir',
+      '@INPUT0@',
+    ],
+    depends: [pwg_typelib, api_docs_check],
+    build_by_default: false,
+  )
+
+  alias_target('docs', api_docs_check, api_docs)
+else
+  message('gi-docgen not found; API documentation target disabled')
+endif
 
 test_env = environment()
 test_env.prepend('GI_TYPELIB_PATH', meson.current_build_dir())

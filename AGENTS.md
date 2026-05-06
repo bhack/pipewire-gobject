@@ -45,6 +45,8 @@ public API and ABI as unstable unless a future release policy says otherwise.
   GitHub prerelease publisher.
 - `.github/dependabot.yml`: weekly GitHub Actions dependency updates.
 - `Dockerfile`: canonical Debian trixie development and validation image.
+- `docs/pwg.toml` and `docs/api/`: gi-docgen configuration and additional
+  generated API reference content.
 - `ruff.toml`: Python lint configuration for tests and examples.
 - `src/pwg-core.*`: minimal PipeWire core/context wrapper.
 - `src/pwg-audio-format.*`: immutable audio format descriptor.
@@ -69,6 +71,7 @@ public API and ABI as unstable unless a future release policy says otherwise.
 ```bash
 meson setup build
 meson test -C build --print-errorlogs
+meson compile -C build docs
 ```
 
 Clean rebuild:
@@ -77,6 +80,7 @@ Clean rebuild:
 rm -rf build
 meson setup build
 meson test -C build --print-errorlogs
+meson compile -C build docs
 ```
 
 ### Container Iteration
@@ -92,6 +96,7 @@ set -e
 test -d build || meson setup build >/dev/null
 meson compile -C build >/dev/null
 meson test -C build --print-errorlogs
+meson compile -C build docs
 ruff check .
 '
 ```
@@ -163,13 +168,11 @@ meson test -C build-strict --print-errorlogs
   g-ir-generate build/Pwg-0.1.typelib >/tmp/Pwg-0.1.roundtrip.gir
   ```
 
-- Preview language-oriented API docs without adding generated docs to the
+- Build the generated API reference without adding generated docs to the
   repository:
 
   ```bash
-  rm -rf /tmp/pwg-gi-docs
-  g-ir-doc-tool --add-include-path=build --language=python --format=mallard \
-    --output=/tmp/pwg-gi-docs build/Pwg-0.1.gir
+  meson compile -C build docs
   ```
 
 ## Public API Expectations
@@ -242,6 +245,8 @@ The following rules apply when adding public `Pwg` API.
 - Update `tests/test_gir_metadata.py` for every deliberate public GIR contract
   addition.
 - Update `tests/test_symbols.py` for every deliberate C ABI addition.
+- Update `docs/api/` or public doc comments when new API changes developer
+  workflows, then run `meson compile -C build docs`.
 
 ## Release Notes
 

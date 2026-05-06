@@ -600,6 +600,14 @@ pwg_metadata_class_init(PwgMetadataClass *klass)
   object_class->dispose = pwg_metadata_dispose;
   object_class->finalize = pwg_metadata_finalize;
 
+  /**
+   * PwgMetadata:core:
+   *
+   * PipeWire core used by this metadata wrapper.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_CORE] = g_param_spec_object(
     "core",
     "Core",
@@ -607,6 +615,14 @@ pwg_metadata_class_init(PwgMetadataClass *klass)
     PWG_TYPE_CORE,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgMetadata:name:
+   *
+   * PipeWire metadata global name.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_NAME] = g_param_spec_string(
     "name",
     "Name",
@@ -614,6 +630,14 @@ pwg_metadata_class_init(PwgMetadataClass *klass)
     NULL,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgMetadata:running:
+   *
+   * Whether metadata discovery is running.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_RUNNING] = g_param_spec_boolean(
     "running",
     "Running",
@@ -621,6 +645,14 @@ pwg_metadata_class_init(PwgMetadataClass *klass)
     FALSE,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgMetadata:bound:
+   *
+   * Whether the named metadata object has been discovered and bound.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_BOUND] = g_param_spec_boolean(
     "bound",
     "Bound",

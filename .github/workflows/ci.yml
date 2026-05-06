@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run_build: ${{ steps.detect.outputs.run_build }}
+      run_docs: ${{ steps.detect.outputs.run_docs }}
 
     steps:
       - uses: actions/checkout@v6
@@ -43,18 +44,22 @@ jobs:
             base="${{ github.event.pull_request.base.sha }}"
             head="${{ github.sha }}"
             run_build=false
+            run_docs=false
           elif [ "$event" = "push" ]; then
             base="${{ github.event.before }}"
             head="${{ github.sha }}"
             if [[ "$base" =~ ^0+$ ]]; then
               run_build=true
+              run_docs=true
             else
               run_build=false
+              run_docs=false
             fi
           else
             base=""
             head=""
             run_build=true
+            run_docs=true
           fi
 
           if [ -n "$base" ] && [ "$run_build" = "false" ]; then
@@ -65,13 +70,19 @@ jobs:
               case "$path" in
                 src/*|tests/*|examples/*|meson.build|Dockerfile|.dockerignore|ruff.toml|.github/workflows/ci.yml)
                   run_build=true
+                  run_docs=true
+                  ;;
+                docs/*)
+                  run_docs=true
                   ;;
               esac
             done < changed-files.txt
           fi
 
           echo "run_build=$run_build" >> "$GITHUB_OUTPUT"
+          echo "run_docs=$run_docs" >> "$GITHUB_OUTPUT"
           echo "run_build=$run_build"
+          echo "run_docs=$run_docs"
 
   python-lint:
     name: Python lint
@@ -88,6 +99,48 @@ jobs:
 
       - name: Ruff
         run: /tmp/ruff/bin/ruff check .
+
+  api-docs:
+    name: API docs
+    needs: changes
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    env:
+      RUN_DOCS: ${{ needs.changes.outputs.run_docs }}
+
+    steps:
+      - name: Skip notice
+        if: env.RUN_DOCS != 'true'
+        run: echo "No API-doc-relevant files changed; API docs check is satisfied."
+
+      - name: Install dependencies
+        if: env.RUN_DOCS == 'true'
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            gi-docgen \
+            git \
+            meson \
+            ninja-build \
+            pkg-config \
+            libglib2.0-dev \
+            libpipewire-0.3-dev \
+            gobject-introspection \
+            libgirepository1.0-dev \
+            python3-gi
+
+      - uses: actions/checkout@v6
+        if: env.RUN_DOCS == 'true'
+
+      - name: Build API docs
+        if: env.RUN_DOCS == 'true'
+        run: |
+          meson setup build
+          meson compile -C build docs
 
   distro:
     name: Debian packaged PipeWire
@@ -111,6 +164,7 @@ jobs:
           apt-get install -y --no-install-recommends \
             build-essential \
             ca-certificates \
+            gi-docgen \
             git \
             meson \
             ninja-build \

@@ -106,6 +106,14 @@ pwg_audio_format_class_init(PwgAudioFormatClass *klass)
   object_class->set_property = pwg_audio_format_set_property;
   object_class->finalize = pwg_audio_format_finalize;
 
+  /**
+   * PwgAudioFormat:sample-format:
+   *
+   * PipeWire/SPA sample format name.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_SAMPLE_FORMAT] = g_param_spec_string(
     "sample-format",
     "Sample format",
@@ -113,6 +121,14 @@ pwg_audio_format_class_init(PwgAudioFormatClass *klass)
     NULL,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioFormat:rate:
+   *
+   * Sample rate in Hz.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_RATE] = g_param_spec_uint(
     "rate",
     "Rate",
@@ -122,6 +138,14 @@ pwg_audio_format_class_init(PwgAudioFormatClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioFormat:channels:
+   *
+   * Channel count.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_CHANNELS] = g_param_spec_uint(
     "channels",
     "Channels",
@@ -131,6 +155,14 @@ pwg_audio_format_class_init(PwgAudioFormatClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioFormat:bytes-per-sample:
+   *
+   * Bytes per single-channel sample.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_BYTES_PER_SAMPLE] = g_param_spec_uint(
     "bytes-per-sample",
     "Bytes per sample",
@@ -140,6 +172,14 @@ pwg_audio_format_class_init(PwgAudioFormatClass *klass)
     0,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioFormat:bytes-per-frame:
+   *
+   * Bytes per interleaved frame.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_BYTES_PER_FRAME] = g_param_spec_uint(
     "bytes-per-frame",
     "Bytes per frame",

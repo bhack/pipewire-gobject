@@ -21,6 +21,8 @@ void pwg_init(void);
 /**
  * pwg_get_library_version:
  *
+ * Gets the Pwg library version string.
+ *
  * Returns: (transfer none): the Pwg library version.
  *
  * Since: 0.1
@@ -31,6 +33,8 @@ const char *pwg_get_library_version(void);
 
 /**
  * pwg_get_pipewire_library_version:
+ *
+ * Gets the linked PipeWire library version string.
  *
  * Returns: (transfer none): the linked PipeWire library version.
  *

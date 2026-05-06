@@ -28,6 +28,8 @@ typedef enum {
 /**
  * pwg_error_quark:
  *
+ * Gets the #GQuark used for Pwg errors.
+ *
  * Returns: the #GQuark for the %PWG_ERROR domain.
  *
  * Since: 0.1

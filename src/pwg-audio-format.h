@@ -8,6 +8,14 @@ G_BEGIN_DECLS
 
 #define PWG_TYPE_AUDIO_FORMAT (pwg_audio_format_get_type())
 
+/**
+ * PwgAudioFormat:
+ *
+ * Immutable negotiated audio format descriptor.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
 PWG_API
 G_DECLARE_FINAL_TYPE(PwgAudioFormat, pwg_audio_format, PWG, AUDIO_FORMAT, GObject)
 
@@ -35,6 +43,8 @@ PwgAudioFormat *pwg_audio_format_new(const char *sample_format,
  * pwg_audio_format_get_sample_format:
  * @self: an audio format.
  *
+ * Gets the PipeWire/SPA sample format name.
+ *
  * Returns: (transfer none): the PipeWire/SPA sample format name.
  *
  * Since: 0.1
@@ -46,6 +56,8 @@ const char *pwg_audio_format_get_sample_format(PwgAudioFormat *self);
 /**
  * pwg_audio_format_get_rate:
  * @self: an audio format.
+ *
+ * Gets the sample rate in Hz.
  *
  * Returns: the sample rate in Hz.
  *
@@ -59,6 +71,8 @@ guint pwg_audio_format_get_rate(PwgAudioFormat *self);
  * pwg_audio_format_get_channels:
  * @self: an audio format.
  *
+ * Gets the channel count.
+ *
  * Returns: the channel count.
  *
  * Since: 0.1
@@ -71,6 +85,8 @@ guint pwg_audio_format_get_channels(PwgAudioFormat *self);
  * pwg_audio_format_get_bytes_per_sample:
  * @self: an audio format.
  *
+ * Gets the bytes used by one single-channel sample.
+ *
  * Returns: bytes per single-channel sample.
  *
  * Since: 0.1
@@ -82,6 +98,8 @@ guint pwg_audio_format_get_bytes_per_sample(PwgAudioFormat *self);
 /**
  * pwg_audio_format_get_bytes_per_frame:
  * @self: an audio format.
+ *
+ * Gets the bytes used by one interleaved frame.
  *
  * Returns: bytes per interleaved frame, or 0 if the value overflows.
  *

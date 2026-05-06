@@ -216,6 +216,14 @@ pwg_audio_capture_class_init(PwgAudioCaptureClass *klass)
   object_class->dispose = pwg_audio_capture_dispose;
   object_class->finalize = pwg_audio_capture_finalize;
 
+  /**
+   * PwgAudioCapture:target-object:
+   *
+   * PipeWire `node.name` or object serial to capture from.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_TARGET_OBJECT] = g_param_spec_string(
     "target-object",
     "Target object",
@@ -223,6 +231,14 @@ pwg_audio_capture_class_init(PwgAudioCaptureClass *klass)
     NULL,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioCapture:monitor:
+   *
+   * Whether to capture sink monitor audio instead of source audio.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_MONITOR] = g_param_spec_boolean(
     "monitor",
     "Monitor",
@@ -230,6 +246,14 @@ pwg_audio_capture_class_init(PwgAudioCaptureClass *klass)
     FALSE,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioCapture:running:
+   *
+   * Whether the capture stream is running.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_RUNNING] = g_param_spec_boolean(
     "running",
     "Running",
@@ -237,6 +261,14 @@ pwg_audio_capture_class_init(PwgAudioCaptureClass *klass)
     FALSE,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioCapture:rate:
+   *
+   * Negotiated sample rate, or 0 before format negotiation.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_RATE] = g_param_spec_uint(
     "rate",
     "Rate",
@@ -246,6 +278,14 @@ pwg_audio_capture_class_init(PwgAudioCaptureClass *klass)
     0,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioCapture:channels:
+   *
+   * Negotiated channel count, or 0 before format negotiation.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_CHANNELS] = g_param_spec_uint(
     "channels",
     "Channels",
@@ -255,6 +295,14 @@ pwg_audio_capture_class_init(PwgAudioCaptureClass *klass)
     0,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgAudioCapture:peak:
+   *
+   * Most recent absolute sample peak.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_PEAK] = g_param_spec_double(
     "peak",
     "Peak",

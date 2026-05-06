@@ -8,6 +8,8 @@ This policy applies to experimental `0.x` releases.
 - Public C symbols use the `pwg_` prefix and are guarded by
   `tests/test_symbols.py`.
 - Public GIR metadata is guarded by `tests/test_gir_metadata.py`.
+- Public API reference generation is guarded by the `docs` Meson target, which
+  runs `gi-docgen check` and `gi-docgen generate`.
 - Breaking API or ABI changes are allowed in `0.x`, but release notes must call
   them out clearly.
 

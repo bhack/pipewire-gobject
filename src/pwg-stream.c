@@ -486,6 +486,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
   object_class->dispose = pwg_stream_dispose;
   object_class->finalize = pwg_stream_finalize;
 
+  /**
+   * PwgStream:target-object:
+   *
+   * PipeWire `node.name` or object serial to capture from.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_TARGET_OBJECT] = g_param_spec_string(
     "target-object",
     "Target object",
@@ -493,6 +501,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
     NULL,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgStream:monitor:
+   *
+   * Whether to capture sink monitor audio instead of source audio.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_MONITOR] = g_param_spec_boolean(
     "monitor",
     "Monitor",
@@ -500,6 +516,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
     FALSE,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgStream:deliver-audio-blocks:
+   *
+   * Whether to emit copied audio blocks from the stream.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_DELIVER_AUDIO_BLOCKS] = g_param_spec_boolean(
     "deliver-audio-blocks",
     "Deliver audio blocks",
@@ -507,6 +531,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
     FALSE,
     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgStream:running:
+   *
+   * Whether the stream is running.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_RUNNING] = g_param_spec_boolean(
     "running",
     "Running",
@@ -514,6 +546,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
     FALSE,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgStream:rate:
+   *
+   * Negotiated sample rate, or 0 before format negotiation.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_RATE] = g_param_spec_uint(
     "rate",
     "Rate",
@@ -523,6 +563,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
     0,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgStream:channels:
+   *
+   * Negotiated channel count, or 0 before format negotiation.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_CHANNELS] = g_param_spec_uint(
     "channels",
     "Channels",
@@ -532,6 +580,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
     0,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgStream:peak:
+   *
+   * Most recent absolute sample peak.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_PEAK] = g_param_spec_double(
     "peak",
     "Peak",
@@ -541,6 +597,14 @@ pwg_stream_class_init(PwgStreamClass *klass)
     0.0,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * PwgStream:audio-format:
+   *
+   * Current negotiated audio format, or %NULL before format negotiation.
+   *
+   * Since: 0.1
+   * Stability: Unstable
+   */
   properties[PROP_AUDIO_FORMAT] = g_param_spec_object(
     "audio-format",
     "Audio format",

@@ -9,6 +9,17 @@ G_BEGIN_DECLS
 
 #define PWG_TYPE_METADATA (pwg_metadata_get_type())
 
+/**
+ * PwgMetadata:
+ *
+ * Wrapper for a named PipeWire metadata object.
+ *
+ * Metadata objects keep a copied cache of observed key/value entries and allow
+ * callers to update the bound metadata object.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
 PWG_API
 G_DECLARE_FINAL_TYPE(PwgMetadata, pwg_metadata, PWG, METADATA, GObject)
 
@@ -59,6 +70,8 @@ void pwg_metadata_stop(PwgMetadata *self);
  * pwg_metadata_get_core:
  * @self: a metadata wrapper.
  *
+ * Gets the core used by this metadata wrapper.
+ *
  * Returns: (transfer none): the core used by this metadata wrapper.
  *
  * Since: 0.1
@@ -70,6 +83,8 @@ PwgCore *pwg_metadata_get_core(PwgMetadata *self);
 /**
  * pwg_metadata_get_name:
  * @self: a metadata wrapper.
+ *
+ * Gets the PipeWire metadata global name.
  *
  * Returns: (transfer none): the metadata global name.
  *
@@ -83,6 +98,8 @@ const char *pwg_metadata_get_name(PwgMetadata *self);
  * pwg_metadata_get_running:
  * @self: a metadata wrapper.
  *
+ * Gets whether metadata discovery is running.
+ *
  * Returns: whether metadata discovery is running.
  *
  * Since: 0.1
@@ -94,6 +111,8 @@ gboolean pwg_metadata_get_running(PwgMetadata *self);
 /**
  * pwg_metadata_get_bound:
  * @self: a metadata wrapper.
+ *
+ * Gets whether the named metadata object has been discovered and bound.
  *
  * Returns: whether the named metadata object has been discovered and bound.
  *
@@ -109,6 +128,8 @@ gboolean pwg_metadata_get_bound(PwgMetadata *self);
  * @subject: the PipeWire global id associated with the metadata.
  * @key: a metadata key.
  *
+ * Copies a cached metadata value.
+ *
  * Returns: (nullable) (transfer full): the cached metadata value, or %NULL.
  *
  * Since: 0.1
@@ -122,6 +143,8 @@ char *pwg_metadata_dup_value(PwgMetadata *self, guint subject, const char *key);
  * @self: a metadata wrapper.
  * @subject: the PipeWire global id associated with the metadata.
  * @key: a metadata key.
+ *
+ * Copies the type string for a cached metadata value.
  *
  * Returns: (nullable) (transfer full): the cached metadata value type, or
  *   %NULL.
