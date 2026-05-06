@@ -2,9 +2,16 @@
 
 #include <pipewire/extensions/metadata.h>
 #include <pipewire/pipewire.h>
+#include <spa/utils/json.h>
+#include <string.h>
 
 #include "pwg-core-private.h"
 #include "pwg-error.h"
+
+#define PWG_DEFAULT_AUDIO_SINK_KEY "default.audio.sink"
+#define PWG_DEFAULT_AUDIO_SOURCE_KEY "default.audio.source"
+#define PWG_DEFAULT_CONFIGURED_AUDIO_SINK_KEY "default.configured.audio.sink"
+#define PWG_DEFAULT_CONFIGURED_AUDIO_SOURCE_KEY "default.configured.audio.source"
 
 typedef struct {
   guint subject;
@@ -96,6 +103,15 @@ pwg_metadata_cache_key(guint subject, const char *key)
   return g_strdup_printf("%u:%s", subject, key);
 }
 
+static PwgMetadataEntry *
+pwg_metadata_lookup_entry(PwgMetadata *self, guint subject, const char *key)
+{
+  g_autofree char *cache_key = NULL;
+
+  cache_key = pwg_metadata_cache_key(subject, key);
+  return g_hash_table_lookup(self->entries, cache_key);
+}
+
 static const char *
 pwg_metadata_lookup_spa_dict(const struct spa_dict *dict, const char *key)
 {
@@ -110,6 +126,74 @@ pwg_metadata_lookup_spa_dict(const struct spa_dict *dict, const char *key)
   }
 
   return NULL;
+}
+
+static gboolean
+pwg_metadata_value_type_is_json(const char *type)
+{
+  return g_strcmp0(type, "Spa:String:JSON") == 0 ||
+         g_strcmp0(type, "Spa:JSON") == 0;
+}
+
+static gboolean
+pwg_metadata_value_looks_like_object(const char *value)
+{
+  const char *cursor = value;
+
+  while (g_ascii_isspace(*cursor))
+    cursor++;
+
+  return *cursor == '{';
+}
+
+static char *
+pwg_metadata_dup_name_from_json(const char *value)
+{
+  struct spa_json iter;
+  const char *json_name = NULL;
+  int json_name_length;
+  g_autofree char *name = NULL;
+
+  if (spa_json_begin_object(&iter, value, strlen(value)) <= 0)
+    return NULL;
+
+  json_name_length = spa_json_object_find(&iter, "name", &json_name);
+  if (json_name_length <= 0)
+    return NULL;
+
+  name = g_malloc((gsize) json_name_length + 1);
+  if (spa_json_parse_stringn(
+        json_name,
+        json_name_length,
+        name,
+        json_name_length + 1) <= 0)
+    return NULL;
+
+  return name[0] != '\0' ? g_steal_pointer(&name) : NULL;
+}
+
+static char *
+pwg_metadata_entry_dup_node_name(PwgMetadataEntry *entry)
+{
+  if (entry == NULL || entry->value == NULL || entry->value[0] == '\0')
+    return NULL;
+
+  if (pwg_metadata_value_type_is_json(entry->type) ||
+      pwg_metadata_value_looks_like_object(entry->value))
+    return pwg_metadata_dup_name_from_json(entry->value);
+
+  return g_strdup(entry->value);
+}
+
+static char *
+pwg_metadata_dup_default_node_name(PwgMetadata *self, const char *key)
+{
+  PwgMetadataEntry *entry;
+
+  g_return_val_if_fail(PWG_IS_METADATA(self), NULL);
+
+  entry = pwg_metadata_lookup_entry(self, 0, key);
+  return pwg_metadata_entry_dup_node_name(entry);
 }
 
 static void
@@ -699,29 +783,49 @@ pwg_metadata_get_bound(PwgMetadata *self)
 char *
 pwg_metadata_dup_value(PwgMetadata *self, guint subject, const char *key)
 {
-  g_autofree char *cache_key = NULL;
   PwgMetadataEntry *entry;
 
   g_return_val_if_fail(PWG_IS_METADATA(self), NULL);
   g_return_val_if_fail(key != NULL, NULL);
 
-  cache_key = pwg_metadata_cache_key(subject, key);
-  entry = g_hash_table_lookup(self->entries, cache_key);
+  entry = pwg_metadata_lookup_entry(self, subject, key);
   return entry != NULL ? g_strdup(entry->value) : NULL;
 }
 
 char *
 pwg_metadata_dup_value_type(PwgMetadata *self, guint subject, const char *key)
 {
-  g_autofree char *cache_key = NULL;
   PwgMetadataEntry *entry;
 
   g_return_val_if_fail(PWG_IS_METADATA(self), NULL);
   g_return_val_if_fail(key != NULL, NULL);
 
-  cache_key = pwg_metadata_cache_key(subject, key);
-  entry = g_hash_table_lookup(self->entries, cache_key);
+  entry = pwg_metadata_lookup_entry(self, subject, key);
   return entry != NULL ? g_strdup(entry->type) : NULL;
+}
+
+char *
+pwg_metadata_dup_default_audio_sink_name(PwgMetadata *self)
+{
+  return pwg_metadata_dup_default_node_name(self, PWG_DEFAULT_AUDIO_SINK_KEY);
+}
+
+char *
+pwg_metadata_dup_default_audio_source_name(PwgMetadata *self)
+{
+  return pwg_metadata_dup_default_node_name(self, PWG_DEFAULT_AUDIO_SOURCE_KEY);
+}
+
+char *
+pwg_metadata_dup_configured_audio_sink_name(PwgMetadata *self)
+{
+  return pwg_metadata_dup_default_node_name(self, PWG_DEFAULT_CONFIGURED_AUDIO_SINK_KEY);
+}
+
+char *
+pwg_metadata_dup_configured_audio_source_name(PwgMetadata *self)
+{
+  return pwg_metadata_dup_default_node_name(self, PWG_DEFAULT_CONFIGURED_AUDIO_SOURCE_KEY);
 }
 
 gboolean

@@ -242,6 +242,16 @@ assert metadata_dup_value_type is not None
 metadata_dup_value_type_return = metadata_dup_value_type.find("gir:return-value", GIR_NS)
 assert metadata_dup_value_type_return.attrib["transfer-ownership"] == "full"
 assert metadata_dup_value_type_return.attrib.get("nullable") == "1"
+for method_name in (
+    "dup_default_audio_sink_name",
+    "dup_default_audio_source_name",
+    "dup_configured_audio_sink_name",
+    "dup_configured_audio_source_name",
+):
+    default_node = metadata.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert default_node is not None
+    assert default_node.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert default_node.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 metadata_set = metadata.find("gir:method[@name='set']", GIR_NS)
 assert metadata_set is not None
 assert metadata_set.attrib.get("throws") == "1"

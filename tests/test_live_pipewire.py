@@ -96,7 +96,32 @@ GLib.timeout_add(2000, changed_loop.quit)
 changed_loop.run()
 assert metadata.dup_value(0, "pwg.test") == "test-value"
 assert metadata.dup_value_type(0, "pwg.test") == "Spa:String"
+
+default_node_loop = GLib.MainLoop()
+
+
+def on_default_node_changed(_metadata, subject, key, _value_type, _value):
+    if subject == 0 and key == "default.audio.sink":
+        default_node_loop.quit()
+
+
+metadata.connect("changed", on_default_node_changed)
+print(
+    "metadata-set-default-audio-sink",
+    metadata.set(0, "default.audio.sink", "Spa:String:JSON", '{"name":"pwg-test-sink"}'),
+)
+GLib.timeout_add(2000, default_node_loop.quit)
+default_node_loop.run()
+assert metadata.dup_default_audio_sink_name() == "pwg-test-sink"
+assert metadata.dup_default_audio_source_name() is None
+assert metadata.dup_configured_audio_sink_name() is None
+assert metadata.dup_configured_audio_source_name() is None
+
 print("metadata-clear-key", metadata.set(0, "pwg.test", "Spa:String", None))
+print(
+    "metadata-clear-default-audio-sink",
+    metadata.set(0, "default.audio.sink", "Spa:String:JSON", None),
+)
 metadata.stop()
 print("metadata-running-after-stop", metadata.get_running())
 

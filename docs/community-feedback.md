@@ -59,13 +59,13 @@ The current prototype exposes:
 - `Pwg.Registry` and `Pwg.Global` for immutable global discovery, common
   property accessors, and snapshot filter helpers;
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
-  `set()`, and `clear()`;
+  `set()`, `clear()`, and default audio node-name helpers;
 - `Pwg.Stream` for high-level audio capture;
 - `Pwg.AudioFormat` and `Pwg.AudioBlock` for immutable copied audio metadata and
   sample bytes;
 - `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`.
 
-The next API areas to design are typed node/global wrapper objects, richer
+The next API areas to design are typed node/global wrapper objects, additional
 metadata conveniences, params, and a shape suitable for mixer/panel
 applications. See [roadmap.md](roadmap.md).
 

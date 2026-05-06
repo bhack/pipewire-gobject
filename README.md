@@ -25,7 +25,8 @@ The `0.1` prototype currently exposes:
   `Gio.ListModel`.
 - `Pwg.Global`: immutable descriptors for discovered PipeWire globals with
   common property accessors.
-- `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata.
+- `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata,
+  including default audio node-name helpers.
 - `Pwg.Stream`: high-level audio capture stream with optional copied sample
   block delivery.
 - `Pwg.AudioFormat`: immutable negotiated audio format descriptor.
@@ -112,8 +113,8 @@ Pwg import ok
 ```
 
 The `examples/python/` directory includes small PyGObject examples for registry
-and node listing, metadata reads, peak-meter level signals, and copied audio
-block delivery.
+and node listing, default metadata resolution, peak-meter level signals, and
+copied audio block delivery.
 
 Minimal peak-meter usage:
 
@@ -171,9 +172,12 @@ registry-running-after-stop False
 metadata-start True
 metadata-running True
 metadata-bound True
-metadata-set True
 metadata-changed 0 pwg.test Spa:String test-value
+metadata-set True
+metadata-set-default-audio-sink True
+metadata-changed 0 default.audio.sink Spa:String:JSON {"name":"pwg-test-sink"}
 metadata-clear-key True
+metadata-clear-default-audio-sink True
 metadata-running-after-stop False
 stream-deliver-audio-blocks True
 stream-start True

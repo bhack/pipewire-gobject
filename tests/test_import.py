@@ -30,6 +30,10 @@ assert metadata.get_running() is False
 assert metadata.get_bound() is False
 assert metadata.dup_value(0, "default.audio.sink") is None
 assert metadata.dup_value_type(0, "default.audio.sink") is None
+assert metadata.dup_default_audio_sink_name() is None
+assert metadata.dup_default_audio_source_name() is None
+assert metadata.dup_configured_audio_sink_name() is None
+assert metadata.dup_configured_audio_source_name() is None
 
 audio_format = Pwg.AudioFormat.new("F32", 48000, 2, 4)
 assert audio_format.get_sample_format() == "F32"
