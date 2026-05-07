@@ -10,6 +10,7 @@ RUN apt-get update \
       ca-certificates \
       clang-format \
       clang-tidy \
+      dbus \
       gi-docgen \
       git \
       gobject-introspection \
@@ -24,6 +25,7 @@ RUN apt-get update \
       python3 \
       python3-gi \
       python3-venv \
+      wireplumber \
  && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv /opt/ruff \

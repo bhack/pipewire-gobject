@@ -174,8 +174,10 @@ jobs:
             gobject-introspection \
             libgirepository1.0-dev \
             python3-gi \
+            dbus \
             pipewire \
-            libspa-0.2-modules
+            libspa-0.2-modules \
+            wireplumber
 
       - uses: actions/checkout@v6
         if: env.RUN_BUILD == 'true'
@@ -220,6 +222,13 @@ jobs:
           GI_TYPELIB_PATH="$PWD/build" \
           LD_LIBRARY_PATH="$PWD/build" \
           python3 tests/test_live_pipewire.py
+
+      - name: Live stream audio smoke test
+        if: env.RUN_BUILD == 'true'
+        run: |
+          GI_TYPELIB_PATH="$PWD/build" \
+          LD_LIBRARY_PATH="$PWD/build" \
+          python3 tests/test_live_stream_audio.py
 
   pipewire-source:
     name: PipeWire ${{ matrix.pipewire_version }}

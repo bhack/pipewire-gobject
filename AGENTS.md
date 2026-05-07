@@ -145,6 +145,24 @@ GI_TYPELIB_PATH=/work/build LD_LIBRARY_PATH=/work/build python3 tests/test_live_
 '
 ```
 
+Optional local reproduction of the CI stream data-plane smoke test with a
+private D-Bus session, WirePlumber, a virtual sink, and generated playback
+audio:
+
+```bash
+docker build -t pipewire-gobject-dev:trixie .
+docker run --rm -v "$PWD:/work" -w /work pipewire-gobject-dev:trixie sh -lc '
+set -e
+test -d build || meson setup build >/dev/null
+meson compile -C build >/dev/null
+GI_TYPELIB_PATH=/work/build LD_LIBRARY_PATH=/work/build python3 tests/test_live_stream_audio.py
+'
+```
+
+CI runs this against Debian's packaged PipeWire/WirePlumber stack. Keep it out
+of ordinary local iteration unless you are touching stream data delivery,
+monitor capture, or the container audio fixture.
+
 Strict compiler and GIR scanner warning check:
 
 ```bash

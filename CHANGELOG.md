@@ -23,6 +23,8 @@ The release version will be assigned when the next tag is prepared.
   node parameter updates.
 - Add deterministic stream dispatch coverage for negotiated format updates,
   `level` signals, and copied `audio-block` delivery.
+- Add CI coverage for a WirePlumber-backed live stream audio smoke test with
+  copied monitor blocks and non-silent samples.
 
 ## 0.1.0 - 2026-05-06
 
