@@ -713,6 +713,7 @@ for type_node in namespace.findall(".//gir:type", GIR_NS):
     assert c_type not in disallowed_c_collection_types
 
 callable_tags = {"callback", "constructor", "function", "method"}
+valid_transfer_modes = {"container", "full", "none"}
 disallowed_scalar_c_types = {
     "gboolean",
     "gdouble",
@@ -722,10 +723,47 @@ disallowed_scalar_c_types = {
     "guint",
     "guint64",
 }
-for callable_node in namespace.iter():
-    tag = callable_node.tag.rsplit("}", 1)[-1]
-    if tag not in callable_tags:
-        continue
+
+
+def iter_public_callables():
+    for owner_node in namespace:
+        owner_tag = owner_node.tag.rsplit("}", 1)[-1]
+        owner_name = owner_node.attrib.get("name", "Pwg")
+        if owner_tag in callable_tags:
+            yield "Pwg", owner_node
+            continue
+
+        for callable_node in owner_node:
+            callable_tag = callable_node.tag.rsplit("}", 1)[-1]
+            if callable_tag in callable_tags:
+                yield owner_name, callable_node
+
+
+allowed_nullable_transfer_none_returns = {
+    ("AudioCapture", "get_target_object"),
+    ("ImplModule", "get_arguments"),
+    ("Stream", "get_audio_format"),
+    ("Stream", "get_target_object"),
+}
+
+
+for owner_name, callable_node in iter_public_callables():
+    callable_name = callable_node.attrib["name"]
+
+    return_value = callable_node.find("gir:return-value", GIR_NS)
+    assert return_value is not None
+    assert return_value.attrib.get("transfer-ownership") in valid_transfer_modes
+    if return_value.attrib.get("nullable") == "1":
+        transfer = return_value.attrib["transfer-ownership"]
+        if transfer == "none":
+            assert (owner_name, callable_name) in allowed_nullable_transfer_none_returns
+        else:
+            assert transfer == "full"
+            assert callable_name == "load_module" or callable_name.startswith(
+                ("dup_", "lookup_", "new")
+            )
+
+    assert callable_node.findall(".//gir:array", GIR_NS) == []
 
     for type_node in callable_node.findall(".//gir:type", GIR_NS):
         c_type = type_node.attrib.get(f"{{{C_URI}}}type", "")
@@ -734,6 +772,7 @@ for callable_node in namespace.iter():
 
     out_parameters = 0
     for parameter in callable_node.findall("gir:parameters/gir:parameter", GIR_NS):
+        assert parameter.attrib.get("transfer-ownership") in valid_transfer_modes
         direction = parameter.attrib.get("direction", "in")
         assert direction != "inout"
         if direction == "out":
@@ -742,6 +781,11 @@ for callable_node in namespace.iter():
 
 assert namespace.findall(".//gir:callback", GIR_NS) == []
 assert namespace.findall(".//gir:varargs", GIR_NS) == []
+
+for signal_node in namespace.findall(".//glib:signal", GIR_NS):
+    for parameter in signal_node.findall("gir:parameters/gir:parameter", GIR_NS):
+        assert parameter.attrib.get("transfer-ownership") in valid_transfer_modes
+        assert parameter.attrib.get("direction", "in") == "in"
 
 for record_node in namespace.findall("gir:record", GIR_NS):
     assert record_node.attrib["name"].endswith("Class")
