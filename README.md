@@ -192,7 +192,7 @@ python3 tests/test_live_pipewire.py
 Expected shape:
 
 ```text
-pwg-version 0.1.0
+pwg-version 0.2.0
 pipewire-version 1.x.y
 version 1.x.y
 core True

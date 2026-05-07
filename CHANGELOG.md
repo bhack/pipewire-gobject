@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-This section contains changes accumulated after the initial `0.1.0` baseline.
-The release version will be assigned when the next tag is prepared.
+No changes yet.
+
+## 0.2.0 - 2026-05-07
 
 - Add generated API reference support with `gi-docgen` and a Meson `docs`
   target.
