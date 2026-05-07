@@ -1,5 +1,6 @@
 #include "pwg-param.h"
 
+#include <math.h>
 #include <spa/param/audio/raw-utils.h>
 #include <spa/param/audio/raw-types.h>
 #include <spa/param/format-types.h>
@@ -45,7 +46,8 @@ enum {
 
 static GParamSpec *properties[N_PROPS];
 
-#define PWG_PARAM_PROPS_BUFFER_SIZE 256
+#define PWG_PARAM_SIMPLE_PROPS_BUFFER_SIZE 256
+#define PWG_PARAM_CONTROL_PROPS_BUFFER_SIZE (64 * 1024)
 
 static GBytes *
 pwg_param_empty_bytes(void)
@@ -592,7 +594,7 @@ pwg_param_new_props(gboolean has_volume,
                     gboolean has_mute,
                     gboolean mute)
 {
-  uint8_t buffer[PWG_PARAM_PROPS_BUFFER_SIZE];
+  uint8_t buffer[PWG_PARAM_SIMPLE_PROPS_BUFFER_SIZE];
   struct spa_pod_builder builder = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
   struct spa_pod_frame frame;
   struct spa_pod *pod;
@@ -636,6 +638,58 @@ PwgParam *
 pwg_param_new_props_mute(gboolean mute)
 {
   return pwg_param_new_props(FALSE, 0.0, TRUE, mute);
+}
+
+PwgParam *
+pwg_param_new_props_controls(GVariant *controls)
+{
+  g_autofree uint8_t *buffer = NULL;
+  struct spa_pod_builder builder;
+  struct spa_pod_frame object_frame;
+  struct spa_pod_frame params_frame;
+  struct spa_pod *pod;
+  GVariantIter iter;
+  const char *name;
+  gdouble value;
+  g_autoptr(GBytes) bytes = NULL;
+
+  g_return_val_if_fail(controls != NULL, NULL);
+
+  if (!g_variant_is_of_type(controls, G_VARIANT_TYPE("a{sd}")))
+    return NULL;
+
+  buffer = g_malloc0(PWG_PARAM_CONTROL_PROPS_BUFFER_SIZE);
+  builder = SPA_POD_BUILDER_INIT(buffer, PWG_PARAM_CONTROL_PROPS_BUFFER_SIZE);
+
+  if (spa_pod_builder_push_object(&builder, &object_frame, SPA_TYPE_OBJECT_Props, SPA_PARAM_Props) < 0)
+    return NULL;
+
+  if (spa_pod_builder_prop(&builder, SPA_PROP_params, 0) < 0)
+    return NULL;
+  if (spa_pod_builder_push_struct(&builder, &params_frame) < 0)
+    return NULL;
+
+  g_variant_iter_init(&iter, controls);
+  while (g_variant_iter_loop(&iter, "{&sd}", &name, &value)) {
+    if (name == NULL || name[0] == '\0')
+      return NULL;
+    if (!isfinite(value) || value < -G_MAXFLOAT || value > G_MAXFLOAT)
+      return NULL;
+    if (spa_pod_builder_string(&builder, name) < 0)
+      return NULL;
+    if (spa_pod_builder_float(&builder, (float) value) < 0)
+      return NULL;
+  }
+
+  if (spa_pod_builder_pop(&builder, &params_frame) == NULL)
+    return NULL;
+
+  pod = spa_pod_builder_pop(&builder, &object_frame);
+  if (pod == NULL)
+    return NULL;
+
+  bytes = g_bytes_new(pod, SPA_POD_SIZE(pod));
+  return _pwg_param_new(0, SPA_PARAM_Props, 0, 0, bytes);
 }
 
 gint

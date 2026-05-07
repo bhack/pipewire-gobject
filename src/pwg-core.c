@@ -1,9 +1,11 @@
 #include "pwg-core.h"
 
+#include <pipewire/impl-module.h>
 #include <pipewire/pipewire.h>
 
 #include "pwg-core-private.h"
 #include "pwg-error.h"
+#include "pwg-impl-module-private.h"
 #include "pwg.h"
 
 struct _PwgCore {
@@ -175,6 +177,47 @@ pwg_core_get_library_version(PwgCore *self)
   g_return_val_if_fail(PWG_IS_CORE(self), NULL);
 
   return pwg_get_pipewire_library_version();
+}
+
+PwgImplModule *
+pwg_core_load_module(PwgCore *self,
+                     const char *name,
+                     const char *arguments,
+                     GError **error)
+{
+  struct pw_impl_module *module;
+
+  g_return_val_if_fail(PWG_IS_CORE(self), NULL);
+  g_return_val_if_fail(name != NULL, NULL);
+
+  if (name[0] == '\0') {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "PipeWire module name is empty");
+    return NULL;
+  }
+
+  if (!self->connected && !pwg_core_connect(self, error))
+    return NULL;
+
+  if (self->thread_loop == NULL || self->context == NULL) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "PipeWire core is not connected");
+    return NULL;
+  }
+
+  pw_thread_loop_lock(self->thread_loop);
+  module = pw_context_load_module(self->context, name, arguments, NULL);
+  pw_thread_loop_unlock(self->thread_loop);
+
+  if (module == NULL) {
+    g_set_error(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_PIPEWIRE,
+      "Could not load PipeWire module '%s'",
+      name);
+    return NULL;
+  }
+
+  return _pwg_impl_module_new(self, name, arguments, module);
 }
 
 struct pw_core *

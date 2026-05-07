@@ -11,6 +11,16 @@ core = Pwg.Core.new()
 print("version", core.get_library_version())
 print("core", core.connect())
 
+module = core.load_module("libpipewire-module-profiler", None)
+assert module.get_core() == core
+assert module.get_name() == "libpipewire-module-profiler"
+assert module.get_arguments() is None
+assert module.get_loaded() is True
+print("module-loaded", module.get_name(), module.get_loaded())
+module.unload()
+assert module.get_loaded() is False
+print("module-loaded-after-unload", module.get_loaded())
+
 registry = Pwg.Registry.new(core)
 print("registry-start", registry.start())
 

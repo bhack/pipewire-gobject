@@ -42,13 +42,15 @@ a CI test fixture only; it is not part of this repository's source boundary.
 ## Live Stream Coverage
 
 The current live smoke test verifies that a temporary PipeWire daemon can be
-used for core connection, registry discovery, metadata binding/change delivery,
-default audio node-name helpers, registry lookup/filter helpers, typed
-client/device/node/port/link views for discovered globals, node parameter
-inspection, stream start/stop, and the compatibility capture wrapper.
+used for core connection, app-owned implementation module load/unload, registry
+discovery, metadata binding/change delivery, default audio node-name helpers,
+registry lookup/filter helpers, typed client/device/node/port/link views for
+discovered globals, node parameter inspection, stream start/stop, and the
+compatibility capture wrapper.
 
 A deterministic stream dispatch test covers negotiated format updates, `level`
-signals, and copied `audio-block` signal delivery from known F32 sample data.
-It does not yet prove those signals through a live PipeWire graph. A future
-deterministic graph test should cover real graph negotiation before the stream
-data API is considered mature.
+signals, and copied `audio-block` signal delivery from known F32 sample data. A
+separate WirePlumber-backed live stream smoke test covers copied monitor blocks
+and non-silent samples through a temporary graph. A future deterministic graph
+test should cover real graph negotiation without depending on a heavier
+WirePlumber fixture before the stream data API is considered mature.

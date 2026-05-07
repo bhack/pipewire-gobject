@@ -161,6 +161,43 @@ assert core.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_core_get_type"
 connect_method = core.find("gir:method[@name='connect']", GIR_NS)
 assert connect_method is not None
 assert connect_method.attrib.get("throws") == "1"
+load_module_method = core.find("gir:method[@name='load_module']", GIR_NS)
+assert load_module_method is not None
+assert load_module_method.attrib.get("throws") == "1"
+assert load_module_method.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert load_module_method.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+assert load_module_method.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "ImplModule"
+load_module_arguments = load_module_method.find(
+    "gir:parameters/gir:parameter[@name='arguments']",
+    GIR_NS,
+)
+assert load_module_arguments is not None
+assert load_module_arguments.attrib.get("nullable") == "1"
+
+impl_module = namespace.find("gir:class[@name='ImplModule']", GIR_NS)
+assert impl_module is not None
+assert impl_module.attrib[f"{{{C_URI}}}type"] == "PwgImplModule"
+assert impl_module.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_impl_module_get_type"
+for method_name in (
+    "get_core",
+    "get_name",
+    "get_arguments",
+    "get_loaded",
+    "unload",
+):
+    assert impl_module.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+impl_module_core = impl_module.find("gir:method[@name='get_core']", GIR_NS)
+assert impl_module_core.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "none"
+assert impl_module_core.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Core"
+impl_module_arguments = impl_module.find("gir:method[@name='get_arguments']", GIR_NS)
+assert impl_module_arguments.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+for property_name in (
+    "core",
+    "name",
+    "arguments",
+    "loaded",
+):
+    assert impl_module.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
 
 global_class = namespace.find("gir:class[@name='Global']", GIR_NS)
 assert global_class is not None
@@ -389,6 +426,7 @@ assert param is not None
 assert param.attrib[f"{{{C_URI}}}type"] == "PwgParam"
 assert param.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_param_get_type"
 for constructor_name in (
+    "new_props_controls",
     "new_props_mute",
     "new_props_volume",
 ):
@@ -396,6 +434,13 @@ for constructor_name in (
     assert constructor is not None
     assert constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
     assert constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+param_controls_constructor = param.find("gir:constructor[@name='new_props_controls']", GIR_NS)
+controls_param = param_controls_constructor.find(
+    "gir:parameters/gir:parameter[@name='controls']",
+    GIR_NS,
+)
+assert controls_param is not None
+assert controls_param.find("gir:type", GIR_NS).attrib["name"] == "GLib.Variant"
 for method_name in (
     "get_seq",
     "get_id",

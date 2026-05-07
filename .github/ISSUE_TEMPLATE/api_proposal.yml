@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Public API is unstable in 0.x, but proposals should preserve the project boundary: safe GI app-owned streams, not a general PipeWire or WirePlumber replacement.
+        Public API is unstable in 0.x, but proposals should preserve the project boundary: safe GI PipeWire application APIs for discovery, metadata, params, app-owned modules, and app-owned streams, without raw PipeWire ownership or WirePlumber session-management policy.
   - type: textarea
     id: use_case
     attributes:
@@ -40,7 +40,7 @@ body:
     id: boundary
     attributes:
       label: Boundary with WirePlumber
-      description: Why does this belong in Pwg instead of WirePlumber's graph/control-plane API?
+      description: Why does this belong in Pwg as generic PipeWire application API instead of WirePlumber session-management or policy API?
     validations:
       required: true
   - type: checkboxes
@@ -52,4 +52,3 @@ body:
           required: true
         - label: This does not add routing policy or session-manager behavior.
           required: true
-

@@ -19,8 +19,10 @@ The release version will be assigned when the next tag is prepared.
 - Add `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` as the first read-only
   node parameter inspection API.
 - Add typed raw audio format helpers for copied node parameters.
-- Add copied `Props` builders and `Pwg.Node.set_param()` for limited writable
-  node parameter updates.
+- Add copied `Props` builders for volume, mute, and named float controls, plus
+  `Pwg.Node.set_param()` for limited writable node parameter updates.
+- Add `Pwg.Core.load_module()` and `Pwg.ImplModule` for app-owned PipeWire
+  implementation modules with explicit unload.
 - Add deterministic stream dispatch coverage for negotiated format updates,
   `level` signals, and copied `audio-block` delivery.
 - Add CI coverage for a WirePlumber-backed live stream audio smoke test with

@@ -30,7 +30,9 @@ default-device behavior, and session-manager logic. See
 
 The current `0.x` prototype exposes:
 
-- `Pwg.Core`: create a PipeWire context/core connection.
+- `Pwg.Core`: create a PipeWire context/core connection and load app-owned
+  PipeWire implementation modules.
+- `Pwg.ImplModule`: app-owned loaded module handle with explicit unload.
 - `Pwg.Registry`: discover, look up, and filter PipeWire globals through
   `Gio.ListModel`.
 - `Pwg.Global`: immutable descriptors for discovered PipeWire globals with
@@ -40,7 +42,8 @@ The current `0.x` prototype exposes:
   parameter updates.
 - `Pwg.ParamInfo` and `Pwg.Param`: copied node parameter descriptors and
   enumeration results, including typed raw audio format reads for SPA Format
-  parameters and copied `Props` builders for limited control updates.
+  parameters and copied `Props` builders for volume, mute, and named float
+  control updates.
 - `Pwg.Metadata`: discover, read, change, and cache named PipeWire metadata,
   including default audio node-name helpers.
 - `Pwg.Stream`: high-level audio capture stream with optional copied sample
@@ -193,6 +196,8 @@ pwg-version 0.1.0
 pipewire-version 1.x.y
 version 1.x.y
 core True
+module-loaded libpipewire-module-profiler True
+module-loaded-after-unload False
 registry-start True
 registry-count N
 registry-first-name NAME
@@ -242,6 +247,8 @@ signals, and properties:
   `Gio.ListModel`, not as raw registry/proxy pointers.
 - Node discovery data can be viewed through immutable `Pwg.NodeInfo` wrappers;
   live node proxy APIs expose copied params and limited copied param updates.
+- App-owned implementation modules are represented by `Pwg.ImplModule` handles
+  with explicit unload, not raw `pw_impl_module` pointers.
 - PipeWire stream callbacks stay in C; stream audio data is exposed as safe
   signal/property values instead of raw realtime buffers.
 - Audio sample access uses copied `Pwg.AudioBlock` objects with `GLib.Bytes`,

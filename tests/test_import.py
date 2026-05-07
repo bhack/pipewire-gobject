@@ -13,6 +13,7 @@ assert core.get_connected() is False
 assert isinstance(core.get_library_version(), str)
 assert hasattr(Pwg, "ClientInfo")
 assert hasattr(Pwg, "DeviceInfo")
+assert hasattr(Pwg, "ImplModule")
 assert hasattr(Pwg, "LinkInfo")
 assert hasattr(Pwg, "Node")
 assert hasattr(Pwg, "NodeInfo")
@@ -67,6 +68,18 @@ mute_param = Pwg.Param.new_props_mute(True)
 assert mute_param is not None
 assert mute_param.dup_name() == "Props"
 assert mute_param.dup_object_type_name() == "Props"
+controls = GLib.Variant(
+    "a{sd}",
+    {
+        "band_l_0:b0": 1.0,
+        "band_l_0:b1": -0.25,
+    },
+)
+control_param = Pwg.Param.new_props_controls(controls)
+assert control_param is not None
+assert control_param.dup_name() == "Props"
+assert control_param.dup_object_type_name() == "Props"
+assert control_param.dup_summary().endswith("1 properties")
 
 stream = Pwg.Stream.new_audio_capture(None, True)
 assert stream.get_running() is False
