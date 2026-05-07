@@ -136,6 +136,34 @@ if param is not None:
     node.set_param(param)
 ```
 
+For modules that expose named float controls, build a `Props` parameter from a
+`GLib.Variant` dictionary with signature `a{sd}`:
+
+```python
+controls = GLib.Variant(
+    "a{sd}",
+    {
+        "band_l_0:b0": 1.0,
+        "band_l_0:b1": -0.25,
+    },
+)
+param = Pwg.Param.new_props_controls(controls)
+if param is not None:
+    node.set_param(param)
+```
+
+App-owned PipeWire implementation modules can be loaded from [class@Pwg.Core].
+The returned [class@Pwg.ImplModule] keeps the module alive until it is unloaded
+or dropped:
+
+```python
+module = core.load_module("libpipewire-module-loopback", "node.name=pwg-loopback")
+try:
+    print(module.get_loaded())
+finally:
+    module.unload()
+```
+
 For app-owned audio capture, [class@Pwg.Stream] exposes negotiated format,
 level, and optional copied audio blocks. The requested format defaults to
 `F32`, 48000 Hz, stereo; set it before starting the stream when the application

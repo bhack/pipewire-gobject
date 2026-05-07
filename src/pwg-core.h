@@ -3,6 +3,7 @@
 #include <glib-object.h>
 
 #include "pwg-defs.h"
+#include "pwg-impl-module.h"
 
 G_BEGIN_DECLS
 
@@ -89,5 +90,30 @@ gboolean pwg_core_get_connected(PwgCore *self);
  */
 PWG_API
 const char *pwg_core_get_library_version(PwgCore *self);
+
+/**
+ * pwg_core_load_module:
+ * @self: a core wrapper.
+ * @name: the PipeWire implementation module name.
+ * @arguments: (nullable): PipeWire module arguments.
+ * @error: return location for a #GError.
+ *
+ * Loads a PipeWire implementation module into this core context.
+ *
+ * This is for app-owned module lifecycles such as loading a loopback or
+ * filter-chain helper. It does not replace WirePlumber or implement
+ * session-management policy.
+ *
+ * Returns: (nullable) (transfer full): a loaded module handle, or %NULL on
+ *   failure.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+PwgImplModule *pwg_core_load_module(PwgCore *self,
+                                    const char *name,
+                                    const char *arguments,
+                                    GError **error);
 
 G_END_DECLS

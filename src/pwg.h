@@ -54,6 +54,7 @@ G_END_DECLS
 #include "pwg-device-info.h"
 #include "pwg-error.h"
 #include "pwg-global.h"
+#include "pwg-impl-module.h"
 #include "pwg-link-info.h"
 #include "pwg-metadata.h"
 #include "pwg-node.h"

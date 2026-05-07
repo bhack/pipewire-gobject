@@ -57,13 +57,16 @@ and GI consumers receive GObject properties, signals, immutable descriptors,
 The current prototype exposes:
 
 - `Pwg.Core` for minimal PipeWire core connection handling;
+- `Pwg.ImplModule` for app-owned PipeWire implementation module handles with
+  explicit unload;
 - `Pwg.Registry` and `Pwg.Global` for immutable global discovery, common
   property accessors, and snapshot filter helpers;
 - `Pwg.ClientInfo`, `Pwg.DeviceInfo`, `Pwg.LinkInfo`, `Pwg.NodeInfo`, and
   `Pwg.PortInfo` for focused views of immutable global descriptors;
 - `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` for live node parameter
   inspection, typed raw audio format reads, copied parameter data, copied
-  `Props` builders, and limited queued parameter updates;
+  `Props` builders including named float controls, and limited queued
+  parameter updates;
 - `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
   `set()`, `clear()`, and default audio node-name helpers;
 - `Pwg.Stream` for high-level audio capture;
@@ -72,10 +75,11 @@ The current prototype exposes:
 - `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`;
 - generated API reference support with `gi-docgen`.
 
-The next checkpoint is stream maturity: deterministic stream tests, clearer
-stream constructors, target selection helpers where PipeWire supports them, and
-examples that prove the API against real filter/analyzer and mixer/panel
-workflows. See [roadmap.md](roadmap.md).
+The next checkpoint is stream and application workflow maturity: deterministic
+graph tests for live stream delivery, clearer stream constructors, target
+selection helpers where PipeWire supports them, and examples that prove the API
+against real filter/analyzer and mixer/panel workflows. See
+[roadmap.md](roadmap.md).
 
 The generated namespace is `Pwg-0.1`. It does not track PipeWire release
 numbers. The current dependency floor is `libpipewire-0.3 >= 1.0.2`.

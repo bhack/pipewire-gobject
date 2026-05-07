@@ -81,7 +81,8 @@ This checklist is for the first public `0.x` releases.
 
 12. Do not announce API stability for `0.x` releases. Mention that the ABI/API is
    experimental and may change.
-13. Keep the live stream test limitation visible in release notes if it has not
-    been replaced by a deterministic graph test: the current smoke test verifies
-    stream start/stop against a temporary PipeWire daemon, but not negotiated
-    audio block delivery.
+13. Keep stream test limitations visible in release notes: the lightweight
+    temporary-daemon smoke verifies stream start/stop, the heavier
+    WirePlumber-backed smoke verifies copied monitor blocks through a temporary
+    graph, and a future deterministic graph test should still replace the
+    heavier fixture before the stream data API is considered mature.

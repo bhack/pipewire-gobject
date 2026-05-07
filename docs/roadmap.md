@@ -54,28 +54,39 @@ Applications also need limited control APIs, but not a raw low-level SPA API:
 - read-only live node parameter inspection through `Pwg.Node`,
   `Pwg.ParamInfo`, and copied `Pwg.Param` values;
 - typed raw audio format helpers for copied Format parameters;
-- copied `Props` builders for simple volume and mute updates;
+- copied `Props` builders for simple volume, mute, and named float control
+  updates;
 - `Pwg.Node.set_param()` with explicit queued-request semantics rather than
   applied-state confirmation;
 - tests that inspect generated GIR for ownership, nullable values, and thrown
   errors.
 
-## 0.4: Stream Maturity (Next Checkpoint)
+## 0.4: Stream And Module Maturity (In Progress)
 
-The stream API should become useful beyond peak-meter demos:
+This checkpoint makes the stream and app-owned module APIs useful beyond
+peak-meter demos.
+
+Already landed toward this checkpoint:
 
 - deterministic tests for negotiated audio format, `level`, and `audio-block`
   dispatch;
+- requested F32 mono/stereo capture format configuration;
+- app-owned PipeWire implementation module handles for loopback/filter-chain
+  style workflows.
+
+Remaining work:
+
 - deterministic graph tests for live stream negotiation and delivery;
 - bounded buffering and backpressure behavior for copied blocks;
 - clearer capture/playback/monitor constructors;
 - target selection by object serial or node name where PipeWire supports it;
 - examples that feed real analyzer/filter use cases.
 
-Completing this milestone is the next useful project checkpoint. At that point
-the library should have discovery, metadata, limited control helpers, and a
-credible app-owned stream API. The project should then be validated against
-real consumers before expanding wrapper coverage further.
+Completing the remaining work in this milestone is the next useful project
+checkpoint. At that point the library should have discovery, metadata, limited
+control helpers, app-owned module handles, and a credible app-owned stream API.
+The project should then be validated against real consumers before expanding
+wrapper coverage further.
 
 The validation targets should be concrete:
 

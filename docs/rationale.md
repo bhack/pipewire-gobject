@@ -5,8 +5,9 @@ API for applications written in Python, GJS, Vala, and other GI languages.
 
 The goal is a standalone, app-facing binding layer that is safer and more
 idiomatic than exposing raw PipeWire C objects directly. It should cover common
-application needs such as core lifecycle, registry/discovery, metadata, object
-properties, limited params, and app-owned streams.
+application needs such as core lifecycle, app-owned implementation modules,
+registry/discovery, metadata, object properties, limited params, and app-owned
+streams.
 
 It is not intended to replace the WirePlumber daemon or its session-management
 logic. WirePlumber remains responsible for policy, routing decisions,
@@ -18,6 +19,7 @@ daemon.
 Use `pipewire-gobject` for app-side access to generic PipeWire concepts:
 
 - core connection, synchronization, and lifecycle;
+- app-owned implementation modules with explicit lifetime management;
 - registry and global discovery;
 - immutable descriptors for discovered objects;
 - node/global properties and app-oriented object metadata;

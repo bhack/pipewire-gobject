@@ -56,6 +56,23 @@ PWG_API
 PwgParam *pwg_param_new_props_mute(gboolean mute);
 
 /**
+ * pwg_param_new_props_controls:
+ * @controls: (transfer none): `a{sd}` mapping of control names to values.
+ *
+ * Builds a copied SPA `Props` parameter containing named float controls in the
+ * `params` property. This is useful for PipeWire modules that expose controls
+ * by name, such as filter-chain biquad coefficients.
+ *
+ * Returns: (nullable) (transfer full): a copied parameter, or %NULL on invalid
+ *   input.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+PwgParam *pwg_param_new_props_controls(GVariant *controls);
+
+/**
  * pwg_param_get_seq:
  * @self: a parameter object.
  *
