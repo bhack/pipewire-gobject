@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-No changes yet.
+- Clarify public project status, changelog policy, community feedback
+  questions, and canonical scope docs before wider review.
+- Add README status badges and a pull request template for GitHub contribution
+  flow.
+- Add a GitHub Pages workflow for hosted generated API reference docs.
 
 ## 0.2.0 - 2026-05-07
 

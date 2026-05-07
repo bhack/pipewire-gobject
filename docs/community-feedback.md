@@ -1,100 +1,39 @@
 # Community Feedback
 
-This project is intentionally experimental. The main public question is how a
-standalone, GI-friendly PipeWire binding layer should be scoped, and where such
-an API should live long term.
+This page tracks the current community-review focus for `pipewire-gobject`.
+It is intentionally shorter than the canonical project docs:
 
-## Summary
+- [rationale.md](rationale.md): project boundary and non-goals.
+- [roadmap.md](roadmap.md): released milestones and next checkpoints.
+- [support-policy.md](support-policy.md): `0.x` stability, GIR, dependency, and
+  CI policy.
+
+## Current Review Focus
 
 `pipewire-gobject` is an experimental `0.x` GObject/GObject-Introspection
-wrapper for app-facing PipeWire APIs. The intended direction is broader than a
-stream helper, but still smaller and safer than a mechanical binding of the
-entire PipeWire C API.
+wrapper for app-facing PipeWire APIs. The current question is whether its
+boundary is useful before more public API is added.
 
-The proposed boundary is:
+The intended shape is a standalone, high-level-language PipeWire layer for
+applications that need discovery, metadata, limited params/control helpers, and
+app-owned streams from Python, GJS, Vala, or other GI consumers.
 
-- `pipewire-gobject`: generic PipeWire application APIs such as core lifecycle,
-  registry/discovery, globals, node/global properties, metadata, limited params,
-  limited copied parameter updates, app-owned streams, and safe copied/reduced
-  stream data.
-- WirePlumber: session-management policy, routing decisions, default-device
-  behavior, smart filters, Lua scripts, and daemon behavior.
+It should not become a WirePlumber session manager, routing policy layer,
+default-device policy engine, smart-filter policy engine, Lua replacement, or
+mechanical binding of raw PipeWire/SPA ownership.
 
-## Upstream Direction Feedback
+## Background
 
-Early maintainer feedback on the PipeWire/WirePlumber side suggests that a
-standalone binding layer is a welcome addition to the PipeWire ecosystem.
-Maintainers have also noted that WirePlumber may eventually remove
-`libwireplumber` and its GIR/typelib entirely, although no final decision has
-been made.
+The project started from an app-owned stream use case: replacing app-specific C
+or JACK glue in a GTK/Python audio analyzer. Early discussion on the
+PipeWire/WirePlumber side suggests that a standalone binding layer could be
+useful in the PipeWire ecosystem. Discussion has also raised the possibility
+that WirePlumber may eventually remove `libwireplumber` and its GIR/typelib
+entirely, although no final decision has been made.
 
-That feedback changes the long-term target: this project should not be only an
-app-stream wrapper. Ideally, it should grow toward a generic
-high-level-language PipeWire API that can support audio streaming, filters,
-analyzers, effects, stream tools, mixer apps, panel applets, and similar tools.
-
-The explicit boundary remains that it should not implement WirePlumber-specific
-session-management APIs. Session management is expected to remain inside the
-WirePlumber daemon, handled by Lua scripts rather than GIR consumers.
-
-## Problem
-
-GI languages need a safe way to use PipeWire without every application carrying
-custom C glue. The useful API surface is broader than streams: filters,
-analyzers, effects, audio tools, panel applets, and mixer apps need discovery,
-metadata, properties, params, and app-owned streams.
-
-At the same time, exposing raw PipeWire pointers, SPA POD ownership, realtime
-buffers, and low-level callbacks directly to dynamic languages would be unsafe
-and hard to make idiomatic.
-
-This project explores a higher-level API where PipeWire callbacks remain in C
-and GI consumers receive GObject properties, signals, immutable descriptors,
-`Gio.ListModel` models, copied data, or simple values.
-
-## Initial API Shape
-
-The current prototype exposes:
-
-- `Pwg.Core` for minimal PipeWire core connection handling;
-- `Pwg.ImplModule` for app-owned PipeWire implementation module handles with
-  explicit unload;
-- `Pwg.Registry` and `Pwg.Global` for immutable global discovery, common
-  property accessors, and snapshot filter helpers;
-- `Pwg.ClientInfo`, `Pwg.DeviceInfo`, `Pwg.LinkInfo`, `Pwg.NodeInfo`, and
-  `Pwg.PortInfo` for focused views of immutable global descriptors;
-- `Pwg.Node`, `Pwg.ParamInfo`, and `Pwg.Param` for live node parameter
-  inspection, typed raw audio format reads, copied parameter data, copied
-  `Props` builders including named float controls, and limited queued
-  parameter updates;
-- `Pwg.Metadata` for named metadata discovery, cached reads, change signals,
-  `set()`, `clear()`, and default audio node-name helpers;
-- `Pwg.Stream` for high-level audio capture;
-- `Pwg.AudioFormat` and `Pwg.AudioBlock` for immutable copied audio metadata and
-  sample bytes;
-- `Pwg.AudioCapture` as a simple compatibility wrapper around `Pwg.Stream`;
-- generated API reference support with `gi-docgen`.
-
-The next checkpoint is stream and application workflow maturity: deterministic
-graph tests for live stream delivery, clearer stream constructors, target
-selection helpers where PipeWire supports them, and examples that prove the API
-against real filter/analyzer and mixer/panel workflows. See
-[roadmap.md](roadmap.md).
-
-The generated namespace is `Pwg-0.1`. It does not track PipeWire release
-numbers. The current dependency floor is `libpipewire-0.3 >= 1.0.2`.
-
-## Explicit Non-Goals
-
-This project does not aim to:
-
-- replace the WirePlumber daemon;
-- expose a low-level one-to-one binding of the complete PipeWire C API;
-- expose raw `pw_stream`, `pw_buffer`, `spa_buffer`, or `spa_pod` ownership to
-  language bindings;
-- provide node/port/link routing policy or default-device policy;
-- become a session manager;
-- duplicate WirePlumber-specific daemon, policy, or Lua script APIs.
+That broadens the long-term target from a stream helper toward a generic
+app-facing PipeWire API for audio streaming, filters, analyzers, effects,
+stream tools, mixer apps, panel applets, and similar tools.
 
 ## Questions For Maintainers And Users
 

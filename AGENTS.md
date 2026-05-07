@@ -56,6 +56,7 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `src/pwg-client-info.*`: immutable client-focused view of a registry global.
 - `src/pwg-defs.h`: public export macros for the C ABI.
 - `src/pwg-device-info.*`: immutable device-focused view of a registry global.
+- `src/pwg-error.*`: public project error domain.
 - `src/pwg-global.*`: immutable descriptors for PipeWire registry globals.
 - `src/pwg-impl-module.*`: app-owned PipeWire implementation module handles.
 - `src/pwg-link-info.*`: immutable link-focused view of a registry global.
@@ -70,6 +71,11 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `src/pwg-registry.*`: PipeWire registry discovery wrapper.
 - `src/pwg.h`: aggregate public include.
 - `tests/test_import.py`: PyGObject import and basic API smoke test.
+- `tests/test_gir_metadata.py`: generated GIR contract guard.
+- `tests/test_live_pipewire.py`: temporary-daemon live core, registry,
+  metadata, node, stream, and compatibility wrapper smoke test.
+- `tests/test_live_stream_audio.py`: WirePlumber-backed copied audio block
+  smoke test with a temporary graph.
 - `tests/test_stream_dispatch.c`: deterministic stream format, level, and
   copied audio-block dispatch test.
 - `tests/test_symbols.py`: exported-symbol guard for the shared library.
