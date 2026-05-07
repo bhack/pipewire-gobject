@@ -12,7 +12,7 @@ It must not become a WirePlumber session manager. WirePlumber-specific policy,
 routing decisions, default-device policy, smart filters, Lua scripts, and daemon
 behavior remain out of scope.
 
-## 0.1: Foundation (Implemented)
+## 0.1.0: Foundation (Released)
 
 The first preview establishes the library and GIR shape:
 
@@ -34,10 +34,10 @@ The first preview establishes the library and GIR shape:
 - Python examples for registry and node listing, default metadata resolution,
   peak levels, and audio blocks.
 
-## 0.2: Discovery And Metadata (Implemented)
+## 0.2.0: Discovery, Metadata, Params, And Early Stream Maturity (Released)
 
-This layer adds generic app-side graph visibility without importing
-WirePlumber policy concepts:
+This preview adds generic app-side graph visibility and limited control helpers
+without importing WirePlumber policy concepts:
 
 - typed wrapper objects for clients, devices, links, ports, nodes, and
   metadata-facing discovery;
@@ -45,12 +45,7 @@ WirePlumber policy concepts:
 - additional discovery filters for application properties and common
   object-specific keys;
 - generated API reference support through `gi-docgen`;
-- broader live smoke tests for metadata and discovery updates.
-
-## 0.3: Params And Control Helpers (Implemented)
-
-Applications also need limited control APIs, but not a raw low-level SPA API:
-
+- broader live smoke tests for metadata and discovery updates;
 - read-only live node parameter inspection through `Pwg.Node`,
   `Pwg.ParamInfo`, and copied `Pwg.Param` values;
 - typed raw audio format helpers for copied Format parameters;
@@ -59,14 +54,19 @@ Applications also need limited control APIs, but not a raw low-level SPA API:
 - `Pwg.Node.set_param()` with explicit queued-request semantics rather than
   applied-state confirmation;
 - tests that inspect generated GIR for ownership, nullable values, and thrown
-  errors.
+  errors;
+- deterministic tests for negotiated audio format, `level`, and `audio-block`
+  dispatch;
+- requested F32 mono/stereo capture format configuration;
+- app-owned PipeWire implementation module handles for loopback/filter-chain
+  style workflows.
 
-## 0.4: Stream And Module Maturity (In Progress)
+## Next: Stream And Module Maturity
 
 This checkpoint makes the stream and app-owned module APIs useful beyond
 peak-meter demos.
 
-Already landed toward this checkpoint:
+Already landed in `0.2.0`:
 
 - deterministic tests for negotiated audio format, `level`, and `audio-block`
   dispatch;

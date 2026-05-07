@@ -1,8 +1,12 @@
 # Release Checklist
 
-This checklist is for the first public `0.x` releases.
+This checklist is for experimental public `0.x` releases.
 
 1. Verify the version in `meson.build` and `CHANGELOG.md`.
+   Changelog entries should be release-note material: user-visible changes,
+   public API/ABI changes, build/test/release-process changes, compatibility
+   notes, and meaningful documentation changes. Do not record every commit or
+   internal-only maintainer note.
 2. Run the local test suite:
 
    ```bash

@@ -1,0 +1,70 @@
+name: Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build API docs
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+
+    steps:
+      - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            gi-docgen \
+            git \
+            meson \
+            ninja-build \
+            pkg-config \
+            libglib2.0-dev \
+            libpipewire-0.3-dev \
+            gobject-introspection \
+            libgirepository1.0-dev \
+            python3-gi
+
+      - uses: actions/checkout@v6
+
+      - name: Build API docs
+        run: |
+          meson setup build
+          meson compile -C build docs
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload API docs artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/api-docs
+
+  deploy:
+    name: Deploy API docs
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
