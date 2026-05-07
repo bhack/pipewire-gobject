@@ -34,7 +34,7 @@ G_DECLARE_FINAL_TYPE(PwgGlobal, pwg_global, PWG, GLOBAL, GObject)
  * Stability: Unstable
  */
 PWG_API
-guint pwg_global_get_id(PwgGlobal *self);
+unsigned int pwg_global_get_id(PwgGlobal *self);
 
 /**
  * pwg_global_get_permissions:
@@ -48,7 +48,7 @@ guint pwg_global_get_id(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_global_get_permissions(PwgGlobal *self);
+unsigned int pwg_global_get_permissions(PwgGlobal *self);
 
 /**
  * pwg_global_get_interface_type:
@@ -76,7 +76,7 @@ const char *pwg_global_get_interface_type(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_global_get_version(PwgGlobal *self);
+unsigned int pwg_global_get_version(PwgGlobal *self);
 
 /**
  * pwg_global_get_properties:
@@ -177,7 +177,7 @@ char *pwg_global_dup_object_serial(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
+bool pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
 
 /**
  * pwg_global_is_node:
@@ -191,7 +191,7 @@ gboolean pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_global_is_node(PwgGlobal *self);
+bool pwg_global_is_node(PwgGlobal *self);
 
 /**
  * pwg_global_is_client:
@@ -205,7 +205,7 @@ gboolean pwg_global_is_node(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_global_is_client(PwgGlobal *self);
+bool pwg_global_is_client(PwgGlobal *self);
 
 /**
  * pwg_global_is_device:
@@ -219,7 +219,7 @@ gboolean pwg_global_is_client(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_global_is_device(PwgGlobal *self);
+bool pwg_global_is_device(PwgGlobal *self);
 
 /**
  * pwg_global_is_link:
@@ -233,7 +233,7 @@ gboolean pwg_global_is_device(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_global_is_link(PwgGlobal *self);
+bool pwg_global_is_link(PwgGlobal *self);
 
 /**
  * pwg_global_is_port:
@@ -247,7 +247,7 @@ gboolean pwg_global_is_link(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_global_is_port(PwgGlobal *self);
+bool pwg_global_is_port(PwgGlobal *self);
 
 /**
  * pwg_global_is_metadata:
@@ -261,6 +261,6 @@ gboolean pwg_global_is_port(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_global_is_metadata(PwgGlobal *self);
+bool pwg_global_is_metadata(PwgGlobal *self);
 
 G_END_DECLS

@@ -38,7 +38,7 @@ G_DECLARE_FINAL_TYPE(PwgParam, pwg_param, PWG, PARAM, GObject)
  * Stability: Unstable
  */
 PWG_API
-PwgParam *pwg_param_new_props_volume(gdouble volume);
+PwgParam *pwg_param_new_props_volume(double volume);
 
 /**
  * pwg_param_new_props_mute:
@@ -53,7 +53,7 @@ PwgParam *pwg_param_new_props_volume(gdouble volume);
  * Stability: Unstable
  */
 PWG_API
-PwgParam *pwg_param_new_props_mute(gboolean mute);
+PwgParam *pwg_param_new_props_mute(bool mute);
 
 /**
  * pwg_param_new_props_controls:
@@ -85,7 +85,7 @@ PwgParam *pwg_param_new_props_controls(GVariant *controls);
  * Stability: Unstable
  */
 PWG_API
-gint pwg_param_get_seq(PwgParam *self);
+int pwg_param_get_seq(PwgParam *self);
 
 /**
  * pwg_param_get_id:
@@ -99,7 +99,7 @@ gint pwg_param_get_seq(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_id(PwgParam *self);
+unsigned int pwg_param_get_id(PwgParam *self);
 
 /**
  * pwg_param_dup_name:
@@ -127,7 +127,7 @@ char *pwg_param_dup_name(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_index(PwgParam *self);
+unsigned int pwg_param_get_index(PwgParam *self);
 
 /**
  * pwg_param_get_next:
@@ -141,7 +141,7 @@ guint pwg_param_get_index(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_next(PwgParam *self);
+unsigned int pwg_param_get_next(PwgParam *self);
 
 /**
  * pwg_param_get_pod_type:
@@ -155,7 +155,7 @@ guint pwg_param_get_next(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_pod_type(PwgParam *self);
+unsigned int pwg_param_get_pod_type(PwgParam *self);
 
 /**
  * pwg_param_dup_pod_type_name:
@@ -183,7 +183,7 @@ char *pwg_param_dup_pod_type_name(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_object_type(PwgParam *self);
+unsigned int pwg_param_get_object_type(PwgParam *self);
 
 /**
  * pwg_param_dup_object_type_name:
@@ -211,7 +211,7 @@ char *pwg_param_dup_object_type_name(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_object_id(PwgParam *self);
+unsigned int pwg_param_get_object_id(PwgParam *self);
 
 /**
  * pwg_param_dup_object_id_name:
@@ -239,7 +239,7 @@ char *pwg_param_dup_object_id_name(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_format_media_type(PwgParam *self);
+unsigned int pwg_param_get_format_media_type(PwgParam *self);
 
 /**
  * pwg_param_dup_format_media_type_name:
@@ -269,7 +269,7 @@ char *pwg_param_dup_format_media_type_name(PwgParam *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_get_format_media_subtype(PwgParam *self);
+unsigned int pwg_param_get_format_media_subtype(PwgParam *self);
 
 /**
  * pwg_param_dup_format_media_subtype_name:

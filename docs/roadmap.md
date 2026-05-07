@@ -61,6 +61,19 @@ without importing WirePlumber policy concepts:
 - app-owned PipeWire implementation module handles for loopback/filter-chain
   style workflows.
 
+## 0.3.0: Bindable C API Cleanup (Released)
+
+This preview folds in early GI API-shape feedback before more public surface is
+added:
+
+- public headers use standard C/C99 scalar types such as `bool`, `int`,
+  `unsigned int`, `uint64_t`, and `double`;
+- `GObject`, `GError`, `GBytes`, `GVariant`, and `Gio.ListModel` remain part of
+  the public API where they model ownership, errors, bytes, structured values,
+  and list models for bindings;
+- GIR metadata tests guard public methods, constructors, and functions against
+  drifting back to GLib scalar aliases at the C API boundary.
+
 ## Next: Stream And Module Maturity
 
 This checkpoint makes the stream and app-owned module APIs useful beyond

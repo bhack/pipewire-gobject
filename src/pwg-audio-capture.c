@@ -6,7 +6,7 @@
 struct _PwgAudioCapture {
   GObject parent_instance;
   char *target_object;
-  gboolean monitor;
+  bool monitor;
   PwgStream *stream;
   gulong level_handler_id;
   gulong running_notify_handler_id;
@@ -34,10 +34,10 @@ enum {
 };
 
 static GParamSpec *properties[N_PROPS];
-static guint signals[N_SIGNALS];
+static unsigned int signals[N_SIGNALS];
 
 static void
-pwg_audio_capture_on_stream_level(PwgStream *stream, gdouble peak, gpointer userdata)
+pwg_audio_capture_on_stream_level(PwgStream *stream, double peak, gpointer userdata)
 {
   PwgAudioCapture *self = PWG_AUDIO_CAPTURE(userdata);
 
@@ -82,7 +82,7 @@ pwg_audio_capture_connect_notify(PwgAudioCapture *self, const char *name)
 
 static void
 pwg_audio_capture_get_property(GObject *object,
-                               guint property_id,
+                               unsigned int property_id,
                                GValue *value,
                                GParamSpec *pspec)
 {
@@ -114,7 +114,7 @@ pwg_audio_capture_get_property(GObject *object,
 
 static void
 pwg_audio_capture_set_property(GObject *object,
-                               guint property_id,
+                               unsigned int property_id,
                                const GValue *value,
                                GParamSpec *pspec)
 {
@@ -347,7 +347,7 @@ pwg_audio_capture_init(PwgAudioCapture *self)
 }
 
 PwgAudioCapture *
-pwg_audio_capture_new(const char *target_object, gboolean monitor)
+pwg_audio_capture_new(const char *target_object, bool monitor)
 {
   return g_object_new(
     PWG_TYPE_AUDIO_CAPTURE,
@@ -356,7 +356,7 @@ pwg_audio_capture_new(const char *target_object, gboolean monitor)
     NULL);
 }
 
-gboolean
+bool
 pwg_audio_capture_start(PwgAudioCapture *self, GError **error)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_CAPTURE(self), FALSE);
@@ -373,7 +373,7 @@ pwg_audio_capture_stop(PwgAudioCapture *self)
     pwg_stream_stop(self->stream);
 }
 
-gboolean
+bool
 pwg_audio_capture_get_running(PwgAudioCapture *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_CAPTURE(self), FALSE);
@@ -389,7 +389,7 @@ pwg_audio_capture_get_target_object(PwgAudioCapture *self)
   return self->target_object;
 }
 
-gboolean
+bool
 pwg_audio_capture_get_monitor(PwgAudioCapture *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_CAPTURE(self), FALSE);
@@ -397,7 +397,7 @@ pwg_audio_capture_get_monitor(PwgAudioCapture *self)
   return self->monitor;
 }
 
-guint
+unsigned int
 pwg_audio_capture_get_rate(PwgAudioCapture *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_CAPTURE(self), 0);
@@ -405,7 +405,7 @@ pwg_audio_capture_get_rate(PwgAudioCapture *self)
   return self->stream != NULL ? pwg_stream_get_rate(self->stream) : 0;
 }
 
-guint
+unsigned int
 pwg_audio_capture_get_channels(PwgAudioCapture *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_CAPTURE(self), 0);
@@ -413,7 +413,7 @@ pwg_audio_capture_get_channels(PwgAudioCapture *self)
   return self->stream != NULL ? pwg_stream_get_channels(self->stream) : 0;
 }
 
-gdouble
+double
 pwg_audio_capture_get_peak(PwgAudioCapture *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_CAPTURE(self), 0.0);

@@ -4,6 +4,6 @@
 
 G_BEGIN_DECLS
 
-PwgParamInfo *_pwg_param_info_new(guint id, guint flags);
+PwgParamInfo *_pwg_param_info_new(unsigned int id, unsigned int flags);
 
 G_END_DECLS

@@ -52,7 +52,7 @@ PwgRegistry *pwg_registry_new(PwgCore *core);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_registry_start(PwgRegistry *self, GError **error);
+bool pwg_registry_start(PwgRegistry *self, GError **error);
 
 /**
  * pwg_registry_stop:
@@ -92,7 +92,7 @@ PwgCore *pwg_registry_get_core(PwgRegistry *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_registry_get_running(PwgRegistry *self);
+bool pwg_registry_get_running(PwgRegistry *self);
 
 /**
  * pwg_registry_get_globals:
@@ -121,7 +121,7 @@ GListModel *pwg_registry_get_globals(PwgRegistry *self);
  * Stability: Unstable
  */
 PWG_API
-PwgGlobal *pwg_registry_lookup_global(PwgRegistry *self, guint id);
+PwgGlobal *pwg_registry_lookup_global(PwgRegistry *self, unsigned int id);
 
 /**
  * pwg_registry_lookup_global_by_property:

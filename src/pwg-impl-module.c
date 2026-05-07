@@ -49,7 +49,7 @@ static const struct pw_impl_module_events module_events = {
 
 static void
 pwg_impl_module_get_property(GObject *object,
-                             guint property_id,
+                             unsigned int property_id,
                              GValue *value,
                              GParamSpec *pspec)
 {
@@ -75,7 +75,7 @@ pwg_impl_module_get_property(GObject *object,
 
 static void
 pwg_impl_module_set_property(GObject *object,
-                             guint property_id,
+                             unsigned int property_id,
                              const GValue *value,
                              GParamSpec *pspec)
 {
@@ -252,7 +252,7 @@ pwg_impl_module_get_arguments(PwgImplModule *self)
   return self->arguments;
 }
 
-gboolean
+bool
 pwg_impl_module_get_loaded(PwgImplModule *self)
 {
   g_return_val_if_fail(PWG_IS_IMPL_MODULE(self), FALSE);

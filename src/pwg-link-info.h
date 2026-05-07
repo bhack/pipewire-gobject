@@ -61,7 +61,7 @@ PwgGlobal *pwg_link_info_get_global(PwgLinkInfo *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_link_info_get_id(PwgLinkInfo *self);
+unsigned int pwg_link_info_get_id(PwgLinkInfo *self);
 
 /**
  * pwg_link_info_dup_link_id:
@@ -145,7 +145,7 @@ char *pwg_link_info_dup_input_port_id(PwgLinkInfo *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_link_info_get_passive(PwgLinkInfo *self);
+bool pwg_link_info_get_passive(PwgLinkInfo *self);
 
 /**
  * pwg_link_info_get_feedback:
@@ -159,7 +159,7 @@ gboolean pwg_link_info_get_passive(PwgLinkInfo *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_link_info_get_feedback(PwgLinkInfo *self);
+bool pwg_link_info_get_feedback(PwgLinkInfo *self);
 
 /**
  * pwg_link_info_dup_object_serial:

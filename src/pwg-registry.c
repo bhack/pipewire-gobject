@@ -16,7 +16,7 @@ struct _PwgRegistry {
   struct spa_hook registry_listener;
   gboolean has_registry_listener;
   gulong core_connected_notify_id;
-  guint generation;
+  unsigned int generation;
 };
 
 G_DEFINE_TYPE(PwgRegistry, pwg_registry, G_TYPE_OBJECT)
@@ -42,14 +42,14 @@ typedef enum {
 
 typedef struct {
   PwgRegistry *registry;
-  guint generation;
+  unsigned int generation;
   PwgRegistryEventType type;
   PwgGlobal *global;
-  guint id;
+  unsigned int id;
 } PwgRegistryEvent;
 
 static GParamSpec *properties[N_PROPS];
-static guint signals[N_SIGNALS];
+static unsigned int signals[N_SIGNALS];
 
 static void
 pwg_registry_event_free(PwgRegistryEvent *event)
@@ -60,12 +60,12 @@ pwg_registry_event_free(PwgRegistryEvent *event)
 }
 
 static PwgGlobal *
-pwg_registry_find_global(PwgRegistry *self, guint id, guint *position)
+pwg_registry_find_global(PwgRegistry *self, unsigned int id, unsigned int *position)
 {
-  guint n_items;
+  unsigned int n_items;
 
   n_items = g_list_model_get_n_items(G_LIST_MODEL(self->globals));
-  for (guint i = 0; i < n_items; i++) {
+  for (unsigned int i = 0; i < n_items; i++) {
     g_autoptr(PwgGlobal) global = g_list_model_get_item(G_LIST_MODEL(self->globals), i);
 
     if (pwg_global_get_id(global) == id) {
@@ -94,11 +94,11 @@ pwg_registry_dup_matching_globals(PwgRegistry *self,
                                   gpointer userdata)
 {
   g_autoptr(GListStore) matches = NULL;
-  guint n_items;
+  unsigned int n_items;
 
   matches = g_list_store_new(PWG_TYPE_GLOBAL);
   n_items = g_list_model_get_n_items(G_LIST_MODEL(self->globals));
-  for (guint i = 0; i < n_items; i++) {
+  for (unsigned int i = 0; i < n_items; i++) {
     g_autoptr(PwgGlobal) global = g_list_model_get_item(G_LIST_MODEL(self->globals), i);
 
     if (match_func(global, userdata))
@@ -113,10 +113,10 @@ pwg_registry_lookup_matching_global(PwgRegistry *self,
                                     gboolean (*match_func)(PwgGlobal *global, gpointer userdata),
                                     gpointer userdata)
 {
-  guint n_items;
+  unsigned int n_items;
 
   n_items = g_list_model_get_n_items(G_LIST_MODEL(self->globals));
-  for (guint i = 0; i < n_items; i++) {
+  for (unsigned int i = 0; i < n_items; i++) {
     g_autoptr(PwgGlobal) global = g_list_model_get_item(G_LIST_MODEL(self->globals), i);
 
     if (match_func(global, userdata))
@@ -166,7 +166,7 @@ pwg_registry_dispatch_event(gpointer userdata)
     return G_SOURCE_REMOVE;
 
   if (event->type == PWG_REGISTRY_EVENT_GLOBAL_ADDED) {
-    guint position = 0;
+    unsigned int position = 0;
     g_autoptr(PwgGlobal) existing = NULL;
 
     existing = pwg_registry_find_global(self, pwg_global_get_id(event->global), &position);
@@ -176,7 +176,7 @@ pwg_registry_dispatch_event(gpointer userdata)
     g_list_store_append(self->globals, event->global);
     g_signal_emit(self, signals[SIGNAL_GLOBAL_ADDED], 0, event->global);
   } else {
-    guint position = 0;
+    unsigned int position = 0;
     g_autoptr(PwgGlobal) existing = NULL;
 
     existing = pwg_registry_find_global(self, event->id, &position);
@@ -268,7 +268,7 @@ pwg_registry_on_core_connected_notify(GObject *object,
 
 static void
 pwg_registry_get_property(GObject *object,
-                          guint property_id,
+                          unsigned int property_id,
                           GValue *value,
                           GParamSpec *pspec)
 {
@@ -291,7 +291,7 @@ pwg_registry_get_property(GObject *object,
 
 static void
 pwg_registry_set_property(GObject *object,
-                          guint property_id,
+                          unsigned int property_id,
                           const GValue *value,
                           GParamSpec *pspec)
 {
@@ -470,7 +470,7 @@ pwg_registry_new(PwgCore *core)
   return g_object_new(PWG_TYPE_REGISTRY, "core", core, NULL);
 }
 
-gboolean
+bool
 pwg_registry_start(PwgRegistry *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -555,7 +555,7 @@ pwg_registry_get_core(PwgRegistry *self)
   return self->core;
 }
 
-gboolean
+bool
 pwg_registry_get_running(PwgRegistry *self)
 {
   g_return_val_if_fail(PWG_IS_REGISTRY(self), FALSE);
@@ -572,7 +572,7 @@ pwg_registry_get_globals(PwgRegistry *self)
 }
 
 PwgGlobal *
-pwg_registry_lookup_global(PwgRegistry *self, guint id)
+pwg_registry_lookup_global(PwgRegistry *self, unsigned int id)
 {
   g_return_val_if_fail(PWG_IS_REGISTRY(self), NULL);
 

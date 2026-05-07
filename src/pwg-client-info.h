@@ -61,7 +61,7 @@ PwgGlobal *pwg_client_info_get_global(PwgClientInfo *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_client_info_get_id(PwgClientInfo *self);
+unsigned int pwg_client_info_get_id(PwgClientInfo *self);
 
 /**
  * pwg_client_info_dup_name:

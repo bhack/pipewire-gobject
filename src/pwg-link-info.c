@@ -67,7 +67,7 @@ pwg_link_info_get_global(PwgLinkInfo *self)
   return self->global;
 }
 
-guint
+unsigned int
 pwg_link_info_get_id(PwgLinkInfo *self)
 {
   g_return_val_if_fail(PWG_IS_LINK_INFO(self), 0);
@@ -115,7 +115,7 @@ pwg_link_info_dup_input_port_id(PwgLinkInfo *self)
   return pwg_global_dup_property(self->global, PW_KEY_LINK_INPUT_PORT);
 }
 
-gboolean
+bool
 pwg_link_info_get_passive(PwgLinkInfo *self)
 {
   g_return_val_if_fail(PWG_IS_LINK_INFO(self), FALSE);
@@ -123,7 +123,7 @@ pwg_link_info_get_passive(PwgLinkInfo *self)
   return pwg_link_info_property_is_true(self, PW_KEY_LINK_PASSIVE);
 }
 
-gboolean
+bool
 pwg_link_info_get_feedback(PwgLinkInfo *self)
 {
   g_return_val_if_fail(PWG_IS_LINK_INFO(self), FALSE);

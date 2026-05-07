@@ -234,6 +234,9 @@ The following rules apply when adding public `Pwg` API.
   library.
 - Avoid varargs, in-out parameters, multiple out parameters, callback-heavy
   entry points, and public struct fields.
+- Use standard C/C99 scalar types in public signatures, such as `bool`, `int`,
+  `unsigned int`, `uint64_t`, and `double`, instead of GLib scalar aliases
+  such as `gboolean`, `gint`, `guint`, `guint64`, and `gdouble`.
 - Use accessors, properties, signals, and simple return values instead of
   direct C structure access.
 - Use `GError` for fallible methods and keep error quark names aligned with the

@@ -61,7 +61,7 @@ PwgGlobal *pwg_port_info_get_global(PwgPortInfo *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_port_info_get_id(PwgPortInfo *self);
+unsigned int pwg_port_info_get_id(PwgPortInfo *self);
 
 /**
  * pwg_port_info_dup_name:
@@ -131,7 +131,7 @@ char *pwg_port_info_dup_direction(PwgPortInfo *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_port_info_get_physical(PwgPortInfo *self);
+bool pwg_port_info_get_physical(PwgPortInfo *self);
 
 /**
  * pwg_port_info_dup_audio_channel:

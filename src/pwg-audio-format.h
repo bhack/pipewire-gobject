@@ -35,9 +35,9 @@ G_DECLARE_FINAL_TYPE(PwgAudioFormat, pwg_audio_format, PWG, AUDIO_FORMAT, GObjec
  */
 PWG_API
 PwgAudioFormat *pwg_audio_format_new(const char *sample_format,
-                                     guint rate,
-                                     guint channels,
-                                     guint bytes_per_sample);
+                                     unsigned int rate,
+                                     unsigned int channels,
+                                     unsigned int bytes_per_sample);
 
 /**
  * pwg_audio_format_get_sample_format:
@@ -65,7 +65,7 @@ const char *pwg_audio_format_get_sample_format(PwgAudioFormat *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_audio_format_get_rate(PwgAudioFormat *self);
+unsigned int pwg_audio_format_get_rate(PwgAudioFormat *self);
 
 /**
  * pwg_audio_format_get_channels:
@@ -79,7 +79,7 @@ guint pwg_audio_format_get_rate(PwgAudioFormat *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_audio_format_get_channels(PwgAudioFormat *self);
+unsigned int pwg_audio_format_get_channels(PwgAudioFormat *self);
 
 /**
  * pwg_audio_format_get_bytes_per_sample:
@@ -93,7 +93,7 @@ guint pwg_audio_format_get_channels(PwgAudioFormat *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_audio_format_get_bytes_per_sample(PwgAudioFormat *self);
+unsigned int pwg_audio_format_get_bytes_per_sample(PwgAudioFormat *self);
 
 /**
  * pwg_audio_format_get_bytes_per_frame:
@@ -107,6 +107,6 @@ guint pwg_audio_format_get_bytes_per_sample(PwgAudioFormat *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_audio_format_get_bytes_per_frame(PwgAudioFormat *self);
+unsigned int pwg_audio_format_get_bytes_per_frame(PwgAudioFormat *self);
 
 G_END_DECLS
