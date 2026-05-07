@@ -60,7 +60,7 @@ PwgNode *pwg_node_new(PwgCore *core, PwgGlobal *global);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_node_start(PwgNode *self, GError **error);
+bool pwg_node_start(PwgNode *self, GError **error);
 
 /**
  * pwg_node_stop:
@@ -114,7 +114,7 @@ PwgGlobal *pwg_node_get_global(PwgNode *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_node_get_running(PwgNode *self);
+bool pwg_node_get_running(PwgNode *self);
 
 /**
  * pwg_node_get_bound:
@@ -128,7 +128,7 @@ gboolean pwg_node_get_running(PwgNode *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_node_get_bound(PwgNode *self);
+bool pwg_node_get_bound(PwgNode *self);
 
 /**
  * pwg_node_get_param_infos:
@@ -178,11 +178,11 @@ GListModel *pwg_node_get_params(PwgNode *self);
  * Stability: Unstable
  */
 PWG_API
-gint pwg_node_enum_params(PwgNode *self,
-                          guint id,
-                          guint start,
-                          guint num,
-                          GError **error);
+int pwg_node_enum_params(PwgNode *self,
+                         unsigned int id,
+                         unsigned int start,
+                         unsigned int num,
+                         GError **error);
 
 /**
  * pwg_node_enum_all_params:
@@ -197,7 +197,7 @@ gint pwg_node_enum_params(PwgNode *self,
  * Stability: Unstable
  */
 PWG_API
-gint pwg_node_enum_all_params(PwgNode *self, GError **error);
+int pwg_node_enum_all_params(PwgNode *self, GError **error);
 
 /**
  * pwg_node_set_param:
@@ -216,6 +216,6 @@ gint pwg_node_enum_all_params(PwgNode *self, GError **error);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error);
+bool pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error);
 
 G_END_DECLS

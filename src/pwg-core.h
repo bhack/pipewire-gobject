@@ -49,7 +49,7 @@ PwgCore *pwg_core_new(void);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_core_connect(PwgCore *self, GError **error);
+bool pwg_core_connect(PwgCore *self, GError **error);
 
 /**
  * pwg_core_disconnect:
@@ -75,7 +75,7 @@ void pwg_core_disconnect(PwgCore *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_core_get_connected(PwgCore *self);
+bool pwg_core_get_connected(PwgCore *self);
 
 /**
  * pwg_core_get_library_version:

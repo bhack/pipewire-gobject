@@ -14,7 +14,7 @@
 #define PWG_DEFAULT_CONFIGURED_AUDIO_SOURCE_KEY "default.configured.audio.source"
 
 typedef struct {
-  guint subject;
+  unsigned int subject;
   char *key;
   char *type;
   char *value;
@@ -28,11 +28,11 @@ typedef enum {
 
 typedef struct {
   PwgMetadata *metadata;
-  guint generation;
+  unsigned int generation;
   PwgMetadataEventType event_type;
-  guint id;
-  guint version;
-  guint subject;
+  unsigned int id;
+  unsigned int version;
+  unsigned int subject;
   char *key;
   char *type;
   char *value;
@@ -48,13 +48,13 @@ struct _PwgMetadata {
   GMainContext *main_context;
   struct pw_registry *registry;
   struct pw_metadata *metadata;
-  guint metadata_id;
+  unsigned int metadata_id;
   struct spa_hook registry_listener;
   struct spa_hook metadata_listener;
   gboolean has_registry_listener;
   gboolean has_metadata_listener;
   gulong core_connected_notify_id;
-  guint generation;
+  unsigned int generation;
 };
 
 G_DEFINE_TYPE(PwgMetadata, pwg_metadata, G_TYPE_OBJECT)
@@ -74,7 +74,7 @@ enum {
 };
 
 static GParamSpec *properties[N_PROPS];
-static guint signals[N_SIGNALS];
+static unsigned int signals[N_SIGNALS];
 
 static gboolean pwg_metadata_dispatch_event(gpointer userdata);
 static int pwg_metadata_on_property(void *userdata,
@@ -98,13 +98,13 @@ pwg_metadata_entry_free(PwgMetadataEntry *entry)
 }
 
 static char *
-pwg_metadata_cache_key(guint subject, const char *key)
+pwg_metadata_cache_key(unsigned int subject, const char *key)
 {
   return g_strdup_printf("%u:%s", subject, key);
 }
 
 static PwgMetadataEntry *
-pwg_metadata_lookup_entry(PwgMetadata *self, guint subject, const char *key)
+pwg_metadata_lookup_entry(PwgMetadata *self, unsigned int subject, const char *key)
 {
   g_autofree char *cache_key = NULL;
 
@@ -226,7 +226,7 @@ pwg_metadata_event_free(PwgMetadataEvent *event)
 }
 
 static void
-pwg_metadata_clear_subject(PwgMetadata *self, guint subject)
+pwg_metadata_clear_subject(PwgMetadata *self, unsigned int subject)
 {
   GHashTableIter iter;
   gpointer value;
@@ -242,7 +242,7 @@ pwg_metadata_clear_subject(PwgMetadata *self, guint subject)
 
 static void
 pwg_metadata_cache_change(PwgMetadata *self,
-                          guint subject,
+                          unsigned int subject,
                           const char *key,
                           const char *type,
                           const char *value)
@@ -300,7 +300,7 @@ pwg_metadata_destroy_bound_proxy(PwgMetadata *self)
 }
 
 static gboolean
-pwg_metadata_bind(PwgMetadata *self, guint id, guint version)
+pwg_metadata_bind(PwgMetadata *self, unsigned int id, unsigned int version)
 {
   struct pw_thread_loop *thread_loop;
   struct pw_metadata *metadata;
@@ -499,7 +499,7 @@ pwg_metadata_on_core_connected_notify(GObject *object,
 
 static void
 pwg_metadata_get_property(GObject *object,
-                          guint property_id,
+                          unsigned int property_id,
                           GValue *value,
                           GParamSpec *pspec)
 {
@@ -525,7 +525,7 @@ pwg_metadata_get_property(GObject *object,
 
 static void
 pwg_metadata_set_property(GObject *object,
-                          guint property_id,
+                          unsigned int property_id,
                           const GValue *value,
                           GParamSpec *pspec)
 {
@@ -712,7 +712,7 @@ pwg_metadata_new(PwgCore *core, const char *name)
   return g_object_new(PWG_TYPE_METADATA, "core", core, "name", name, NULL);
 }
 
-gboolean
+bool
 pwg_metadata_start(PwgMetadata *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -815,7 +815,7 @@ pwg_metadata_get_name(PwgMetadata *self)
   return self->name;
 }
 
-gboolean
+bool
 pwg_metadata_get_running(PwgMetadata *self)
 {
   g_return_val_if_fail(PWG_IS_METADATA(self), FALSE);
@@ -823,7 +823,7 @@ pwg_metadata_get_running(PwgMetadata *self)
   return self->running;
 }
 
-gboolean
+bool
 pwg_metadata_get_bound(PwgMetadata *self)
 {
   g_return_val_if_fail(PWG_IS_METADATA(self), FALSE);
@@ -832,7 +832,7 @@ pwg_metadata_get_bound(PwgMetadata *self)
 }
 
 char *
-pwg_metadata_dup_value(PwgMetadata *self, guint subject, const char *key)
+pwg_metadata_dup_value(PwgMetadata *self, unsigned int subject, const char *key)
 {
   PwgMetadataEntry *entry;
 
@@ -844,7 +844,7 @@ pwg_metadata_dup_value(PwgMetadata *self, guint subject, const char *key)
 }
 
 char *
-pwg_metadata_dup_value_type(PwgMetadata *self, guint subject, const char *key)
+pwg_metadata_dup_value_type(PwgMetadata *self, unsigned int subject, const char *key)
 {
   PwgMetadataEntry *entry;
 
@@ -879,9 +879,9 @@ pwg_metadata_dup_configured_audio_source_name(PwgMetadata *self)
   return pwg_metadata_dup_default_node_name(self, PWG_DEFAULT_CONFIGURED_AUDIO_SOURCE_KEY);
 }
 
-gboolean
+bool
 pwg_metadata_set(PwgMetadata *self,
-                 guint subject,
+                 unsigned int subject,
                  const char *key,
                  const char *type,
                  const char *value,
@@ -921,7 +921,7 @@ pwg_metadata_set(PwgMetadata *self,
   return TRUE;
 }
 
-gboolean
+bool
 pwg_metadata_clear(PwgMetadata *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;

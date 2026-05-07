@@ -4,6 +4,11 @@
 
 No release notes yet.
 
+## 0.3.0 - 2026-05-07
+
+- Use standard C/C99 scalar types in public headers for a more idiomatic
+  bindable C API.
+
 ## 0.2.0 - 2026-05-07
 
 - Add generated API reference support with `gi-docgen` and a Meson `docs`

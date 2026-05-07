@@ -7,8 +7,8 @@
 
 struct _PwgParamInfo {
   GObject parent_instance;
-  guint id;
-  guint flags;
+  unsigned int id;
+  unsigned int flags;
 };
 
 G_DEFINE_TYPE(PwgParamInfo, pwg_param_info, G_TYPE_OBJECT)
@@ -27,14 +27,14 @@ enum {
 static GParamSpec *properties[N_PROPS];
 
 static const char *
-pwg_param_info_id_name(guint id)
+pwg_param_info_id_name(unsigned int id)
 {
   return spa_debug_type_find_short_name(spa_type_param, id);
 }
 
 static void
 pwg_param_info_get_property(GObject *object,
-                            guint property_id,
+                            unsigned int property_id,
                             GValue *value,
                             GParamSpec *pspec)
 {
@@ -66,7 +66,7 @@ pwg_param_info_get_property(GObject *object,
 
 static void
 pwg_param_info_set_property(GObject *object,
-                            guint property_id,
+                            unsigned int property_id,
                             const GValue *value,
                             GParamSpec *pspec)
 {
@@ -196,12 +196,12 @@ pwg_param_info_init(PwgParamInfo *self)
 }
 
 PwgParamInfo *
-_pwg_param_info_new(guint id, guint flags)
+_pwg_param_info_new(unsigned int id, unsigned int flags)
 {
   return g_object_new(PWG_TYPE_PARAM_INFO, "id", id, "flags", flags, NULL);
 }
 
-guint
+unsigned int
 pwg_param_info_get_id(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), 0);
@@ -220,7 +220,7 @@ pwg_param_info_dup_name(PwgParamInfo *self)
   return name != NULL ? g_strdup(name) : NULL;
 }
 
-guint
+unsigned int
 pwg_param_info_get_flags(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), 0);
@@ -228,7 +228,7 @@ pwg_param_info_get_flags(PwgParamInfo *self)
   return self->flags;
 }
 
-gboolean
+bool
 pwg_param_info_get_readable(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), FALSE);
@@ -236,7 +236,7 @@ pwg_param_info_get_readable(PwgParamInfo *self)
   return (self->flags & SPA_PARAM_INFO_READ) != 0;
 }
 
-gboolean
+bool
 pwg_param_info_get_writable(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), FALSE);
@@ -244,7 +244,7 @@ pwg_param_info_get_writable(PwgParamInfo *self)
   return (self->flags & SPA_PARAM_INFO_WRITE) != 0;
 }
 
-gboolean
+bool
 pwg_param_info_get_serial(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), FALSE);

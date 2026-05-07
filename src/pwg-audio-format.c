@@ -3,9 +3,9 @@
 struct _PwgAudioFormat {
   GObject parent_instance;
   char *sample_format;
-  guint rate;
-  guint channels;
-  guint bytes_per_sample;
+  unsigned int rate;
+  unsigned int channels;
+  unsigned int bytes_per_sample;
 };
 
 G_DEFINE_TYPE(PwgAudioFormat, pwg_audio_format, G_TYPE_OBJECT)
@@ -22,7 +22,7 @@ enum {
 
 static GParamSpec *properties[N_PROPS];
 
-static guint
+static unsigned int
 pwg_audio_format_calculate_bytes_per_frame(PwgAudioFormat *self)
 {
   if (self->channels != 0 && self->bytes_per_sample > G_MAXUINT / self->channels)
@@ -33,7 +33,7 @@ pwg_audio_format_calculate_bytes_per_frame(PwgAudioFormat *self)
 
 static void
 pwg_audio_format_get_property(GObject *object,
-                              guint property_id,
+                              unsigned int property_id,
                               GValue *value,
                               GParamSpec *pspec)
 {
@@ -62,7 +62,7 @@ pwg_audio_format_get_property(GObject *object,
 
 static void
 pwg_audio_format_set_property(GObject *object,
-                              guint property_id,
+                              unsigned int property_id,
                               const GValue *value,
                               GParamSpec *pspec)
 {
@@ -200,9 +200,9 @@ pwg_audio_format_init(PwgAudioFormat *self)
 
 PwgAudioFormat *
 pwg_audio_format_new(const char *sample_format,
-                     guint rate,
-                     guint channels,
-                     guint bytes_per_sample)
+                     unsigned int rate,
+                     unsigned int channels,
+                     unsigned int bytes_per_sample)
 {
   g_return_val_if_fail(sample_format != NULL, NULL);
 
@@ -223,7 +223,7 @@ pwg_audio_format_get_sample_format(PwgAudioFormat *self)
   return self->sample_format;
 }
 
-guint
+unsigned int
 pwg_audio_format_get_rate(PwgAudioFormat *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_FORMAT(self), 0);
@@ -231,7 +231,7 @@ pwg_audio_format_get_rate(PwgAudioFormat *self)
   return self->rate;
 }
 
-guint
+unsigned int
 pwg_audio_format_get_channels(PwgAudioFormat *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_FORMAT(self), 0);
@@ -239,7 +239,7 @@ pwg_audio_format_get_channels(PwgAudioFormat *self)
   return self->channels;
 }
 
-guint
+unsigned int
 pwg_audio_format_get_bytes_per_sample(PwgAudioFormat *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_FORMAT(self), 0);
@@ -247,7 +247,7 @@ pwg_audio_format_get_bytes_per_sample(PwgAudioFormat *self)
   return self->bytes_per_sample;
 }
 
-guint
+unsigned int
 pwg_audio_format_get_bytes_per_frame(PwgAudioFormat *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_FORMAT(self), 0);

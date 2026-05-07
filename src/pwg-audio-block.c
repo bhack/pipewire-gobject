@@ -4,9 +4,9 @@ struct _PwgAudioBlock {
   GObject parent_instance;
   PwgAudioFormat *format;
   GBytes *data;
-  guint n_frames;
-  guint64 sequence;
-  gdouble peak;
+  unsigned int n_frames;
+  uint64_t sequence;
+  double peak;
 };
 
 G_DEFINE_TYPE(PwgAudioBlock, pwg_audio_block, G_TYPE_OBJECT)
@@ -31,7 +31,7 @@ pwg_audio_block_empty_data(void)
 
 static void
 pwg_audio_block_get_property(GObject *object,
-                             guint property_id,
+                             unsigned int property_id,
                              GValue *value,
                              GParamSpec *pspec)
 {
@@ -60,7 +60,7 @@ pwg_audio_block_get_property(GObject *object,
 
 static void
 pwg_audio_block_set_property(GObject *object,
-                             guint property_id,
+                             unsigned int property_id,
                              const GValue *value,
                              GParamSpec *pspec)
 {
@@ -203,9 +203,9 @@ pwg_audio_block_init(PwgAudioBlock *self)
 PwgAudioBlock *
 pwg_audio_block_new(PwgAudioFormat *format,
                     GBytes *data,
-                    guint n_frames,
-                    guint64 sequence,
-                    gdouble peak)
+                    unsigned int n_frames,
+                    uint64_t sequence,
+                    double peak)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_FORMAT(format), NULL);
   g_return_val_if_fail(data != NULL, NULL);
@@ -236,7 +236,7 @@ pwg_audio_block_get_data(PwgAudioBlock *self)
   return g_bytes_ref(self->data);
 }
 
-guint
+unsigned int
 pwg_audio_block_get_n_frames(PwgAudioBlock *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_BLOCK(self), 0);
@@ -244,7 +244,7 @@ pwg_audio_block_get_n_frames(PwgAudioBlock *self)
   return self->n_frames;
 }
 
-guint64
+uint64_t
 pwg_audio_block_get_sequence(PwgAudioBlock *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_BLOCK(self), 0);
@@ -252,7 +252,7 @@ pwg_audio_block_get_sequence(PwgAudioBlock *self)
   return self->sequence;
 }
 
-gdouble
+double
 pwg_audio_block_get_peak(PwgAudioBlock *self)
 {
   g_return_val_if_fail(PWG_IS_AUDIO_BLOCK(self), 0.0);

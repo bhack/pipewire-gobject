@@ -713,10 +713,24 @@ for type_node in namespace.findall(".//gir:type", GIR_NS):
     assert c_type not in disallowed_c_collection_types
 
 callable_tags = {"callback", "constructor", "function", "method"}
+disallowed_scalar_c_types = {
+    "gboolean",
+    "gdouble",
+    "gfloat",
+    "gint",
+    "gint64",
+    "guint",
+    "guint64",
+}
 for callable_node in namespace.iter():
     tag = callable_node.tag.rsplit("}", 1)[-1]
     if tag not in callable_tags:
         continue
+
+    for type_node in callable_node.findall(".//gir:type", GIR_NS):
+        c_type = type_node.attrib.get(f"{{{C_URI}}}type", "")
+        c_type = c_type.removeprefix("const ").replace("*", "").strip()
+        assert c_type not in disallowed_scalar_c_types
 
     out_parameters = 0
     for parameter in callable_node.findall("gir:parameters/gir:parameter", GIR_NS):

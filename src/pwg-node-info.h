@@ -61,7 +61,7 @@ PwgGlobal *pwg_node_info_get_global(PwgNodeInfo *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_node_info_get_id(PwgNodeInfo *self);
+unsigned int pwg_node_info_get_id(PwgNodeInfo *self);
 
 /**
  * pwg_node_info_dup_name:

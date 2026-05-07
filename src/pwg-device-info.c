@@ -56,7 +56,7 @@ pwg_device_info_get_global(PwgDeviceInfo *self)
   return self->global;
 }
 
-guint
+unsigned int
 pwg_device_info_get_id(PwgDeviceInfo *self)
 {
   g_return_val_if_fail(PWG_IS_DEVICE_INFO(self), 0);

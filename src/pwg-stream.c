@@ -15,26 +15,26 @@
 typedef struct {
   GBytes *data;
   char *sample_format;
-  guint rate;
-  guint channels;
-  guint bytes_per_sample;
-  guint n_frames;
-  guint64 sequence;
-  gdouble peak;
+  unsigned int rate;
+  unsigned int channels;
+  unsigned int bytes_per_sample;
+  unsigned int n_frames;
+  uint64_t sequence;
+  double peak;
 } PwgStreamPendingBlock;
 
 struct _PwgStream {
   GObject parent_instance;
   char *target_object;
-  gboolean monitor;
+  bool monitor;
   char *requested_sample_format;
-  guint requested_rate;
-  guint requested_channels;
-  gint deliver_audio_blocks;
+  unsigned int requested_rate;
+  unsigned int requested_channels;
+  int deliver_audio_blocks;
   gboolean running;
-  guint rate;
-  guint channels;
-  gdouble peak;
+  unsigned int rate;
+  unsigned int channels;
+  double peak;
   PwgAudioFormat *audio_format;
   struct spa_audio_info format;
   struct pw_thread_loop *thread_loop;
@@ -46,14 +46,14 @@ struct _PwgStream {
   GMutex dispatch_lock;
   gboolean dispatch_pending;
   gboolean has_pending_peak;
-  gdouble pending_peak;
+  double pending_peak;
   gboolean has_pending_format;
   char *pending_sample_format;
-  guint pending_rate;
-  guint pending_channels;
-  guint pending_bytes_per_sample;
+  unsigned int pending_rate;
+  unsigned int pending_channels;
+  unsigned int pending_bytes_per_sample;
   GQueue pending_blocks;
-  guint64 next_sequence;
+  uint64_t next_sequence;
 };
 
 G_DEFINE_TYPE(PwgStream, pwg_stream, G_TYPE_OBJECT)
@@ -78,7 +78,7 @@ enum {
 };
 
 static GParamSpec *properties[N_PROPS];
-static guint signals[N_SIGNALS];
+static unsigned int signals[N_SIGNALS];
 
 static void
 pwg_stream_pending_block_free(PwgStreamPendingBlock *block)
@@ -111,7 +111,7 @@ pwg_stream_sample_format_name(enum spa_audio_format format)
   }
 }
 
-static guint
+static unsigned int
 pwg_stream_sample_format_bytes_per_sample(enum spa_audio_format format)
 {
   switch (format) {
@@ -153,8 +153,8 @@ pwg_stream_sample_format_from_name(const char *sample_format,
 
 static gboolean
 pwg_stream_validate_requested_format(const char *sample_format,
-                                     guint rate,
-                                     guint channels,
+                                     unsigned int rate,
+                                     unsigned int channels,
                                      enum spa_audio_format *format,
                                      GError **error)
 {
@@ -195,7 +195,7 @@ pwg_stream_set_channel_positions(struct spa_audio_info_raw *format)
 }
 
 static void
-pwg_stream_emit_peak(PwgStream *self, gdouble peak)
+pwg_stream_emit_peak(PwgStream *self, double peak)
 {
   self->peak = peak;
   g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_PEAK]);
@@ -237,10 +237,10 @@ pwg_stream_dispatch_pending(gpointer userdata)
   gboolean has_peak;
   gboolean has_format;
   char *sample_format;
-  gdouble peak;
-  guint rate;
-  guint channels;
-  guint bytes_per_sample;
+  double peak;
+  unsigned int rate;
+  unsigned int channels;
+  unsigned int bytes_per_sample;
 
   g_mutex_lock(&self->dispatch_lock);
   has_peak = self->has_pending_peak;
@@ -308,7 +308,7 @@ pwg_stream_queue_dispatch_locked(PwgStream *self)
 }
 
 static void
-pwg_stream_queue_peak(PwgStream *self, gdouble peak)
+pwg_stream_queue_peak(PwgStream *self, double peak)
 {
   g_mutex_lock(&self->dispatch_lock);
   self->pending_peak = self->has_pending_peak ? MAX(self->pending_peak, peak) : peak;
@@ -320,9 +320,9 @@ pwg_stream_queue_peak(PwgStream *self, gdouble peak)
 static void
 pwg_stream_queue_format(PwgStream *self,
                         const char *sample_format,
-                        guint rate,
-                        guint channels,
-                        guint bytes_per_sample)
+                        unsigned int rate,
+                        unsigned int channels,
+                        unsigned int bytes_per_sample)
 {
   g_mutex_lock(&self->dispatch_lock);
   g_free(self->pending_sample_format);
@@ -340,11 +340,11 @@ pwg_stream_queue_audio_block(PwgStream *self,
                              const void *data,
                              gsize size,
                              const char *sample_format,
-                             guint rate,
-                             guint channels,
-                             guint bytes_per_sample,
-                             guint n_frames,
-                             gdouble peak)
+                             unsigned int rate,
+                             unsigned int channels,
+                             unsigned int bytes_per_sample,
+                             unsigned int n_frames,
+                             double peak)
 {
   PwgStreamPendingBlock *block;
 
@@ -376,16 +376,16 @@ static void
 pwg_stream_handle_f32_audio(PwgStream *self,
                             const void *data,
                             gsize size,
-                            guint rate,
-                            guint channels)
+                            unsigned int rate,
+                            unsigned int channels)
 {
-  const guint bytes_per_sample = sizeof(float);
+  const unsigned int bytes_per_sample = sizeof(float);
   const char *sample_format = "F32";
   const float *samples;
-  guint n_samples;
-  guint n_frames;
-  guint n;
-  gdouble peak = 0.0;
+  unsigned int n_samples;
+  unsigned int n_frames;
+  unsigned int n;
+  double peak = 0.0;
 
   if (data == NULL || size < bytes_per_sample || channels == 0)
     return;
@@ -422,8 +422,8 @@ pwg_stream_on_process(void *userdata)
   struct spa_data *spa_data;
   struct spa_chunk *chunk;
   guint8 *audio_data;
-  guint n_channels;
-  guint rate;
+  unsigned int n_channels;
+  unsigned int rate;
 
   buffer = pw_stream_dequeue_buffer(self->stream);
   if (buffer == NULL)
@@ -459,9 +459,9 @@ done:
 void
 _pwg_stream_test_push_f32_audio(PwgStream *self,
                                 const float *samples,
-                                guint n_samples,
-                                guint rate,
-                                guint channels)
+                                unsigned int n_samples,
+                                unsigned int rate,
+                                unsigned int channels)
 {
   g_return_if_fail(PWG_IS_STREAM(self));
 
@@ -503,7 +503,7 @@ static const struct pw_stream_events stream_events = {
 
 static void
 pwg_stream_get_property(GObject *object,
-                        guint property_id,
+                        unsigned int property_id,
                         GValue *value,
                         GParamSpec *pspec)
 {
@@ -541,7 +541,7 @@ pwg_stream_get_property(GObject *object,
 
 static void
 pwg_stream_set_property(GObject *object,
-                        guint property_id,
+                        unsigned int property_id,
                         const GValue *value,
                         GParamSpec *pspec)
 {
@@ -788,7 +788,7 @@ pwg_stream_init(PwgStream *self)
 }
 
 PwgStream *
-pwg_stream_new_audio_capture(const char *target_object, gboolean monitor)
+pwg_stream_new_audio_capture(const char *target_object, bool monitor)
 {
   return g_object_new(
     PWG_TYPE_STREAM,
@@ -797,11 +797,11 @@ pwg_stream_new_audio_capture(const char *target_object, gboolean monitor)
     NULL);
 }
 
-gboolean
+bool
 pwg_stream_set_requested_format(PwgStream *self,
                                 const char *sample_format,
-                                guint rate,
-                                guint channels,
+                                unsigned int rate,
+                                unsigned int channels,
                                 GError **error)
 {
   enum spa_audio_format format;
@@ -827,7 +827,7 @@ pwg_stream_set_requested_format(PwgStream *self,
   return TRUE;
 }
 
-gboolean
+bool
 pwg_stream_start(PwgStream *self, GError **error)
 {
   struct pw_properties *props;
@@ -974,7 +974,7 @@ pwg_stream_stop(PwgStream *self)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_RUNNING]);
 }
 
-gboolean
+bool
 pwg_stream_get_running(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
@@ -990,7 +990,7 @@ pwg_stream_get_target_object(PwgStream *self)
   return self->target_object;
 }
 
-gboolean
+bool
 pwg_stream_get_monitor(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
@@ -1006,7 +1006,7 @@ pwg_stream_get_requested_sample_format(PwgStream *self)
   return self->requested_sample_format;
 }
 
-guint
+unsigned int
 pwg_stream_get_requested_rate(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), 0);
@@ -1014,7 +1014,7 @@ pwg_stream_get_requested_rate(PwgStream *self)
   return self->requested_rate;
 }
 
-guint
+unsigned int
 pwg_stream_get_requested_channels(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), 0);
@@ -1022,7 +1022,7 @@ pwg_stream_get_requested_channels(PwgStream *self)
   return self->requested_channels;
 }
 
-guint
+unsigned int
 pwg_stream_get_rate(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), 0);
@@ -1030,7 +1030,7 @@ pwg_stream_get_rate(PwgStream *self)
   return self->rate;
 }
 
-guint
+unsigned int
 pwg_stream_get_channels(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), 0);
@@ -1038,7 +1038,7 @@ pwg_stream_get_channels(PwgStream *self)
   return self->channels;
 }
 
-gdouble
+double
 pwg_stream_get_peak(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), 0.0);
@@ -1054,7 +1054,7 @@ pwg_stream_get_audio_format(PwgStream *self)
   return self->audio_format;
 }
 
-gboolean
+bool
 pwg_stream_get_deliver_audio_blocks(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
@@ -1063,7 +1063,7 @@ pwg_stream_get_deliver_audio_blocks(PwgStream *self)
 }
 
 void
-pwg_stream_set_deliver_audio_blocks(PwgStream *self, gboolean deliver_audio_blocks)
+pwg_stream_set_deliver_audio_blocks(PwgStream *self, bool deliver_audio_blocks)
 {
   g_return_if_fail(PWG_IS_STREAM(self));
 

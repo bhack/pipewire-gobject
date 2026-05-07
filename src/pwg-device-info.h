@@ -61,7 +61,7 @@ PwgGlobal *pwg_device_info_get_global(PwgDeviceInfo *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_device_info_get_id(PwgDeviceInfo *self);
+unsigned int pwg_device_info_get_id(PwgDeviceInfo *self);
 
 /**
  * pwg_device_info_dup_name:

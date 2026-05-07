@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 pipewire-gobject contributors
 
 [library]
-version = "0.2.0"
+version = "0.3.0"
 description = "Experimental GObject Introspection wrapper for PipeWire"
 authors = "pipewire-gobject contributors"
 license = "MIT"

@@ -79,7 +79,7 @@ const char *pwg_impl_module_get_arguments(PwgImplModule *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_impl_module_get_loaded(PwgImplModule *self);
+bool pwg_impl_module_get_loaded(PwgImplModule *self);
 
 /**
  * pwg_impl_module_unload:

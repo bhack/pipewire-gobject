@@ -10,8 +10,8 @@
 #include "pwg-param-private.h"
 
 typedef struct {
-  guint id;
-  guint flags;
+  unsigned int id;
+  unsigned int flags;
 } PwgNodeParamInfoCopy;
 
 typedef enum {
@@ -22,7 +22,7 @@ typedef enum {
 
 typedef struct {
   PwgNode *node;
-  guint generation;
+  unsigned int generation;
   PwgNodeEventType type;
   GArray *param_infos;
   PwgParam *param;
@@ -39,14 +39,14 @@ struct _PwgNode {
   GMainContext *main_context;
   struct pw_registry *registry;
   struct pw_node *node;
-  guint node_id;
+  unsigned int node_id;
   struct spa_hook registry_listener;
   struct spa_hook node_listener;
   gboolean has_registry_listener;
   gboolean has_node_listener;
   gulong core_connected_notify_id;
-  guint generation;
-  gint next_seq;
+  unsigned int generation;
+  int next_seq;
 };
 
 G_DEFINE_TYPE(PwgNode, pwg_node, G_TYPE_OBJECT)
@@ -68,7 +68,7 @@ enum {
 };
 
 static GParamSpec *properties[N_PROPS];
-static guint signals[N_SIGNALS];
+static unsigned int signals[N_SIGNALS];
 
 static gboolean pwg_node_dispatch_event(gpointer userdata);
 
@@ -237,7 +237,7 @@ pwg_node_update_param_infos(PwgNode *self, GArray *param_infos)
   g_list_store_remove_all(self->param_infos);
 
   if (param_infos != NULL) {
-    for (guint i = 0; i < param_infos->len; i++) {
+    for (unsigned int i = 0; i < param_infos->len; i++) {
       PwgNodeParamInfoCopy *copy = &g_array_index(param_infos, PwgNodeParamInfoCopy, i);
       g_autoptr(PwgParamInfo) param_info = _pwg_param_info_new(copy->id, copy->flags);
 
@@ -286,7 +286,7 @@ pwg_node_on_core_connected_notify(GObject *object,
 
 static void
 pwg_node_get_property(GObject *object,
-                      guint property_id,
+                      unsigned int property_id,
                       GValue *value,
                       GParamSpec *pspec)
 {
@@ -318,7 +318,7 @@ pwg_node_get_property(GObject *object,
 
 static void
 pwg_node_set_property(GObject *object,
-                      guint property_id,
+                      unsigned int property_id,
                       const GValue *value,
                       GParamSpec *pspec)
 {
@@ -534,12 +534,12 @@ pwg_node_new(PwgCore *core, PwgGlobal *global)
   return g_object_new(PWG_TYPE_NODE, "core", core, "global", global, NULL);
 }
 
-gboolean
+bool
 pwg_node_start(PwgNode *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
   struct pw_core *core;
-  guint version;
+  unsigned int version;
   int result;
 
   g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
@@ -660,7 +660,7 @@ pwg_node_get_global(PwgNode *self)
   return self->global;
 }
 
-gboolean
+bool
 pwg_node_get_running(PwgNode *self)
 {
   g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
@@ -668,7 +668,7 @@ pwg_node_get_running(PwgNode *self)
   return self->running;
 }
 
-gboolean
+bool
 pwg_node_get_bound(PwgNode *self)
 {
   g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
@@ -692,15 +692,15 @@ pwg_node_get_params(PwgNode *self)
   return G_LIST_MODEL(self->params);
 }
 
-gint
+int
 pwg_node_enum_params(PwgNode *self,
-                     guint id,
-                     guint start,
-                     guint num,
+                     unsigned int id,
+                     unsigned int start,
+                     unsigned int num,
                      GError **error)
 {
   struct pw_thread_loop *thread_loop;
-  gint seq;
+  int seq;
   int result;
 
   g_return_val_if_fail(PWG_IS_NODE(self), -1);
@@ -736,13 +736,13 @@ pwg_node_enum_params(PwgNode *self,
   return seq;
 }
 
-gint
+int
 pwg_node_enum_all_params(PwgNode *self, GError **error)
 {
   return pwg_node_enum_params(self, PW_ID_ANY, 0, 0, error);
 }
 
-gboolean
+bool
 pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error)
 {
   struct pw_thread_loop *thread_loop;

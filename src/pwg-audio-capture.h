@@ -36,7 +36,7 @@ G_DECLARE_FINAL_TYPE(PwgAudioCapture, pwg_audio_capture, PWG, AUDIO_CAPTURE, GOb
  * Stability: Unstable
  */
 PWG_API
-PwgAudioCapture *pwg_audio_capture_new(const char *target_object, gboolean monitor);
+PwgAudioCapture *pwg_audio_capture_new(const char *target_object, bool monitor);
 
 /**
  * pwg_audio_capture_start:
@@ -51,7 +51,7 @@ PwgAudioCapture *pwg_audio_capture_new(const char *target_object, gboolean monit
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_audio_capture_start(PwgAudioCapture *self, GError **error);
+bool pwg_audio_capture_start(PwgAudioCapture *self, GError **error);
 
 /**
  * pwg_audio_capture_stop:
@@ -77,7 +77,7 @@ void pwg_audio_capture_stop(PwgAudioCapture *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_audio_capture_get_running(PwgAudioCapture *self);
+bool pwg_audio_capture_get_running(PwgAudioCapture *self);
 
 /**
  * pwg_audio_capture_get_target_object:
@@ -105,7 +105,7 @@ const char *pwg_audio_capture_get_target_object(PwgAudioCapture *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_audio_capture_get_monitor(PwgAudioCapture *self);
+bool pwg_audio_capture_get_monitor(PwgAudioCapture *self);
 
 /**
  * pwg_audio_capture_get_rate:
@@ -119,7 +119,7 @@ gboolean pwg_audio_capture_get_monitor(PwgAudioCapture *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_audio_capture_get_rate(PwgAudioCapture *self);
+unsigned int pwg_audio_capture_get_rate(PwgAudioCapture *self);
 
 /**
  * pwg_audio_capture_get_channels:
@@ -133,7 +133,7 @@ guint pwg_audio_capture_get_rate(PwgAudioCapture *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_audio_capture_get_channels(PwgAudioCapture *self);
+unsigned int pwg_audio_capture_get_channels(PwgAudioCapture *self);
 
 /**
  * pwg_audio_capture_get_peak:
@@ -147,6 +147,6 @@ guint pwg_audio_capture_get_channels(PwgAudioCapture *self);
  * Stability: Unstable
  */
 PWG_API
-gdouble pwg_audio_capture_get_peak(PwgAudioCapture *self);
+double pwg_audio_capture_get_peak(PwgAudioCapture *self);
 
 G_END_DECLS

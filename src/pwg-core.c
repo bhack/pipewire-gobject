@@ -28,7 +28,7 @@ static GParamSpec *properties[N_PROPS];
 
 static void
 pwg_core_get_property(GObject *object,
-                      guint property_id,
+                      unsigned int property_id,
                       GValue *value,
                       GParamSpec *pspec)
 {
@@ -92,7 +92,7 @@ pwg_core_new(void)
   return g_object_new(PWG_TYPE_CORE, NULL);
 }
 
-gboolean
+bool
 pwg_core_connect(PwgCore *self, GError **error)
 {
   g_return_val_if_fail(PWG_IS_CORE(self), FALSE);
@@ -163,7 +163,7 @@ pwg_core_disconnect(PwgCore *self)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_CONNECTED]);
 }
 
-gboolean
+bool
 pwg_core_get_connected(PwgCore *self)
 {
   g_return_val_if_fail(PWG_IS_CORE(self), FALSE);

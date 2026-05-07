@@ -52,7 +52,7 @@ PwgMetadata *pwg_metadata_new(PwgCore *core, const char *name);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_metadata_start(PwgMetadata *self, GError **error);
+bool pwg_metadata_start(PwgMetadata *self, GError **error);
 
 /**
  * pwg_metadata_stop:
@@ -106,7 +106,7 @@ const char *pwg_metadata_get_name(PwgMetadata *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_metadata_get_running(PwgMetadata *self);
+bool pwg_metadata_get_running(PwgMetadata *self);
 
 /**
  * pwg_metadata_get_bound:
@@ -120,7 +120,7 @@ gboolean pwg_metadata_get_running(PwgMetadata *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_metadata_get_bound(PwgMetadata *self);
+bool pwg_metadata_get_bound(PwgMetadata *self);
 
 /**
  * pwg_metadata_dup_value:
@@ -136,7 +136,7 @@ gboolean pwg_metadata_get_bound(PwgMetadata *self);
  * Stability: Unstable
  */
 PWG_API
-char *pwg_metadata_dup_value(PwgMetadata *self, guint subject, const char *key);
+char *pwg_metadata_dup_value(PwgMetadata *self, unsigned int subject, const char *key);
 
 /**
  * pwg_metadata_dup_value_type:
@@ -153,7 +153,7 @@ char *pwg_metadata_dup_value(PwgMetadata *self, guint subject, const char *key);
  * Stability: Unstable
  */
 PWG_API
-char *pwg_metadata_dup_value_type(PwgMetadata *self, guint subject, const char *key);
+char *pwg_metadata_dup_value_type(PwgMetadata *self, unsigned int subject, const char *key);
 
 /**
  * pwg_metadata_dup_default_audio_sink_name:
@@ -236,12 +236,12 @@ char *pwg_metadata_dup_configured_audio_source_name(PwgMetadata *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_metadata_set(PwgMetadata *self,
-                          guint subject,
-                          const char *key,
-                          const char *type,
-                          const char *value,
-                          GError **error);
+bool pwg_metadata_set(PwgMetadata *self,
+                      unsigned int subject,
+                      const char *key,
+                      const char *type,
+                      const char *value,
+                      GError **error);
 
 /**
  * pwg_metadata_clear:
@@ -256,6 +256,6 @@ gboolean pwg_metadata_set(PwgMetadata *self,
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_metadata_clear(PwgMetadata *self, GError **error);
+bool pwg_metadata_clear(PwgMetadata *self, GError **error);
 
 G_END_DECLS

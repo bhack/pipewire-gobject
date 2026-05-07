@@ -56,7 +56,7 @@ pwg_node_info_get_global(PwgNodeInfo *self)
   return self->global;
 }
 
-guint
+unsigned int
 pwg_node_info_get_id(PwgNodeInfo *self)
 {
   g_return_val_if_fail(PWG_IS_NODE_INFO(self), 0);

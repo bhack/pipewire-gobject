@@ -17,10 +17,10 @@
 
 struct _PwgParam {
   GObject parent_instance;
-  gint seq;
-  guint id;
-  guint index;
-  guint next;
+  int seq;
+  unsigned int id;
+  unsigned int index;
+  unsigned int next;
   GBytes *bytes;
 };
 
@@ -79,25 +79,25 @@ _pwg_param_get_pod(PwgParam *self)
 }
 
 static const char *
-pwg_param_id_name(guint id)
+pwg_param_id_name(unsigned int id)
 {
   return spa_debug_type_find_short_name(spa_type_param, id);
 }
 
 static const char *
-pwg_param_pod_type_name(guint type)
+pwg_param_pod_type_name(unsigned int type)
 {
   return spa_debug_type_find_short_name(SPA_TYPE_ROOT, type);
 }
 
 static const char *
-pwg_param_object_type_name(guint type)
+pwg_param_object_type_name(unsigned int type)
 {
   return spa_debug_type_find_short_name(SPA_TYPE_ROOT, type);
 }
 
 static const char *
-pwg_param_object_id_name(guint object_type, guint object_id)
+pwg_param_object_id_name(unsigned int object_type, unsigned int object_id)
 {
   const struct spa_type_info *type_info;
   const struct spa_type_info *id_root;
@@ -114,7 +114,7 @@ pwg_param_object_id_name(guint object_type, guint object_id)
 }
 
 static gboolean
-pwg_param_parse_format(PwgParam *self, guint *media_type, guint *media_subtype)
+pwg_param_parse_format(PwgParam *self, unsigned int *media_type, unsigned int *media_subtype)
 {
   const struct spa_pod *pod;
   uint32_t parsed_media_type = 0;
@@ -142,7 +142,7 @@ pwg_param_audio_format_name(enum spa_audio_format format)
   return spa_debug_type_find_short_name(spa_type_audio_format, format);
 }
 
-static guint
+static unsigned int
 pwg_param_audio_format_bytes_per_sample(enum spa_audio_format format)
 {
   switch (format) {
@@ -188,12 +188,12 @@ pwg_param_audio_format_bytes_per_sample(enum spa_audio_format format)
   }
 }
 
-static guint
+static unsigned int
 pwg_param_count_object_properties(const struct spa_pod *pod)
 {
   const struct spa_pod_object *object = (const struct spa_pod_object *) pod;
   struct spa_pod_prop *prop;
-  guint count = 0;
+  unsigned int count = 0;
 
   if (pod == NULL || SPA_POD_TYPE(pod) != SPA_TYPE_Object)
     return 0;
@@ -214,7 +214,7 @@ pwg_param_dup_basic_value_summary(const struct spa_pod *pod)
   case SPA_TYPE_Bool:
     return g_strdup(((const struct spa_pod_bool *) pod)->value ? "true" : "false");
   case SPA_TYPE_Id: {
-    guint value = ((const struct spa_pod_id *) pod)->value;
+    unsigned int value = ((const struct spa_pod_id *) pod)->value;
     const char *name = spa_debug_type_find_short_name(SPA_TYPE_ROOT, value);
 
     return name != NULL ? g_strdup_printf("%s (%u)", name, value) : g_strdup_printf("%u", value);
@@ -249,7 +249,7 @@ pwg_param_dup_basic_value_summary(const struct spa_pod *pod)
 
 static void
 pwg_param_get_property(GObject *object,
-                       guint property_id,
+                       unsigned int property_id,
                        GValue *value,
                        GParamSpec *pspec)
 {
@@ -302,7 +302,7 @@ pwg_param_get_property(GObject *object,
 
 static void
 pwg_param_set_property(GObject *object,
-                       guint property_id,
+                       unsigned int property_id,
                        const GValue *value,
                        GParamSpec *pspec)
 {
@@ -570,10 +570,10 @@ pwg_param_init(PwgParam *self)
 }
 
 PwgParam *
-_pwg_param_new(gint seq,
-               guint id,
-               guint index,
-               guint next,
+_pwg_param_new(int seq,
+               unsigned int id,
+               unsigned int index,
+               unsigned int next,
                GBytes *bytes)
 {
   g_return_val_if_fail(bytes != NULL, NULL);
@@ -590,9 +590,9 @@ _pwg_param_new(gint seq,
 
 static PwgParam *
 pwg_param_new_props(gboolean has_volume,
-                    gdouble volume,
+                    double volume,
                     gboolean has_mute,
-                    gboolean mute)
+                    bool mute)
 {
   uint8_t buffer[PWG_PARAM_SIMPLE_PROPS_BUFFER_SIZE];
   struct spa_pod_builder builder = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
@@ -626,7 +626,7 @@ pwg_param_new_props(gboolean has_volume,
 }
 
 PwgParam *
-pwg_param_new_props_volume(gdouble volume)
+pwg_param_new_props_volume(double volume)
 {
   g_return_val_if_fail(volume >= 0.0, NULL);
   g_return_val_if_fail(volume <= G_MAXFLOAT, NULL);
@@ -635,7 +635,7 @@ pwg_param_new_props_volume(gdouble volume)
 }
 
 PwgParam *
-pwg_param_new_props_mute(gboolean mute)
+pwg_param_new_props_mute(bool mute)
 {
   return pwg_param_new_props(FALSE, 0.0, TRUE, mute);
 }
@@ -650,7 +650,7 @@ pwg_param_new_props_controls(GVariant *controls)
   struct spa_pod *pod;
   GVariantIter iter;
   const char *name;
-  gdouble value;
+  double value;
   g_autoptr(GBytes) bytes = NULL;
 
   g_return_val_if_fail(controls != NULL, NULL);
@@ -692,7 +692,7 @@ pwg_param_new_props_controls(GVariant *controls)
   return _pwg_param_new(0, SPA_PARAM_Props, 0, 0, bytes);
 }
 
-gint
+int
 pwg_param_get_seq(PwgParam *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM(self), 0);
@@ -700,7 +700,7 @@ pwg_param_get_seq(PwgParam *self)
   return self->seq;
 }
 
-guint
+unsigned int
 pwg_param_get_id(PwgParam *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM(self), 0);
@@ -719,7 +719,7 @@ pwg_param_dup_name(PwgParam *self)
   return name != NULL ? g_strdup(name) : NULL;
 }
 
-guint
+unsigned int
 pwg_param_get_index(PwgParam *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM(self), 0);
@@ -727,7 +727,7 @@ pwg_param_get_index(PwgParam *self)
   return self->index;
 }
 
-guint
+unsigned int
 pwg_param_get_next(PwgParam *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM(self), 0);
@@ -735,7 +735,7 @@ pwg_param_get_next(PwgParam *self)
   return self->next;
 }
 
-guint
+unsigned int
 pwg_param_get_pod_type(PwgParam *self)
 {
   const struct spa_pod *pod;
@@ -750,7 +750,7 @@ char *
 pwg_param_dup_pod_type_name(PwgParam *self)
 {
   const char *name;
-  guint type;
+  unsigned int type;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
 
@@ -759,7 +759,7 @@ pwg_param_dup_pod_type_name(PwgParam *self)
   return name != NULL ? g_strdup(name) : NULL;
 }
 
-guint
+unsigned int
 pwg_param_get_object_type(PwgParam *self)
 {
   const struct spa_pod *pod;
@@ -777,7 +777,7 @@ char *
 pwg_param_dup_object_type_name(PwgParam *self)
 {
   const char *name;
-  guint type;
+  unsigned int type;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
 
@@ -786,7 +786,7 @@ pwg_param_dup_object_type_name(PwgParam *self)
   return name != NULL ? g_strdup(name) : NULL;
 }
 
-guint
+unsigned int
 pwg_param_get_object_id(PwgParam *self)
 {
   const struct spa_pod *pod;
@@ -804,8 +804,8 @@ char *
 pwg_param_dup_object_id_name(PwgParam *self)
 {
   const char *name;
-  guint object_type;
-  guint object_id;
+  unsigned int object_type;
+  unsigned int object_id;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
 
@@ -815,10 +815,10 @@ pwg_param_dup_object_id_name(PwgParam *self)
   return name != NULL ? g_strdup(name) : NULL;
 }
 
-guint
+unsigned int
 pwg_param_get_format_media_type(PwgParam *self)
 {
-  guint media_type = 0;
+  unsigned int media_type = 0;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), 0);
 
@@ -831,7 +831,7 @@ pwg_param_get_format_media_type(PwgParam *self)
 char *
 pwg_param_dup_format_media_type_name(PwgParam *self)
 {
-  guint media_type = 0;
+  unsigned int media_type = 0;
   const char *name;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
@@ -843,10 +843,10 @@ pwg_param_dup_format_media_type_name(PwgParam *self)
   return name != NULL ? g_strdup(name) : NULL;
 }
 
-guint
+unsigned int
 pwg_param_get_format_media_subtype(PwgParam *self)
 {
-  guint media_subtype = 0;
+  unsigned int media_subtype = 0;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), 0);
 
@@ -859,7 +859,7 @@ pwg_param_get_format_media_subtype(PwgParam *self)
 char *
 pwg_param_dup_format_media_subtype_name(PwgParam *self)
 {
-  guint media_subtype = 0;
+  unsigned int media_subtype = 0;
   const char *name;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
@@ -875,8 +875,8 @@ PwgAudioFormat *
 pwg_param_dup_audio_format(PwgParam *self)
 {
   const struct spa_pod *pod;
-  guint media_type = 0;
-  guint media_subtype = 0;
+  unsigned int media_type = 0;
+  unsigned int media_subtype = 0;
   struct spa_audio_info_raw raw_info = {0};
   const char *sample_format;
 
@@ -912,7 +912,7 @@ pwg_param_dup_summary(PwgParam *self)
   const struct spa_pod *pod;
   g_autofree char *value_summary = NULL;
   const char *pod_type_name;
-  guint pod_type;
+  unsigned int pod_type;
 
   g_return_val_if_fail(PWG_IS_PARAM(self), NULL);
 
@@ -925,7 +925,7 @@ pwg_param_dup_summary(PwgParam *self)
   if (pod_type == SPA_TYPE_Object) {
     g_autofree char *object_type_name = pwg_param_dup_object_type_name(self);
     g_autofree char *object_id_name = pwg_param_dup_object_id_name(self);
-    guint props = pwg_param_count_object_properties(pod);
+    unsigned int props = pwg_param_count_object_properties(pod);
 
     return g_strdup_printf(
       "%s %s (%u), id %s (%u), %u properties",

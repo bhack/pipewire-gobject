@@ -56,7 +56,7 @@ pwg_client_info_get_global(PwgClientInfo *self)
   return self->global;
 }
 
-guint
+unsigned int
 pwg_client_info_get_id(PwgClientInfo *self)
 {
   g_return_val_if_fail(PWG_IS_CLIENT_INFO(self), 0);

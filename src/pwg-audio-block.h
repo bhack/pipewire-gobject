@@ -42,9 +42,9 @@ G_DECLARE_FINAL_TYPE(PwgAudioBlock, pwg_audio_block, PWG, AUDIO_BLOCK, GObject)
 PWG_API
 PwgAudioBlock *pwg_audio_block_new(PwgAudioFormat *format,
                                    GBytes *data,
-                                   guint n_frames,
-                                   guint64 sequence,
-                                   gdouble peak);
+                                   unsigned int n_frames,
+                                   uint64_t sequence,
+                                   double peak);
 
 /**
  * pwg_audio_block_get_format:
@@ -86,7 +86,7 @@ GBytes *pwg_audio_block_get_data(PwgAudioBlock *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_audio_block_get_n_frames(PwgAudioBlock *self);
+unsigned int pwg_audio_block_get_n_frames(PwgAudioBlock *self);
 
 /**
  * pwg_audio_block_get_sequence:
@@ -100,7 +100,7 @@ guint pwg_audio_block_get_n_frames(PwgAudioBlock *self);
  * Stability: Unstable
  */
 PWG_API
-guint64 pwg_audio_block_get_sequence(PwgAudioBlock *self);
+uint64_t pwg_audio_block_get_sequence(PwgAudioBlock *self);
 
 /**
  * pwg_audio_block_get_peak:
@@ -114,6 +114,6 @@ guint64 pwg_audio_block_get_sequence(PwgAudioBlock *self);
  * Stability: Unstable
  */
 PWG_API
-gdouble pwg_audio_block_get_peak(PwgAudioBlock *self);
+double pwg_audio_block_get_peak(PwgAudioBlock *self);
 
 G_END_DECLS

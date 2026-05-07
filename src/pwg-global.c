@@ -8,10 +8,10 @@
 
 struct _PwgGlobal {
   GObject parent_instance;
-  guint id;
-  guint permissions;
+  unsigned int id;
+  unsigned int permissions;
   char *interface_type;
-  guint version;
+  unsigned int version;
   GVariant *properties;
 };
 
@@ -70,7 +70,7 @@ pwg_global_variant_from_spa_dict(const struct spa_dict *dict)
 
 static void
 pwg_global_get_property(GObject *object,
-                        guint property_id,
+                        unsigned int property_id,
                         GValue *value,
                         GParamSpec *pspec)
 {
@@ -99,7 +99,7 @@ pwg_global_get_property(GObject *object,
 
 static void
 pwg_global_set_property(GObject *object,
-                        guint property_id,
+                        unsigned int property_id,
                         const GValue *value,
                         GParamSpec *pspec)
 {
@@ -242,10 +242,10 @@ pwg_global_init(PwgGlobal *self)
 }
 
 PwgGlobal *
-_pwg_global_new_from_spa_dict(guint id,
-                              guint permissions,
+_pwg_global_new_from_spa_dict(unsigned int id,
+                              unsigned int permissions,
                               const char *interface_type,
-                              guint version,
+                              unsigned int version,
                               const struct spa_dict *properties)
 {
   g_autoptr(GVariant) variant = pwg_global_variant_from_spa_dict(properties);
@@ -260,7 +260,7 @@ _pwg_global_new_from_spa_dict(guint id,
     NULL);
 }
 
-guint
+unsigned int
 pwg_global_get_id(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), 0);
@@ -268,7 +268,7 @@ pwg_global_get_id(PwgGlobal *self)
   return self->id;
 }
 
-guint
+unsigned int
 pwg_global_get_permissions(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), 0);
@@ -284,7 +284,7 @@ pwg_global_get_interface_type(PwgGlobal *self)
   return self->interface_type;
 }
 
-guint
+unsigned int
 pwg_global_get_version(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), 0);
@@ -367,7 +367,7 @@ pwg_global_dup_object_serial(PwgGlobal *self)
   return pwg_global_dup_property(self, PW_KEY_OBJECT_SERIAL);
 }
 
-gboolean
+bool
 pwg_global_is_interface(PwgGlobal *self, const char *interface_type)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -376,7 +376,7 @@ pwg_global_is_interface(PwgGlobal *self, const char *interface_type)
   return g_strcmp0(self->interface_type, interface_type) == 0;
 }
 
-gboolean
+bool
 pwg_global_is_node(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -384,7 +384,7 @@ pwg_global_is_node(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Node);
 }
 
-gboolean
+bool
 pwg_global_is_client(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -392,7 +392,7 @@ pwg_global_is_client(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Client);
 }
 
-gboolean
+bool
 pwg_global_is_device(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -400,7 +400,7 @@ pwg_global_is_device(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Device);
 }
 
-gboolean
+bool
 pwg_global_is_link(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -408,7 +408,7 @@ pwg_global_is_link(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Link);
 }
 
-gboolean
+bool
 pwg_global_is_port(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -416,7 +416,7 @@ pwg_global_is_port(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Port);
 }
 
-gboolean
+bool
 pwg_global_is_metadata(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);

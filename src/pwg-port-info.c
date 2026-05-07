@@ -67,7 +67,7 @@ pwg_port_info_get_global(PwgPortInfo *self)
   return self->global;
 }
 
-guint
+unsigned int
 pwg_port_info_get_id(PwgPortInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PORT_INFO(self), 0);
@@ -113,7 +113,7 @@ pwg_port_info_dup_direction(PwgPortInfo *self)
   return pwg_global_dup_property(self->global, PW_KEY_PORT_DIRECTION);
 }
 
-gboolean
+bool
 pwg_port_info_get_physical(PwgPortInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PORT_INFO(self), FALSE);

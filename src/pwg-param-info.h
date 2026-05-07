@@ -31,7 +31,7 @@ G_DECLARE_FINAL_TYPE(PwgParamInfo, pwg_param_info, PWG, PARAM_INFO, GObject)
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_info_get_id(PwgParamInfo *self);
+unsigned int pwg_param_info_get_id(PwgParamInfo *self);
 
 /**
  * pwg_param_info_dup_name:
@@ -59,7 +59,7 @@ char *pwg_param_info_dup_name(PwgParamInfo *self);
  * Stability: Unstable
  */
 PWG_API
-guint pwg_param_info_get_flags(PwgParamInfo *self);
+unsigned int pwg_param_info_get_flags(PwgParamInfo *self);
 
 /**
  * pwg_param_info_get_readable:
@@ -73,7 +73,7 @@ guint pwg_param_info_get_flags(PwgParamInfo *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_param_info_get_readable(PwgParamInfo *self);
+bool pwg_param_info_get_readable(PwgParamInfo *self);
 
 /**
  * pwg_param_info_get_writable:
@@ -87,7 +87,7 @@ gboolean pwg_param_info_get_readable(PwgParamInfo *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_param_info_get_writable(PwgParamInfo *self);
+bool pwg_param_info_get_writable(PwgParamInfo *self);
 
 /**
  * pwg_param_info_get_serial:
@@ -101,6 +101,6 @@ gboolean pwg_param_info_get_writable(PwgParamInfo *self);
  * Stability: Unstable
  */
 PWG_API
-gboolean pwg_param_info_get_serial(PwgParamInfo *self);
+bool pwg_param_info_get_serial(PwgParamInfo *self);
 
 G_END_DECLS
