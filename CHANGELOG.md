@@ -25,6 +25,7 @@ The release version will be assigned when the next tag is prepared.
   `level` signals, and copied `audio-block` delivery.
 - Add CI coverage for a WirePlumber-backed live stream audio smoke test with
   copied monitor blocks and non-silent samples.
+- Add requested stream format configuration for F32 mono/stereo capture rates.
 
 ## 0.1.0 - 2026-05-06
 

@@ -238,6 +238,7 @@ def main() -> int:
 
             Pwg.init()
             stream = Pwg.Stream.new_audio_capture(SINK_NAME, True)
+            stream.set_requested_format("F32", RATE, CHANNELS)
             stream.set_deliver_audio_blocks(True)
             seen = {"level": 0, "block": 0, "format": False, "nonzero": False}
             loop = GLib.MainLoop()

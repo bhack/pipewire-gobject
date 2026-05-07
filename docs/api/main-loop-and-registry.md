@@ -136,6 +136,25 @@ if param is not None:
     node.set_param(param)
 ```
 
+For app-owned audio capture, [class@Pwg.Stream] exposes negotiated format,
+level, and optional copied audio blocks. The requested format defaults to
+`F32`, 48000 Hz, stereo; set it before starting the stream when the application
+needs a different F32 mono or stereo rate:
+
+```python
+stream = Pwg.Stream.new_audio_capture("alsa_output.example", True)
+stream.set_requested_format("F32", 48000, 2)
+stream.set_deliver_audio_blocks(True)
+
+
+def on_audio_block(_stream, block):
+    print(block.get_n_frames(), block.get_peak())
+
+
+stream.connect("audio-block", on_audio_block)
+stream.start()
+```
+
 For port-specific discovery, wrap a port global in [class@Pwg.PortInfo]:
 
 ```python

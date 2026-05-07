@@ -87,6 +87,22 @@ stream_start = stream.find("gir:method[@name='start']", GIR_NS)
 assert stream_start is not None
 assert stream_start.attrib.get("throws") == "1"
 
+stream_set_requested_format = stream.find("gir:method[@name='set_requested_format']", GIR_NS)
+assert stream_set_requested_format is not None
+assert stream_set_requested_format.attrib.get("throws") == "1"
+requested_sample_format_param = stream_set_requested_format.find(
+    "gir:parameters/gir:parameter[@name='sample_format']",
+    GIR_NS,
+)
+assert requested_sample_format_param is not None
+assert requested_sample_format_param.attrib.get("nullable") is None
+for method_name in (
+    "get_requested_sample_format",
+    "get_requested_rate",
+    "get_requested_channels",
+):
+    assert stream.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+
 stream_level = stream.find("glib:signal[@name='level']", GIR_NS)
 assert stream_level is not None
 assert stream_level.attrib["version"] == "0.1"

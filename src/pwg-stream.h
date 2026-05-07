@@ -41,6 +41,32 @@ PWG_API
 PwgStream *pwg_stream_new_audio_capture(const char *target_object, gboolean monitor);
 
 /**
+ * pwg_stream_set_requested_format:
+ * @self: a stream object.
+ * @sample_format: requested sample format name.
+ * @rate: requested sample rate in Hz.
+ * @channels: requested channel count.
+ * @error: return location for a #GError.
+ *
+ * Sets the raw audio format requested when the stream is started.
+ *
+ * The current data path supports `F32` samples with mono or stereo channel
+ * layouts. The default requested format is `F32`, 48000 Hz, stereo. The format
+ * can only be changed while the stream is stopped.
+ *
+ * Returns: %TRUE when the requested format was accepted.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+gboolean pwg_stream_set_requested_format(PwgStream *self,
+                                         const char *sample_format,
+                                         guint rate,
+                                         guint channels,
+                                         GError **error);
+
+/**
  * pwg_stream_start:
  * @self: a stream object.
  * @error: return location for a #GError.
@@ -108,6 +134,48 @@ const char *pwg_stream_get_target_object(PwgStream *self);
  */
 PWG_API
 gboolean pwg_stream_get_monitor(PwgStream *self);
+
+/**
+ * pwg_stream_get_requested_sample_format:
+ * @self: a stream object.
+ *
+ * Gets the requested sample format used when the stream is started.
+ *
+ * Returns: (transfer none): the requested sample format.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+const char *pwg_stream_get_requested_sample_format(PwgStream *self);
+
+/**
+ * pwg_stream_get_requested_rate:
+ * @self: a stream object.
+ *
+ * Gets the requested sample rate used when the stream is started.
+ *
+ * Returns: the requested sample rate in Hz.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+guint pwg_stream_get_requested_rate(PwgStream *self);
+
+/**
+ * pwg_stream_get_requested_channels:
+ * @self: a stream object.
+ *
+ * Gets the requested channel count used when the stream is started.
+ *
+ * Returns: the requested channel count.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+guint pwg_stream_get_requested_channels(PwgStream *self);
 
 /**
  * pwg_stream_get_rate:

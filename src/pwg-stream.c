@@ -8,6 +8,7 @@
 #include "pwg.h"
 
 #define PWG_STREAM_MAX_PENDING_BLOCKS 64
+#define PWG_STREAM_DEFAULT_SAMPLE_FORMAT "F32"
 #define PWG_STREAM_DEFAULT_RATE 48000
 #define PWG_STREAM_DEFAULT_CHANNELS 2
 
@@ -26,6 +27,9 @@ struct _PwgStream {
   GObject parent_instance;
   char *target_object;
   gboolean monitor;
+  char *requested_sample_format;
+  guint requested_rate;
+  guint requested_channels;
   gint deliver_audio_blocks;
   gboolean running;
   guint rate;
@@ -115,6 +119,78 @@ pwg_stream_sample_format_bytes_per_sample(enum spa_audio_format format)
     return sizeof(float);
   default:
     return 0;
+  }
+}
+
+static gboolean
+pwg_stream_sample_format_from_name(const char *sample_format,
+                                   enum spa_audio_format *format,
+                                   GError **error)
+{
+  if (sample_format == NULL || sample_format[0] == '\0') {
+    g_set_error_literal(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "Requested sample format must not be empty");
+    return FALSE;
+  }
+
+  if (g_strcmp0(sample_format, "F32") == 0) {
+    if (format != NULL)
+      *format = SPA_AUDIO_FORMAT_F32;
+    return TRUE;
+  }
+
+  g_set_error(
+    error,
+    PWG_ERROR,
+    PWG_ERROR_FAILED,
+    "Unsupported requested sample format '%s'",
+    sample_format);
+  return FALSE;
+}
+
+static gboolean
+pwg_stream_validate_requested_format(const char *sample_format,
+                                     guint rate,
+                                     guint channels,
+                                     enum spa_audio_format *format,
+                                     GError **error)
+{
+  if (!pwg_stream_sample_format_from_name(sample_format, format, error))
+    return FALSE;
+
+  if (rate == 0) {
+    g_set_error_literal(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "Requested sample rate must be greater than zero");
+    return FALSE;
+  }
+
+  if (channels != 1 && channels != 2) {
+    g_set_error(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "Unsupported requested channel count %u",
+      channels);
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static void
+pwg_stream_set_channel_positions(struct spa_audio_info_raw *format)
+{
+  if (format->channels == 1) {
+    format->position[0] = SPA_AUDIO_CHANNEL_MONO;
+  } else if (format->channels == 2) {
+    format->position[0] = SPA_AUDIO_CHANNEL_FL;
+    format->position[1] = SPA_AUDIO_CHANNEL_FR;
   }
 }
 
@@ -503,6 +579,7 @@ pwg_stream_finalize(GObject *object)
   PwgStream *self = PWG_STREAM(object);
 
   g_clear_pointer(&self->target_object, g_free);
+  g_clear_pointer(&self->requested_sample_format, g_free);
   g_clear_object(&self->audio_format);
   g_clear_pointer(&self->pending_sample_format, g_free);
   pwg_stream_clear_pending_blocks(&self->pending_blocks);
@@ -702,6 +779,9 @@ static void
 pwg_stream_init(PwgStream *self)
 {
   pwg_init();
+  self->requested_sample_format = g_strdup(PWG_STREAM_DEFAULT_SAMPLE_FORMAT);
+  self->requested_rate = PWG_STREAM_DEFAULT_RATE;
+  self->requested_channels = PWG_STREAM_DEFAULT_CHANNELS;
   self->main_context = g_main_context_ref_thread_default();
   g_mutex_init(&self->dispatch_lock);
   g_queue_init(&self->pending_blocks);
@@ -718,15 +798,42 @@ pwg_stream_new_audio_capture(const char *target_object, gboolean monitor)
 }
 
 gboolean
+pwg_stream_set_requested_format(PwgStream *self,
+                                const char *sample_format,
+                                guint rate,
+                                guint channels,
+                                GError **error)
+{
+  enum spa_audio_format format;
+
+  g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
+
+  if (self->running) {
+    g_set_error_literal(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "Cannot change requested stream format while the stream is running");
+    return FALSE;
+  }
+
+  if (!pwg_stream_validate_requested_format(sample_format, rate, channels, &format, error))
+    return FALSE;
+
+  g_free(self->requested_sample_format);
+  self->requested_sample_format = g_strdup(pwg_stream_sample_format_name(format));
+  self->requested_rate = rate;
+  self->requested_channels = channels;
+  return TRUE;
+}
+
+gboolean
 pwg_stream_start(PwgStream *self, GError **error)
 {
   struct pw_properties *props;
   const struct spa_pod *params[1];
-  const struct spa_audio_info_raw capture_format = SPA_AUDIO_INFO_RAW_INIT(
-    .format = SPA_AUDIO_FORMAT_F32,
-    .rate = PWG_STREAM_DEFAULT_RATE,
-    .channels = PWG_STREAM_DEFAULT_CHANNELS,
-    .position = {SPA_AUDIO_CHANNEL_FL, SPA_AUDIO_CHANNEL_FR});
+  enum spa_audio_format requested_format;
+  struct spa_audio_info_raw capture_format = SPA_AUDIO_INFO_RAW_INIT(.format = SPA_AUDIO_FORMAT_F32);
   uint8_t pod_buffer[1024];
   struct spa_pod_builder builder = SPA_POD_BUILDER_INIT(pod_buffer, sizeof(pod_buffer));
 
@@ -734,6 +841,19 @@ pwg_stream_start(PwgStream *self, GError **error)
 
   if (self->running)
     return TRUE;
+
+  if (!pwg_stream_validate_requested_format(
+        self->requested_sample_format,
+        self->requested_rate,
+        self->requested_channels,
+        &requested_format,
+        error))
+    return FALSE;
+
+  capture_format.format = requested_format;
+  capture_format.rate = self->requested_rate;
+  capture_format.channels = self->requested_channels;
+  pwg_stream_set_channel_positions(&capture_format);
 
   self->thread_loop = pw_thread_loop_new("pwg-stream", NULL);
   if (self->thread_loop == NULL) {
@@ -876,6 +996,30 @@ pwg_stream_get_monitor(PwgStream *self)
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
 
   return self->monitor;
+}
+
+const char *
+pwg_stream_get_requested_sample_format(PwgStream *self)
+{
+  g_return_val_if_fail(PWG_IS_STREAM(self), NULL);
+
+  return self->requested_sample_format;
+}
+
+guint
+pwg_stream_get_requested_rate(PwgStream *self)
+{
+  g_return_val_if_fail(PWG_IS_STREAM(self), 0);
+
+  return self->requested_rate;
+}
+
+guint
+pwg_stream_get_requested_channels(PwgStream *self)
+{
+  g_return_val_if_fail(PWG_IS_STREAM(self), 0);
+
+  return self->requested_channels;
 }
 
 guint
