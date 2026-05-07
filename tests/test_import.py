@@ -71,6 +71,19 @@ assert mute_param.dup_object_type_name() == "Props"
 stream = Pwg.Stream.new_audio_capture(None, True)
 assert stream.get_running() is False
 assert stream.get_monitor() is True
+assert stream.get_requested_sample_format() == "F32"
+assert stream.get_requested_rate() == 48000
+assert stream.get_requested_channels() == 2
+assert stream.set_requested_format("F32", 44100, 1) is True
+assert stream.get_requested_sample_format() == "F32"
+assert stream.get_requested_rate() == 44100
+assert stream.get_requested_channels() == 1
+try:
+    stream.set_requested_format("S16", 44100, 1)
+except GLib.Error:
+    pass
+else:
+    raise AssertionError("unsupported requested sample format was accepted")
 assert stream.get_rate() == 0
 assert stream.get_channels() == 0
 assert stream.get_peak() == 0.0

@@ -4,6 +4,7 @@
 
 #include "pwg-audio-block.h"
 #include "pwg-audio-format.h"
+#include "pwg-error.h"
 #include "pwg-stream.h"
 
 void _pwg_stream_test_push_f32_audio(PwgStream *self,
@@ -156,12 +157,42 @@ test_stream_dispatch_f32_audio(void)
   g_main_loop_unref(fixture.loop);
 }
 
+static void
+test_stream_requested_format(void)
+{
+  g_autoptr(PwgStream) stream = NULL;
+  g_autoptr(GError) error = NULL;
+
+  stream = pwg_stream_new_audio_capture(NULL, FALSE);
+  g_assert_nonnull(stream);
+  g_assert_cmpstr(pwg_stream_get_requested_sample_format(stream), ==, "F32");
+  g_assert_cmpuint(pwg_stream_get_requested_rate(stream), ==, 48000);
+  g_assert_cmpuint(pwg_stream_get_requested_channels(stream), ==, 2);
+
+  g_assert_true(pwg_stream_set_requested_format(stream, "F32", 44100, 1, &error));
+  g_assert_no_error(error);
+  g_assert_cmpstr(pwg_stream_get_requested_sample_format(stream), ==, "F32");
+  g_assert_cmpuint(pwg_stream_get_requested_rate(stream), ==, 44100);
+  g_assert_cmpuint(pwg_stream_get_requested_channels(stream), ==, 1);
+
+  g_assert_false(pwg_stream_set_requested_format(stream, "S16", 44100, 1, &error));
+  g_assert_error(error, PWG_ERROR, PWG_ERROR_FAILED);
+  g_clear_error(&error);
+  g_assert_cmpstr(pwg_stream_get_requested_sample_format(stream), ==, "F32");
+  g_assert_cmpuint(pwg_stream_get_requested_rate(stream), ==, 44100);
+  g_assert_cmpuint(pwg_stream_get_requested_channels(stream), ==, 1);
+
+  g_assert_false(pwg_stream_set_requested_format(stream, "F32", 44100, 6, &error));
+  g_assert_error(error, PWG_ERROR, PWG_ERROR_FAILED);
+}
+
 int
 main(int argc, char *argv[])
 {
   g_test_init(&argc, &argv, NULL);
 
   g_test_add_func("/pwg/stream/dispatch-f32-audio", test_stream_dispatch_f32_audio);
+  g_test_add_func("/pwg/stream/requested-format", test_stream_requested_format);
 
   return g_test_run();
 }
