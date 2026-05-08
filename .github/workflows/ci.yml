@@ -201,6 +201,22 @@ jobs:
           G_SLICE: debug-blocks
         run: meson test -C build --print-errorlogs
 
+      - name: Sanitizer check
+        if: env.RUN_BUILD == 'true'
+        run: |
+          meson setup build-sanitize -Db_sanitize=address,undefined -Db_lundef=false
+          meson compile -C build-sanitize
+
+          asan="$(gcc -print-file-name=libasan.so)"
+          ubsan="$(gcc -print-file-name=libubsan.so)"
+          preload="$asan:$ubsan${LD_PRELOAD:+:$LD_PRELOAD}"
+          sanitizer_wrapper="env LD_PRELOAD=$preload ASAN_OPTIONS=detect_leaks=0:halt_on_error=1:abort_on_error=1:print_summary=1 UBSAN_OPTIONS=halt_on_error=1:abort_on_error=1:print_summary=1:print_stacktrace=1"
+
+          meson test -C build-sanitize --print-errorlogs --wrapper "$sanitizer_wrapper"
+
+          leak_wrapper="env LD_PRELOAD=$preload ASAN_OPTIONS=detect_leaks=1:halt_on_error=1:abort_on_error=1:print_summary=1 UBSAN_OPTIONS=halt_on_error=1:abort_on_error=1:print_summary=1:print_stacktrace=1"
+          meson test -C build-sanitize --print-errorlogs stream-dispatch --wrapper "$leak_wrapper"
+
       - name: Strict warning check
         if: env.RUN_BUILD == 'true'
         run: |
