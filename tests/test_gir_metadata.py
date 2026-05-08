@@ -28,7 +28,10 @@ assert namespace.attrib["name"] == "Pwg"
 assert namespace.attrib["version"] == "0.1"
 assert namespace.attrib[f"{{{C_URI}}}identifier-prefixes"] == "Pwg"
 assert namespace.attrib[f"{{{C_URI}}}symbol-prefixes"] == "pwg"
-assert namespace.attrib["shared-library"] == "libpwg-0.1.so.0"
+shared_libraries = namespace.attrib["shared-library"].split(",")
+assert "libpwg-0.1.so.0" in shared_libraries
+extra_shared_libraries = [name for name in shared_libraries if name != "libpwg-0.1.so.0"]
+assert all(name.startswith(("libasan.so", "libubsan.so")) for name in extra_shared_libraries)
 
 init_function = namespace.find("gir:function[@name='init']", GIR_NS)
 assert init_function is not None
