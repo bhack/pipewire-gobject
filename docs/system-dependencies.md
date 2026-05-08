@@ -13,6 +13,11 @@ The minimum supported native build dependencies are:
 - pkg-config
 - a C compiler and standard build tools
 
+Pip build isolation installs the required Python build backend packages from
+`pyproject.toml`, including Meson, meson-python, Ninja, and setuptools. If you
+build with pip isolation disabled, make sure those Python packages are
+available for the interpreter that runs the build.
+
 Runtime users also need:
 
 - PyGObject for the Python interpreter that imports `Pwg`

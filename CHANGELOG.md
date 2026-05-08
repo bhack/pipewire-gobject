@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 - 2026-05-08
+
+- Add `setuptools` to the isolated PyPI source-package build requirements so
+  GObject-Introspection's scanner can import `distutils` on Python 3.12+
+  environments while generating `Pwg-0.1.gir`.
+
 ## 0.3.1 - 2026-05-08
 
 - Add PyPI source-package metadata, a pip wheel GIRepository helper shim, and
