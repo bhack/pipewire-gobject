@@ -27,6 +27,7 @@ struct _PwgStream {
   GObject parent_instance;
   char *target_object;
   bool monitor;
+  GHashTable *pipewire_properties;
   char *requested_sample_format;
   unsigned int requested_rate;
   unsigned int requested_channels;
@@ -579,6 +580,7 @@ pwg_stream_finalize(GObject *object)
   PwgStream *self = PWG_STREAM(object);
 
   g_clear_pointer(&self->target_object, g_free);
+  g_clear_pointer(&self->pipewire_properties, g_hash_table_unref);
   g_clear_pointer(&self->requested_sample_format, g_free);
   g_clear_object(&self->audio_format);
   g_clear_pointer(&self->pending_sample_format, g_free);
@@ -785,6 +787,7 @@ pwg_stream_init(PwgStream *self)
   self->main_context = g_main_context_ref_thread_default();
   g_mutex_init(&self->dispatch_lock);
   g_queue_init(&self->pending_blocks);
+  self->pipewire_properties = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 }
 
 PwgStream *
@@ -876,10 +879,14 @@ pwg_stream_start(PwgStream *self, GError **error)
   }
 
   props = pw_properties_new(
-    PW_KEY_MEDIA_TYPE, "Audio",
-    PW_KEY_MEDIA_CATEGORY, "Capture",
-    PW_KEY_MEDIA_ROLE, "Music",
-    PW_KEY_MEDIA_NAME, "Pwg audio stream",
+    PW_KEY_MEDIA_TYPE,
+    "Audio",
+    PW_KEY_MEDIA_CATEGORY,
+    self->monitor ? "Monitor" : "Capture",
+    PW_KEY_MEDIA_ROLE,
+    self->monitor ? "DSP" : "Music",
+    PW_KEY_MEDIA_NAME,
+    self->monitor ? "Pwg monitor stream" : "Pwg audio stream",
     NULL);
   if (props == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_NO_MEMORY, "Could not create PipeWire properties");
@@ -891,6 +898,15 @@ pwg_stream_start(PwgStream *self, GError **error)
     pw_properties_set(props, PW_KEY_TARGET_OBJECT, self->target_object);
   if (self->monitor)
     pw_properties_set(props, PW_KEY_STREAM_CAPTURE_SINK, "true");
+  if (self->pipewire_properties != NULL) {
+    GHashTableIter iter;
+    gpointer key;
+    gpointer value;
+
+    g_hash_table_iter_init(&iter, self->pipewire_properties);
+    while (g_hash_table_iter_next(&iter, &key, &value))
+      pw_properties_set(props, key, value);
+  }
 
   self->stream = pw_stream_new(self->core, "pwg-stream", props);
   if (self->stream == NULL) {
@@ -980,6 +996,41 @@ pwg_stream_get_running(PwgStream *self)
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
 
   return self->running;
+}
+
+bool
+pwg_stream_set_pipewire_property(PwgStream *self,
+                                 const char *key,
+                                 const char *value,
+                                 GError **error)
+{
+  g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
+
+  if (key == NULL || key[0] == '\0') {
+    g_set_error_literal(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "PipeWire stream property key must not be empty");
+    return FALSE;
+  }
+
+  if (self->running) {
+    g_set_error_literal(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "PipeWire stream properties cannot be changed while the stream is running");
+    return FALSE;
+  }
+
+  if (value == NULL) {
+    g_hash_table_remove(self->pipewire_properties, key);
+    return TRUE;
+  }
+
+  g_hash_table_replace(self->pipewire_properties, g_strdup(key), g_strdup(value));
+  return TRUE;
 }
 
 const char *

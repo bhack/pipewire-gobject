@@ -108,6 +108,29 @@ PWG_API
 bool pwg_stream_get_running(PwgStream *self);
 
 /**
+ * pwg_stream_set_pipewire_property:
+ * @self: a stream object.
+ * @key: PipeWire stream property key.
+ * @value: (nullable): PipeWire stream property value, or %NULL to remove an override.
+ * @error: return location for a #GError.
+ *
+ * Sets an app-specific PipeWire stream property override before the stream is
+ * started. This can be used for bindable identity and policy hints such as
+ * `node.name`, `node.description`, `application.name`, `media.class`,
+ * `media.name`, `media.category`, or `media.role`.
+ *
+ * Returns: %TRUE when the property override was accepted.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_stream_set_pipewire_property(PwgStream *self,
+                                      const char *key,
+                                      const char *value,
+                                      GError **error);
+
+/**
  * pwg_stream_get_target_object:
  * @self: a stream object.
  *

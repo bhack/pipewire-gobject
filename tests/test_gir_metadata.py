@@ -99,6 +99,21 @@ requested_sample_format_param = stream_set_requested_format.find(
 )
 assert requested_sample_format_param is not None
 assert requested_sample_format_param.attrib.get("nullable") is None
+stream_set_pipewire_property = stream.find("gir:method[@name='set_pipewire_property']", GIR_NS)
+assert stream_set_pipewire_property is not None
+assert stream_set_pipewire_property.attrib.get("throws") == "1"
+pipewire_property_key_param = stream_set_pipewire_property.find(
+    "gir:parameters/gir:parameter[@name='key']",
+    GIR_NS,
+)
+assert pipewire_property_key_param is not None
+assert pipewire_property_key_param.attrib.get("nullable") is None
+pipewire_property_value_param = stream_set_pipewire_property.find(
+    "gir:parameters/gir:parameter[@name='value']",
+    GIR_NS,
+)
+assert pipewire_property_value_param is not None
+assert pipewire_property_value_param.attrib.get("nullable") == "1"
 for method_name in (
     "get_requested_sample_format",
     "get_requested_rate",
@@ -164,6 +179,21 @@ assert core.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_core_get_type"
 connect_method = core.find("gir:method[@name='connect']", GIR_NS)
 assert connect_method is not None
 assert connect_method.attrib.get("throws") == "1"
+core_set_pipewire_property = core.find("gir:method[@name='set_pipewire_property']", GIR_NS)
+assert core_set_pipewire_property is not None
+assert core_set_pipewire_property.attrib.get("throws") == "1"
+core_pipewire_property_key_param = core_set_pipewire_property.find(
+    "gir:parameters/gir:parameter[@name='key']",
+    GIR_NS,
+)
+assert core_pipewire_property_key_param is not None
+assert core_pipewire_property_key_param.attrib.get("nullable") is None
+core_pipewire_property_value_param = core_set_pipewire_property.find(
+    "gir:parameters/gir:parameter[@name='value']",
+    GIR_NS,
+)
+assert core_pipewire_property_value_param is not None
+assert core_pipewire_property_value_param.attrib.get("nullable") == "1"
 load_module_method = core.find("gir:method[@name='load_module']", GIR_NS)
 assert load_module_method is not None
 assert load_module_method.attrib.get("throws") == "1"

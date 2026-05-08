@@ -15,6 +15,8 @@
 
 #include "pwg-param-private.h"
 
+#define PWG_PARAM_POD_ALIGN 8u
+
 struct _PwgParam {
   GObject parent_instance;
   int seq;
@@ -588,6 +590,40 @@ _pwg_param_new(int seq,
     NULL);
 }
 
+static int
+pwg_param_builder_pad_offset(struct spa_pod_builder *builder)
+{
+  const uint32_t remainder = builder->state.offset % PWG_PARAM_POD_ALIGN;
+  const uint32_t pad = remainder == 0 ? 0 : PWG_PARAM_POD_ALIGN - remainder;
+  const uint8_t zeroes[PWG_PARAM_POD_ALIGN] = { 0 };
+
+  return pad == 0 ? 0 : spa_pod_builder_raw(builder, zeroes, pad);
+}
+
+static struct spa_pod *
+pwg_param_builder_pop_frame(struct spa_pod_builder *builder, struct spa_pod_frame *frame)
+{
+  struct spa_pod *pod;
+
+  if (SPA_FLAG_IS_SET(builder->state.flags, SPA_POD_BUILDER_FLAG_FIRST)) {
+    const struct spa_pod empty = { 0, SPA_TYPE_None };
+    if (spa_pod_builder_raw(builder, &empty, sizeof(empty)) < 0)
+      return NULL;
+  }
+
+  pod = spa_pod_builder_frame(builder, frame);
+  if (pod != NULL)
+    *pod = frame->pod;
+
+  builder->state.frame = frame->parent;
+  builder->state.flags = frame->flags;
+
+  if (pwg_param_builder_pad_offset(builder) < 0)
+    return NULL;
+
+  return pod;
+}
+
 static PwgParam *
 pwg_param_new_props(gboolean has_volume,
                     double volume,
@@ -617,7 +653,7 @@ pwg_param_new_props(gboolean has_volume,
       return NULL;
   }
 
-  pod = spa_pod_builder_pop(&builder, &frame);
+  pod = pwg_param_builder_pop_frame(&builder, &frame);
   if (pod == NULL)
     return NULL;
 
@@ -681,10 +717,10 @@ pwg_param_new_props_controls(GVariant *controls)
       return NULL;
   }
 
-  if (spa_pod_builder_pop(&builder, &params_frame) == NULL)
+  if (pwg_param_builder_pop_frame(&builder, &params_frame) == NULL)
     return NULL;
 
-  pod = spa_pod_builder_pop(&builder, &object_frame);
+  pod = pwg_param_builder_pop_frame(&builder, &object_frame);
   if (pod == NULL)
     return NULL;
 

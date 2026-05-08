@@ -5,12 +5,20 @@ gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
 Pwg.init()
-assert Pwg.get_library_version() == "0.3.2"
+assert Pwg.get_library_version() == "0.3.3"
 assert isinstance(Pwg.get_pipewire_library_version(), str)
 
 core = Pwg.Core.new()
 assert core.get_connected() is False
 assert isinstance(core.get_library_version(), str)
+assert core.set_pipewire_property("application.name", "Pwg Test") is True
+assert core.set_pipewire_property("application.name", None) is True
+try:
+    core.set_pipewire_property("", "bad")
+except GLib.Error:
+    pass
+else:
+    raise AssertionError("empty PipeWire core property key was accepted")
 assert hasattr(Pwg, "ClientInfo")
 assert hasattr(Pwg, "DeviceInfo")
 assert hasattr(Pwg, "ImplModule")
@@ -91,6 +99,14 @@ assert stream.set_requested_format("F32", 44100, 1) is True
 assert stream.get_requested_sample_format() == "F32"
 assert stream.get_requested_rate() == 44100
 assert stream.get_requested_channels() == 1
+assert stream.set_pipewire_property("node.name", "pwg-test-stream") is True
+assert stream.set_pipewire_property("node.name", None) is True
+try:
+    stream.set_pipewire_property("", "bad")
+except GLib.Error:
+    pass
+else:
+    raise AssertionError("empty PipeWire property key was accepted")
 try:
     stream.set_requested_format("S16", 44100, 1)
 except GLib.Error:

@@ -224,6 +224,13 @@ jobs:
           meson compile -C build-strict
           meson test -C build-strict --print-errorlogs
 
+      - name: FORTIFY warning check
+        if: env.RUN_BUILD == 'true'
+        run: |
+          meson setup build-fortify -Dwerror=true -Dc_args="-O2 -D_FORTIFY_SOURCE=3"
+          meson compile -C build-fortify
+          meson test -C build-fortify --print-errorlogs
+
       - name: Install check
         if: env.RUN_BUILD == 'true'
         run: DESTDIR="$PWD/install-root" meson install -C build --no-rebuild
@@ -250,6 +257,9 @@ jobs:
           python3 -m venv --system-site-packages /tmp/pwg-wheel-test
           /tmp/pwg-wheel-test/bin/python -m pip install dist/*.whl
           /tmp/pwg-wheel-test/bin/python - <<'PY'
+          import re
+          from pathlib import Path
+
           import pipewire_gobject
 
           import gi
@@ -257,7 +267,8 @@ jobs:
           gi.require_version("Pwg", "0.1")
           from gi.repository import Pwg
 
-          assert Pwg.get_library_version() == "0.3.2"
+          expected_version = re.search(r"version:\s*'([^']+)'", Path("meson.build").read_text()).group(1)
+          assert Pwg.get_library_version() == expected_version
           assert pipewire_gobject.typelib_paths()
           assert pipewire_gobject.library_paths()
           print("Pwg wheel import ok", Pwg.get_library_version())

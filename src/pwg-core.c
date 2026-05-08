@@ -13,6 +13,7 @@ struct _PwgCore {
   struct pw_thread_loop *thread_loop;
   struct pw_context *context;
   struct pw_core *core;
+  GHashTable *pipewire_properties;
   gboolean connected;
 };
 
@@ -54,12 +55,23 @@ pwg_core_dispose(GObject *object)
 }
 
 static void
+pwg_core_finalize(GObject *object)
+{
+  PwgCore *self = PWG_CORE(object);
+
+  g_clear_pointer(&self->pipewire_properties, g_hash_table_unref);
+
+  G_OBJECT_CLASS(pwg_core_parent_class)->finalize(object);
+}
+
+static void
 pwg_core_class_init(PwgCoreClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
   object_class->get_property = pwg_core_get_property;
   object_class->dispose = pwg_core_dispose;
+  object_class->finalize = pwg_core_finalize;
 
   /**
    * PwgCore:connected:
@@ -82,8 +94,8 @@ pwg_core_class_init(PwgCoreClass *klass)
 static void
 pwg_core_init(PwgCore *self)
 {
-  (void) self;
   pwg_init();
+  self->pipewire_properties = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 }
 
 PwgCore *
@@ -95,6 +107,11 @@ pwg_core_new(void)
 bool
 pwg_core_connect(PwgCore *self, GError **error)
 {
+  struct pw_properties *connect_properties = NULL;
+  GHashTableIter iter;
+  void *key;
+  void *value;
+
   g_return_val_if_fail(PWG_IS_CORE(self), FALSE);
 
   if (self->connected)
@@ -113,7 +130,26 @@ pwg_core_connect(PwgCore *self, GError **error)
     return FALSE;
   }
 
-  self->core = pw_context_connect(self->context, NULL, 0);
+  if (g_hash_table_size(self->pipewire_properties) > 0) {
+    connect_properties = pw_properties_new(NULL, NULL);
+    if (connect_properties == NULL) {
+      g_set_error_literal(error, PWG_ERROR, PWG_ERROR_NO_MEMORY, "Could not allocate PipeWire properties");
+      pwg_core_disconnect(self);
+      return FALSE;
+    }
+
+    g_hash_table_iter_init(&iter, self->pipewire_properties);
+    while (g_hash_table_iter_next(&iter, &key, &value)) {
+      if (pw_properties_set(connect_properties, key, value) < 0) {
+        pw_properties_free(connect_properties);
+        g_set_error_literal(error, PWG_ERROR, PWG_ERROR_NO_MEMORY, "Could not copy PipeWire properties");
+        pwg_core_disconnect(self);
+        return FALSE;
+      }
+    }
+  }
+
+  self->core = pw_context_connect(self->context, connect_properties, 0);
   if (self->core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "Could not connect to PipeWire core");
     pwg_core_disconnect(self);
@@ -128,6 +164,41 @@ pwg_core_connect(PwgCore *self, GError **error)
 
   self->connected = TRUE;
   g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_CONNECTED]);
+  return TRUE;
+}
+
+bool
+pwg_core_set_pipewire_property(PwgCore *self,
+                               const char *key,
+                               const char *value,
+                               GError **error)
+{
+  g_return_val_if_fail(PWG_IS_CORE(self), FALSE);
+
+  if (key == NULL || key[0] == '\0') {
+    g_set_error_literal(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "PipeWire core property key must not be empty");
+    return FALSE;
+  }
+
+  if (self->connected) {
+    g_set_error_literal(
+      error,
+      PWG_ERROR,
+      PWG_ERROR_FAILED,
+      "PipeWire core properties cannot be changed after connecting");
+    return FALSE;
+  }
+
+  if (value == NULL) {
+    g_hash_table_remove(self->pipewire_properties, key);
+    return TRUE;
+  }
+
+  g_hash_table_replace(self->pipewire_properties, g_strdup(key), g_strdup(value));
   return TRUE;
 }
 

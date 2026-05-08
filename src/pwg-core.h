@@ -37,6 +37,28 @@ PWG_API
 PwgCore *pwg_core_new(void);
 
 /**
+ * pwg_core_set_pipewire_property:
+ * @self: a core wrapper.
+ * @key: PipeWire client property key.
+ * @value: (nullable): PipeWire client property value, or %NULL to remove an override.
+ * @error: return location for a #GError.
+ *
+ * Sets an app-specific PipeWire client property before this core connects.
+ * This can be used for bindable identity and policy hints such as
+ * `application.name`, `application.id`, or `media.category`.
+ *
+ * Returns: %TRUE when the property override was accepted.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_core_set_pipewire_property(PwgCore *self,
+                                    const char *key,
+                                    const char *value,
+                                    GError **error);
+
+/**
  * pwg_core_connect:
  * @self: a core wrapper.
  * @error: return location for a #GError.
