@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.3 - 2026-05-08
+
+- Add bindable PipeWire property overrides for `Pwg.Core` and `Pwg.Stream` so
+  applications can set client and stream identity or policy hints before
+  connecting to PipeWire.
+- Use more explicit default properties for monitor streams.
+- Fix optimized FORTIFY/GNOME SDK builds by avoiding the PipeWire inline
+  `spa_pod_builder_pop()` path that can trigger false-positive bounds
+  warnings, and add a FORTIFY warning check to CI.
+
 ## 0.3.2 - 2026-05-08
 
 - Add `setuptools` to the isolated PyPI source-package build requirements so

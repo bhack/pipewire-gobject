@@ -182,6 +182,18 @@ meson test -C build-strict --print-errorlogs
 '
 ```
 
+FORTIFY warning check for Flatpak/GNOME SDK-style optimized builds:
+
+```bash
+docker run --rm -v "$PWD:/work" -w /work pipewire-gobject-dev:trixie sh -lc '
+set -e
+rm -rf build-fortify
+meson setup build-fortify -Dwerror=true -Dc_args="-O2 -D_FORTIFY_SOURCE=3" >/dev/null
+meson compile -C build-fortify >/dev/null
+meson test -C build-fortify --print-errorlogs
+'
+```
+
 ### GI Tool Diagnostics
 
 - Meson invokes `g-ir-scanner` and `g-ir-compiler` through
