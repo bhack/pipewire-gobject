@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No release notes yet.
+- Add PyPI source-package metadata, a pip wheel GIRepository helper shim, and
+  CI/release checks for local wheel smoke testing without publishing binary
+  wheels.
 
 ## 0.3.0 - 2026-05-07
 

@@ -1,0 +1,6 @@
+option(
+  'wheel',
+  type: 'boolean',
+  value: false,
+  description: 'Build install layout for a Python wheel',
+)

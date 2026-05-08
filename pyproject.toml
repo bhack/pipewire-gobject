@@ -1,0 +1,50 @@
+[build-system]
+requires = ["meson-python>=0.18", "meson>=1.2", "ninja"]
+build-backend = "mesonpy"
+
+[project]
+name = "pipewire-gobject"
+description = "Experimental GObject Introspection wrapper for PipeWire."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "pipewire-gobject contributors" }]
+keywords = [
+    "audio",
+    "girepository",
+    "gobject",
+    "gobject-introspection",
+    "gtk",
+    "linux",
+    "pipewire",
+    "pygobject",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Software Development :: Libraries",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/bhack/pipewire-gobject"
+Repository = "https://github.com/bhack/pipewire-gobject"
+Issues = "https://github.com/bhack/pipewire-gobject/issues"
+Changelog = "https://github.com/bhack/pipewire-gobject/blob/main/CHANGELOG.md"
+Documentation = "https://bhack.github.io/pipewire-gobject/"
+
+[tool.meson-python.args]
+setup = ["-Dwheel=true", "--wrap-mode=nofallback"]
+
+[tool.meson-python.wheel]
+exclude = [
+    "{datadir}/gir-1.0/*",
+    "{includedir}/*",
+    "{libdir_shared}/girepository-1.0/*",
+    "{libdir_shared}/pkgconfig/*",
+]
