@@ -9,7 +9,14 @@ project(
 gnome = import('gnome')
 pkg = import('pkgconfig')
 
+for_wheel = get_option('wheel')
 sh = find_program('sh')
+
+if for_wheel
+  py = import('python').find_installation('python3', required: true)
+  python_gir_install_dir = py.get_install_dir() / 'pipewire_gobject' / 'gir'
+  python_typelib_install_dir = py.get_install_dir() / 'pipewire_gobject' / 'typelib'
+endif
 
 glib_dep = dependency('glib-2.0', version: '>=2.66')
 gio_dep = dependency('gio-2.0', version: '>=2.66')
@@ -90,23 +97,47 @@ pkg.generate(
   requires: ['glib-2.0', 'gio-2.0', 'gobject-2.0', 'libpipewire-0.3 >= 1.0.2'],
 )
 
-pwg_gir = gnome.generate_gir(
-  pwg_lib,
-  sources: pwg_sources + pwg_headers,
-  namespace: 'Pwg',
-  nsversion: '0.1',
-  identifier_prefix: 'Pwg',
-  symbol_prefix: 'pwg',
-  export_packages: 'pwg-0.1',
-  includes: ['GObject-2.0', 'Gio-2.0'],
-  dependencies: [glib_dep, gio_dep, gobject_dep, pipewire_dep],
-  header: 'pwg/pwg.h',
-  extra_args: ['--warn-all'],
-  fatal_warnings: get_option('werror'),
-  install: true,
-)
+if for_wheel
+  pwg_gir = gnome.generate_gir(
+    pwg_lib,
+    sources: pwg_sources + pwg_headers,
+    namespace: 'Pwg',
+    nsversion: '0.1',
+    identifier_prefix: 'Pwg',
+    symbol_prefix: 'pwg',
+    export_packages: 'pwg-0.1',
+    includes: ['GObject-2.0', 'Gio-2.0'],
+    dependencies: [glib_dep, gio_dep, gobject_dep, pipewire_dep],
+    header: 'pwg/pwg.h',
+    extra_args: ['--warn-all'],
+    fatal_warnings: get_option('werror'),
+    install: true,
+    install_dir_gir: python_gir_install_dir,
+    install_dir_typelib: python_typelib_install_dir,
+  )
+else
+  pwg_gir = gnome.generate_gir(
+    pwg_lib,
+    sources: pwg_sources + pwg_headers,
+    namespace: 'Pwg',
+    nsversion: '0.1',
+    identifier_prefix: 'Pwg',
+    symbol_prefix: 'pwg',
+    export_packages: 'pwg-0.1',
+    includes: ['GObject-2.0', 'Gio-2.0'],
+    dependencies: [glib_dep, gio_dep, gobject_dep, pipewire_dep],
+    header: 'pwg/pwg.h',
+    extra_args: ['--warn-all'],
+    fatal_warnings: get_option('werror'),
+    install: true,
+  )
+endif
 
 pwg_typelib = pwg_gir[1]
+
+if for_wheel
+  py.install_sources('python/pipewire_gobject/__init__.py', subdir: 'pipewire_gobject')
+endif
 
 gi_docgen = find_program('gi-docgen', required: false)
 if gi_docgen.found()

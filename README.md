@@ -47,6 +47,8 @@ is added:
 - `docs/rationale.md`: canonical project boundary and non-goals.
 - `docs/roadmap.md`: released milestones and next checkpoints.
 - `docs/support-policy.md`: `0.x` API, ABI, GIR, dependency, and CI policy.
+- `docs/system-dependencies.md`: native packages needed for PyPI source builds
+  and runtime imports.
 - `docs/community-feedback.md`: current community-review questions.
 - `docs/api/`: extra pages included in the generated API reference.
 - `docs/release.md`: maintainer release checklist.
@@ -72,7 +74,36 @@ ruff check .
 
 Required development packages include GLib/GObject, GObject Introspection, and
 PipeWire development headers. The minimum supported PipeWire build dependency is
-`libpipewire-0.3 >= 1.0.2`.
+`libpipewire-0.3 >= 1.0.2`. See
+[docs/system-dependencies.md](docs/system-dependencies.md) for distro package
+names.
+
+## PyPI Source Package
+
+`pipewire-gobject` can be installed from PyPI as a source distribution. Pip
+builds a local, platform-specific wheel against the system GLib/GIO,
+GObject-Introspection, and PipeWire development packages; the project does not
+publish portable Linux binary wheels while `libgio-2.0` and `libpipewire-0.3`
+remain external runtime dependencies.
+
+```bash
+python3 -m pip install pipewire-gobject
+```
+
+When using a pip-installed local wheel from a virtual environment, import the
+small helper package before loading the GI namespace. It registers the bundled
+`Pwg-0.1.typelib` and `libpwg-0.1` search paths with GIRepository:
+
+```python
+import pipewire_gobject
+import gi
+
+gi.require_version("Pwg", "0.1")
+from gi.repository import Pwg
+```
+
+Distro and Flatpak packages that install `Pwg-0.1.typelib` into the normal
+GIRepository search path do not need the helper import.
 
 ## Support Policy
 

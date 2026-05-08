@@ -14,6 +14,9 @@ This checklist is for experimental public `0.x` releases.
    meson setup build
    meson compile -C build
    meson test -C build --print-errorlogs
+   G_DEBUG=fatal-warnings,fatal-criticals \
+   G_SLICE=debug-blocks \
+     meson test -C build --print-errorlogs
    ```
 
 3. Run the container smoke test from `AGENTS.md`.
@@ -36,8 +39,37 @@ This checklist is for experimental public `0.x` releases.
    meson dist -C build
    ```
 
+   Build and inspect the Python source package and local smoke-test wheel:
+
+   ```bash
+   python3 -m venv --system-site-packages .venv
+   .venv/bin/python -m pip install --upgrade pip
+   .venv/bin/python -m pip install build meson-python twine
+   rm -rf dist
+   .venv/bin/python -m build
+   .venv/bin/python -m twine check dist/*
+
+   python3 -m venv --system-site-packages /tmp/pwg-wheel-test
+   /tmp/pwg-wheel-test/bin/python -m pip install dist/*.whl
+   /tmp/pwg-wheel-test/bin/python - <<'PY'
+   import pipewire_gobject
+   import gi
+
+   gi.require_version("Pwg", "0.1")
+   from gi.repository import Pwg
+
+   assert Pwg.get_library_version()
+   print("Pwg wheel import ok", Pwg.get_library_version())
+   PY
+   ```
+
+   The wheel built by this command is a local validation artifact, not a
+   portable manylinux artifact. Do not upload it to PyPI.
+
    For published releases, prefer the GitHub release workflow so the archive is
    built from the pushed tag in CI rather than uploaded from a local checkout.
+   The workflow also builds the PyPI source distribution and runs
+   `twine check`, but package-index publishing is opt-in and sdist-only.
    Pushing a bare version tag triggers the workflow and creates a draft
    prerelease by default:
 
@@ -57,6 +89,12 @@ This checklist is for experimental public `0.x` releases.
      -f draft=true \
      -f prerelease=true
    ```
+
+   To publish the Python source distribution to TestPyPI or PyPI, first
+   configure the corresponding GitHub environment and trusted publisher, then
+   dispatch the release workflow with `publish_testpypi=true` or
+   `publish_pypi=true`. The publish jobs upload only
+   `dist/pipewire_gobject-X.Y.Z.tar.gz`.
 
 7. Verify CI has passed against:
 

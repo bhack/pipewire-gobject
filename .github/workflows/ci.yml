@@ -68,7 +68,7 @@ jobs:
 
             while IFS= read -r path; do
               case "$path" in
-                src/*|tests/*|examples/*|meson.build|Dockerfile|.dockerignore|ruff.toml|.github/workflows/ci.yml)
+                src/*|tests/*|examples/*|python/*|meson.build|meson_options.txt|pyproject.toml|Dockerfile|.dockerignore|ruff.toml|.github/workflows/ci.yml)
                   run_build=true
                   run_docs=true
                   ;;
@@ -174,6 +174,8 @@ jobs:
             gobject-introspection \
             libgirepository1.0-dev \
             python3-gi \
+            python3-pip \
+            python3-venv \
             dbus \
             pipewire \
             libspa-0.2-modules \
@@ -192,6 +194,13 @@ jobs:
         if: env.RUN_BUILD == 'true'
         run: meson test -C build --print-errorlogs
 
+      - name: Strict runtime warning check
+        if: env.RUN_BUILD == 'true'
+        env:
+          G_DEBUG: fatal-warnings,fatal-criticals
+          G_SLICE: debug-blocks
+        run: meson test -C build --print-errorlogs
+
       - name: Strict warning check
         if: env.RUN_BUILD == 'true'
         run: |
@@ -208,6 +217,35 @@ jobs:
         run: |
           git config --global --add safe.directory "$PWD"
           meson dist -C build
+
+      - name: Build Python package
+        if: env.RUN_BUILD == 'true'
+        run: |
+          python3 -m venv --system-site-packages .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install build meson-python twine
+          rm -rf dist
+          .venv/bin/python -m build
+          .venv/bin/python -m twine check dist/*
+
+      - name: Smoke-test local wheel
+        if: env.RUN_BUILD == 'true'
+        run: |
+          python3 -m venv --system-site-packages /tmp/pwg-wheel-test
+          /tmp/pwg-wheel-test/bin/python -m pip install dist/*.whl
+          /tmp/pwg-wheel-test/bin/python - <<'PY'
+          import pipewire_gobject
+
+          import gi
+
+          gi.require_version("Pwg", "0.1")
+          from gi.repository import Pwg
+
+          assert Pwg.get_library_version() == "0.3.0"
+          assert pipewire_gobject.typelib_paths()
+          assert pipewire_gobject.library_paths()
+          print("Pwg wheel import ok", Pwg.get_library_version())
+          PY
 
       - name: Live PipeWire smoke test
         if: env.RUN_BUILD == 'true'

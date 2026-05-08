@@ -25,6 +25,16 @@ on:
         required: true
         default: true
         type: boolean
+      publish_testpypi:
+        description: "Publish the Python sdist to TestPyPI with Trusted Publishing"
+        required: true
+        default: false
+        type: boolean
+      publish_pypi:
+        description: "Publish the Python sdist to PyPI with Trusted Publishing"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -101,7 +111,9 @@ jobs:
             pipewire \
             pkg-config \
             python3 \
-            python3-gi
+            python3-gi \
+            python3-pip \
+            python3-venv
 
       - name: Check out release tag
         uses: actions/checkout@v6
@@ -120,6 +132,9 @@ jobs:
           meson setup build-release
           meson compile -C build-release
           meson test -C build-release --print-errorlogs
+          G_DEBUG=fatal-warnings,fatal-criticals \
+          G_SLICE=debug-blocks \
+            meson test -C build-release --print-errorlogs
           DESTDIR="$PWD/install-root" meson install -C build-release --no-rebuild
           meson dist -C build-release
 
@@ -135,17 +150,32 @@ jobs:
 
           archive="build-release/meson-dist/pipewire-gobject-${project_version}.tar.xz"
           checksum="${archive}.sha256sum"
+          python_sdist="dist/pipewire_gobject-${project_version}.tar.gz"
 
           if [ ! -f "$archive" ] || [ ! -f "$checksum" ]; then
             echo "::error::Expected Meson dist archive and checksum were not created"
             exit 1
           fi
 
+          python3 -m venv --system-site-packages .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install build meson-python twine
+          rm -rf dist
+          .venv/bin/python -m build --sdist
+          .venv/bin/python -m twine check dist/*.tar.gz
+
+          if [ ! -f "$python_sdist" ]; then
+            echo "::error::Expected Python sdist was not created: $python_sdist"
+            exit 1
+          fi
+
           sha256sum "$archive"
+          sha256sum "$python_sdist"
 
           {
             echo "archive=$archive"
             echo "checksum=$checksum"
+            echo "python_sdist=$python_sdist"
           } >> "$GITHUB_OUTPUT"
 
       - name: Upload workflow artifact
@@ -155,6 +185,14 @@ jobs:
           path: |
             ${{ steps.dist.outputs.archive }}
             ${{ steps.dist.outputs.checksum }}
+            ${{ steps.dist.outputs.python_sdist }}
+          if-no-files-found: error
+
+      - name: Upload Python package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pipewire-gobject-${{ steps.release.outputs.version }}-python-sdist
+          path: ${{ steps.dist.outputs.python_sdist }}
           if-no-files-found: error
 
       - name: Create release notes
@@ -178,9 +216,10 @@ jobs:
           tag_name="${{ steps.release.outputs.tag_name }}"
           archive="${{ steps.dist.outputs.archive }}"
           checksum="${{ steps.dist.outputs.checksum }}"
+          python_sdist="${{ steps.dist.outputs.python_sdist }}"
 
           if gh release view "$tag_name" >/dev/null 2>&1; then
-            gh release upload "$tag_name" "$archive" "$checksum" --clobber
+            gh release upload "$tag_name" "$archive" "$checksum" "$python_sdist" --clobber
             exit 0
           fi
 
@@ -195,6 +234,57 @@ jobs:
           gh release create "$tag_name" \
             "$archive" \
             "$checksum" \
+            "$python_sdist" \
             --title "pipewire-gobject $tag_name" \
             --notes-file release-notes.md \
             "${flags[@]}"
+
+  publish-testpypi:
+    name: Publish Python sdist to TestPyPI
+    needs: dist
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_testpypi == true }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/pipewire-gobject/
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download Python sdist
+        uses: actions/download-artifact@v8
+        with:
+          name: pipewire-gobject-${{ inputs.tag_name }}-python-sdist
+          path: dist
+
+      - name: Publish Python sdist to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish-pypi:
+    name: Publish Python sdist to PyPI
+    needs: dist
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_pypi == true }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pipewire-gobject/
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download Python sdist
+        uses: actions/download-artifact@v8
+        with:
+          name: pipewire-gobject-${{ inputs.tag_name }}-python-sdist
+          path: dist
+
+      - name: Publish Python sdist to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
