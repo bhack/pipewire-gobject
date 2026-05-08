@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.3.1 - 2026-05-08
 
 - Add PyPI source-package metadata, a pip wheel GIRepository helper shim, and
   CI/release checks for local wheel smoke testing without publishing binary
   wheels.
+- Fix GIRepository shim path registration for local wheel installs.
 - Add deterministic GLib fatal-warning and sanitizer release checks.
 
 ## 0.3.0 - 2026-05-07
