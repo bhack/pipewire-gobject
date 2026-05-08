@@ -257,7 +257,7 @@ jobs:
           gi.require_version("Pwg", "0.1")
           from gi.repository import Pwg
 
-          assert Pwg.get_library_version() == "0.3.0"
+          assert Pwg.get_library_version() == "0.3.1"
           assert pipewire_gobject.typelib_paths()
           assert pipewire_gobject.library_paths()
           print("Pwg wheel import ok", Pwg.get_library_version())
