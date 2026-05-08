@@ -85,6 +85,15 @@ def _prepend_paths(prepend, paths: tuple[Path, ...]) -> None:
         prepend(str(path))
 
 
+def _default_repository(GIRepository):
+    repository_type = GIRepository.Repository
+    for method_name in ("dup_default", "get_default"):
+        method = getattr(repository_type, method_name, None)
+        if method is not None:
+            return method()
+    return repository_type
+
+
 def _preload_bundled_library(paths: tuple[Path, ...]) -> None:
     candidates: list[Path] = []
     for path in paths:
@@ -129,7 +138,7 @@ def configure() -> None:
         return
 
     GIRepository = _import_girepository()
-    repository = GIRepository.Repository
+    repository = _default_repository(GIRepository)
     libraries = library_paths()
     _prepend_paths(repository.prepend_search_path, typelib_paths())
     _prepend_paths(repository.prepend_library_path, libraries)
