@@ -161,6 +161,28 @@ PWG_API
 GListModel *pwg_node_get_params(PwgNode *self);
 
 /**
+ * pwg_node_subscribe_params:
+ * @self: a node wrapper.
+ * @ids: a `au` variant containing SPA parameter ids to subscribe to.
+ * @error: return location for a #GError.
+ *
+ * Replaces the node's active parameter subscription set with the ids in @ids.
+ * PipeWire emits copied [class@Pwg.Param] values through
+ * [signal@Pwg.Node::param] for current subscribed values and later updates.
+ * Passing an empty `au` variant clears the subscription.
+ *
+ * Applications should not use [method@Pwg.Param.get_seq] to distinguish the
+ * first subscription delivery from later change notifications.
+ *
+ * Returns: %TRUE when the subscription request was queued.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error);
+
+/**
  * pwg_node_enum_params:
  * @self: a node wrapper.
  * @id: the SPA parameter id to enumerate.

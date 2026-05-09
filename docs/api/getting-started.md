@@ -34,6 +34,15 @@ The API is experimental while the project is in `0.x`. Prefer using small
 feature probes and keep application code tolerant of API changes until a future
 stable release policy exists.
 
+## Capture Streams
+
+Use [class@Pwg.Stream] for app-owned audio capture:
+
+```python
+stream = Pwg.Stream.new_audio_capture(None, True)
+stream.start()
+```
+
 ## Installed Files
 
 A normal installation provides:

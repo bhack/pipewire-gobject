@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.5 - 2026-05-09
+
+- Add `Pwg.Device` for live device parameter inspection and limited copied
+  device parameter updates.
+- Add `Pwg.RouteInfo` as a typed view for inspecting copied PipeWire route
+  parameters without taking over route policy.
+- Add `Pwg.Device.subscribe_params()` and `Pwg.Node.subscribe_params()` for
+  event-driven parameter monitoring with explicit replace-and-clear
+  subscription semantics.
+- Remove the redundant `Pwg.AudioCapture` compatibility wrapper so
+  `Pwg.Stream.new_audio_capture()` is the single app-owned audio capture API.
+
 ## 0.3.4 - 2026-05-09
 
 - Publish legacy Python package license metadata alongside the existing MIT

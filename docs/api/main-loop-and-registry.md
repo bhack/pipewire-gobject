@@ -6,7 +6,9 @@ SPDX-FileCopyrightText: 2026 pipewire-gobject contributors
 
 PipeWire registry updates are delivered through a GLib main context. A program
 that starts [class@Pwg.Registry] should run a [struct@GLib.MainLoop] or otherwise
-iterate the thread-default main context.
+iterate the thread-default main context. Live wrappers such as [class@Pwg.Node],
+[class@Pwg.Device], [class@Pwg.Metadata], and [class@Pwg.Stream] deliver their
+signals through the same context.
 
 ```python
 import gi
@@ -126,6 +128,22 @@ if node is not None:
     node.enum_all_params()
 ```
 
+To observe later node parameter changes, subscribe to the parameter ids that the
+application cares about. The subscription call replaces the active set of ids;
+an empty `au` clears it. PipeWire may deliver current values and later changes
+through the same signal, so applications should treat subscription events as
+"the parameter changed or was delivered" rather than trying to infer intent from
+the parameter sequence number.
+
+```python
+volume_param_id = 2
+node.connect("param", on_param)
+node.subscribe_params(GLib.Variant("au", [volume_param_id]))
+
+# Later, clear the active subscription.
+node.subscribe_params(GLib.Variant("au", []))
+```
+
 Nodes can also queue copied parameter updates that were built by this library.
 The return value only means PipeWire accepted the request for dispatch; it is
 not an applied-state acknowledgment:
@@ -135,6 +153,49 @@ param = Pwg.Param.new_props_volume(0.75)
 if param is not None:
     node.set_param(param)
 ```
+
+For live device parameter inspection, bind a device global with
+[class@Pwg.Device]. The API mirrors [class@Pwg.Node]: parameter descriptors are
+published through [class@Pwg.ParamInfo], enumeration results are copied
+[class@Pwg.Param] objects, and subscriptions are event-driven.
+
+PipeWire devices often advertise route parameters that describe input or output
+routes exposed by the device. Wrap copied `EnumRoute` or `Route` parameters in
+[class@Pwg.RouteInfo] to inspect route fields without parsing SPA POD data in
+application code:
+
+```python
+device_proxy = Pwg.Device.new(core, devices.get_item(0))
+if device_proxy is not None:
+    device_proxy.start()
+
+    route_ids = []
+    for index in range(device_proxy.get_param_infos().get_n_items()):
+        param_info = device_proxy.get_param_infos().get_item(index)
+        if param_info.dup_name() == "Route":
+            route_ids.append(param_info.get_id())
+
+    def on_device_param(_device, param):
+        route = Pwg.RouteInfo.new_from_param(param)
+        if route is not None:
+            print(
+                route.get_index(),
+                route.dup_direction() or "",
+                route.dup_name() or "",
+                route.dup_description() or "",
+                route.dup_availability() or "",
+            )
+
+    device_proxy.connect("param", on_device_param)
+    for route_id in route_ids:
+        device_proxy.enum_params(route_id, 0, 0)
+    device_proxy.subscribe_params(GLib.Variant("au", route_ids))
+```
+
+Route parameters are inspection data from PipeWire. `pipewire-gobject` does not
+select hardware routes, change defaults, or replace WirePlumber policy. Apps
+that need to react to route changes should subscribe and update their own UI or
+state when new copied route params arrive.
 
 For modules that expose named float controls, build a `Props` parameter from a
 `GLib.Variant` dictionary with signature `a{sd}`:
@@ -164,10 +225,10 @@ finally:
     module.unload()
 ```
 
-For app-owned audio capture, [class@Pwg.Stream] exposes negotiated format,
-level, and optional copied audio blocks. The requested format defaults to
-`F32`, 48000 Hz, stereo; set it before starting the stream when the application
-needs a different F32 mono or stereo rate:
+For app-owned audio capture, [class@Pwg.Stream] is the canonical API. It exposes
+negotiated format, level, and optional copied audio blocks. The requested format
+defaults to `F32`, 48000 Hz, stereo; set it before starting the stream when the
+application needs a different F32 mono or stereo rate:
 
 ```python
 stream = Pwg.Stream.new_audio_capture("alsa_output.example", True)
