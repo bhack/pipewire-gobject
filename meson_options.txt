@@ -4,3 +4,10 @@ option(
   value: false,
   description: 'Build install layout for a Python wheel',
 )
+
+option(
+  'tests',
+  type: 'boolean',
+  value: true,
+  description: 'Build and register test targets',
+)

@@ -60,6 +60,9 @@ meson setup build
 meson test -C build --print-errorlogs
 ```
 
+Packagers that strip test sources from a build can configure with
+`-Dtests=false`.
+
 Canonical dev container:
 
 ```bash
