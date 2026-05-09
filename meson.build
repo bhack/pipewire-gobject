@@ -10,6 +10,7 @@ gnome = import('gnome')
 pkg = import('pkgconfig')
 
 for_wheel = get_option('wheel')
+build_tests = get_option('tests')
 sh = find_program('sh')
 
 if for_wheel
@@ -196,43 +197,45 @@ else
   message('gi-docgen not found; API documentation target disabled')
 endif
 
-test_env = environment()
-test_env.prepend('GI_TYPELIB_PATH', meson.current_build_dir())
-test_env.prepend('LD_LIBRARY_PATH', meson.current_build_dir())
+if build_tests
+  test_env = environment()
+  test_env.prepend('GI_TYPELIB_PATH', meson.current_build_dir())
+  test_env.prepend('LD_LIBRARY_PATH', meson.current_build_dir())
 
-test(
-  'python-gi-import',
-  find_program('python3'),
-  args: [files('tests/test_import.py')],
-  env: test_env,
-  depends: pwg_typelib,
-)
+  test(
+    'python-gi-import',
+    find_program('python3'),
+    args: [files('tests/test_import.py')],
+    env: test_env,
+    depends: pwg_typelib,
+  )
 
-test(
-  'gir-metadata',
-  find_program('python3'),
-  args: [files('tests/test_gir_metadata.py'), pwg_gir[0]],
-  depends: pwg_gir[0],
-)
+  test(
+    'gir-metadata',
+    find_program('python3'),
+    args: [files('tests/test_gir_metadata.py'), pwg_gir[0]],
+    depends: pwg_gir[0],
+  )
 
-test(
-  'public-symbols',
-  find_program('python3'),
-  args: [files('tests/test_symbols.py'), meson.current_build_dir()],
-  depends: pwg_lib,
-)
+  test(
+    'public-symbols',
+    find_program('python3'),
+    args: [files('tests/test_symbols.py'), meson.current_build_dir()],
+    depends: pwg_lib,
+  )
 
-stream_dispatch_test = executable(
-  'test-stream-dispatch',
-  pwg_sources + ['tests/test_stream_dispatch.c'],
-  dependencies: [glib_dep, gio_dep, gobject_dep, pipewire_dep],
-  include_directories: pwg_inc,
-  c_args: [
-    '-DBUILDING_PWG',
-    '-DPWG_STREAM_TESTING',
-    '-DPWG_VERSION="@0@"'.format(meson.project_version()),
-  ],
-  gnu_symbol_visibility: 'hidden',
-)
+  stream_dispatch_test = executable(
+    'test-stream-dispatch',
+    pwg_sources + ['tests/test_stream_dispatch.c'],
+    dependencies: [glib_dep, gio_dep, gobject_dep, pipewire_dep],
+    include_directories: pwg_inc,
+    c_args: [
+      '-DBUILDING_PWG',
+      '-DPWG_STREAM_TESTING',
+      '-DPWG_VERSION="@0@"'.format(meson.project_version()),
+    ],
+    gnu_symbol_visibility: 'hidden',
+  )
 
-test('stream-dispatch', stream_dispatch_test)
+  test('stream-dispatch', stream_dispatch_test)
+endif
