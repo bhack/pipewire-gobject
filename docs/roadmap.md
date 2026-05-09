@@ -29,7 +29,8 @@ The first preview establishes the library and GIR shape:
   node names.
 - `Pwg.Stream` for app-owned audio capture.
 - `Pwg.AudioFormat` and `Pwg.AudioBlock` for copied audio data.
-- `Pwg.AudioCapture` as a compatibility wrapper around `Pwg.Stream`.
+- `Pwg.AudioCapture` as an initial compatibility wrapper around `Pwg.Stream`,
+  later removed before stable API.
 - GIR metadata and public-symbol tests.
 - Python examples for registry and node listing, default metadata resolution,
   peak levels, and audio blocks.

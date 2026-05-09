@@ -1,7 +1,7 @@
-#include "pwg-node.h"
+#include "pwg-device.h"
 
 #include <errno.h>
-#include <pipewire/node.h>
+#include <pipewire/device.h>
 #include <pipewire/pipewire.h>
 
 #include "pwg-core-private.h"
@@ -12,23 +12,23 @@
 typedef struct {
   unsigned int id;
   unsigned int flags;
-} PwgNodeParamInfoCopy;
+} PwgDeviceParamInfoCopy;
 
 typedef enum {
-  PWG_NODE_EVENT_INFO,
-  PWG_NODE_EVENT_PARAM,
-  PWG_NODE_EVENT_REMOVED,
-} PwgNodeEventType;
+  PWG_DEVICE_EVENT_INFO,
+  PWG_DEVICE_EVENT_PARAM,
+  PWG_DEVICE_EVENT_REMOVED,
+} PwgDeviceEventType;
 
 typedef struct {
-  PwgNode *node;
+  PwgDevice *device;
   unsigned int generation;
-  PwgNodeEventType type;
+  PwgDeviceEventType type;
   GArray *param_infos;
   PwgParam *param;
-} PwgNodeEvent;
+} PwgDeviceEvent;
 
-struct _PwgNode {
+struct _PwgDevice {
   GObject parent_instance;
   PwgCore *core;
   PwgGlobal *global;
@@ -38,18 +38,18 @@ struct _PwgNode {
   GListStore *params;
   GMainContext *main_context;
   struct pw_registry *registry;
-  struct pw_node *node;
-  unsigned int node_id;
+  struct pw_device *device;
+  unsigned int device_id;
   struct spa_hook registry_listener;
-  struct spa_hook node_listener;
+  struct spa_hook device_listener;
   gboolean has_registry_listener;
-  gboolean has_node_listener;
+  gboolean has_device_listener;
   gulong core_connected_notify_id;
   unsigned int generation;
   int next_seq;
 };
 
-G_DEFINE_TYPE(PwgNode, pwg_node, G_TYPE_OBJECT)
+G_DEFINE_TYPE(PwgDevice, pwg_device, G_TYPE_OBJECT)
 
 enum {
   PROP_0,
@@ -70,50 +70,50 @@ enum {
 static GParamSpec *properties[N_PROPS];
 static unsigned int signals[N_SIGNALS];
 
-static gboolean pwg_node_dispatch_event(gpointer userdata);
+static gboolean pwg_device_dispatch_event(gpointer userdata);
 
 static void
-pwg_node_event_free(PwgNodeEvent *event)
+pwg_device_event_free(PwgDeviceEvent *event)
 {
-  g_clear_object(&event->node);
+  g_clear_object(&event->device);
   g_clear_pointer(&event->param_infos, g_array_unref);
   g_clear_object(&event->param);
   g_free(event);
 }
 
 static void
-pwg_node_queue_event(PwgNode *self, PwgNodeEvent *event)
+pwg_device_queue_event(PwgDevice *self, PwgDeviceEvent *event)
 {
-  event->node = g_object_ref(self);
+  event->device = g_object_ref(self);
   event->generation = self->generation;
 
   g_main_context_invoke_full(
     self->main_context,
     G_PRIORITY_DEFAULT,
-    pwg_node_dispatch_event,
+    pwg_device_dispatch_event,
     event,
-    (GDestroyNotify) pwg_node_event_free);
+    (GDestroyNotify) pwg_device_event_free);
 }
 
 static void
-pwg_node_on_info(void *userdata, const struct pw_node_info *info)
+pwg_device_on_info(void *userdata, const struct pw_device_info *info)
 {
-  PwgNode *self = PWG_NODE(userdata);
-  PwgNodeEvent *event;
+  PwgDevice *self = PWG_DEVICE(userdata);
+  PwgDeviceEvent *event;
 
   if (info == NULL)
     return;
 
-  if (info->params == NULL && (info->change_mask & PW_NODE_CHANGE_MASK_PARAMS) == 0)
+  if (info->params == NULL && (info->change_mask & PW_DEVICE_CHANGE_MASK_PARAMS) == 0)
     return;
 
-  event = g_new0(PwgNodeEvent, 1);
-  event->type = PWG_NODE_EVENT_INFO;
-  event->param_infos = g_array_sized_new(FALSE, FALSE, sizeof(PwgNodeParamInfoCopy), info->n_params);
+  event = g_new0(PwgDeviceEvent, 1);
+  event->type = PWG_DEVICE_EVENT_INFO;
+  event->param_infos = g_array_sized_new(FALSE, FALSE, sizeof(PwgDeviceParamInfoCopy), info->n_params);
 
   if (info->params != NULL) {
     for (uint32_t i = 0; i < info->n_params; i++) {
-      PwgNodeParamInfoCopy param_info = {
+      PwgDeviceParamInfoCopy param_info = {
         .id = info->params[i].id,
         .flags = info->params[i].flags,
       };
@@ -122,59 +122,59 @@ pwg_node_on_info(void *userdata, const struct pw_node_info *info)
     }
   }
 
-  pwg_node_queue_event(self, event);
+  pwg_device_queue_event(self, event);
 }
 
 static void
-pwg_node_on_param(void *userdata,
-                  int seq,
-                  uint32_t id,
-                  uint32_t index,
-                  uint32_t next,
-                  const struct spa_pod *param)
+pwg_device_on_param(void *userdata,
+                    int seq,
+                    uint32_t id,
+                    uint32_t index,
+                    uint32_t next,
+                    const struct spa_pod *param)
 {
-  PwgNode *self = PWG_NODE(userdata);
+  PwgDevice *self = PWG_DEVICE(userdata);
   g_autoptr(GBytes) bytes = NULL;
-  PwgNodeEvent *event;
+  PwgDeviceEvent *event;
 
   if (param == NULL)
     return;
 
   bytes = g_bytes_new(param, SPA_POD_SIZE(param));
 
-  event = g_new0(PwgNodeEvent, 1);
-  event->type = PWG_NODE_EVENT_PARAM;
+  event = g_new0(PwgDeviceEvent, 1);
+  event->type = PWG_DEVICE_EVENT_PARAM;
   event->param = _pwg_param_new(seq, id, index, next, bytes);
-  pwg_node_queue_event(self, event);
+  pwg_device_queue_event(self, event);
 }
 
-static const struct pw_node_events node_events = {
-  PW_VERSION_NODE_EVENTS,
-  .info = pwg_node_on_info,
-  .param = pwg_node_on_param,
+static const struct pw_device_events device_events = {
+  PW_VERSION_DEVICE_EVENTS,
+  .info = pwg_device_on_info,
+  .param = pwg_device_on_param,
 };
 
 static void
-pwg_node_on_global_remove(void *userdata, uint32_t id)
+pwg_device_on_global_remove(void *userdata, uint32_t id)
 {
-  PwgNode *self = PWG_NODE(userdata);
-  PwgNodeEvent *event;
+  PwgDevice *self = PWG_DEVICE(userdata);
+  PwgDeviceEvent *event;
 
-  if (id != self->node_id)
+  if (id != self->device_id)
     return;
 
-  event = g_new0(PwgNodeEvent, 1);
-  event->type = PWG_NODE_EVENT_REMOVED;
-  pwg_node_queue_event(self, event);
+  event = g_new0(PwgDeviceEvent, 1);
+  event->type = PWG_DEVICE_EVENT_REMOVED;
+  pwg_device_queue_event(self, event);
 }
 
 static const struct pw_registry_events registry_events = {
   PW_VERSION_REGISTRY_EVENTS,
-  .global_remove = pwg_node_on_global_remove,
+  .global_remove = pwg_device_on_global_remove,
 };
 
 static void
-pwg_node_destroy_pipewire_objects(PwgNode *self)
+pwg_device_destroy_pipewire_objects(PwgDevice *self)
 {
   struct pw_thread_loop *thread_loop;
 
@@ -182,15 +182,15 @@ pwg_node_destroy_pipewire_objects(PwgNode *self)
   if (thread_loop != NULL)
     pw_thread_loop_lock(thread_loop);
 
-  if (self->node != NULL) {
-    if (self->has_node_listener) {
-      spa_hook_remove(&self->node_listener);
-      self->has_node_listener = FALSE;
+  if (self->device != NULL) {
+    if (self->has_device_listener) {
+      spa_hook_remove(&self->device_listener);
+      self->has_device_listener = FALSE;
     }
-    pw_proxy_destroy((struct pw_proxy *) self->node);
-    self->node = NULL;
+    pw_proxy_destroy((struct pw_proxy *) self->device);
+    self->device = NULL;
   } else {
-    self->has_node_listener = FALSE;
+    self->has_device_listener = FALSE;
   }
 
   if (self->registry != NULL) {
@@ -209,12 +209,12 @@ pwg_node_destroy_pipewire_objects(PwgNode *self)
 }
 
 static void
-pwg_node_reset(PwgNode *self)
+pwg_device_reset(PwgDevice *self)
 {
   self->registry = NULL;
-  self->node = NULL;
+  self->device = NULL;
   self->has_registry_listener = FALSE;
-  self->has_node_listener = FALSE;
+  self->has_device_listener = FALSE;
   self->generation++;
 
   if (self->bound) {
@@ -232,13 +232,13 @@ pwg_node_reset(PwgNode *self)
 }
 
 static void
-pwg_node_update_param_infos(PwgNode *self, GArray *param_infos)
+pwg_device_update_param_infos(PwgDevice *self, GArray *param_infos)
 {
   g_list_store_remove_all(self->param_infos);
 
   if (param_infos != NULL) {
     for (unsigned int i = 0; i < param_infos->len; i++) {
-      PwgNodeParamInfoCopy *copy = &g_array_index(param_infos, PwgNodeParamInfoCopy, i);
+      PwgDeviceParamInfoCopy *copy = &g_array_index(param_infos, PwgDeviceParamInfoCopy, i);
       g_autoptr(PwgParamInfo) param_info = _pwg_param_info_new(copy->id, copy->flags);
 
       g_list_store_append(self->param_infos, param_info);
@@ -249,48 +249,48 @@ pwg_node_update_param_infos(PwgNode *self, GArray *param_infos)
 }
 
 static gboolean
-pwg_node_dispatch_event(gpointer userdata)
+pwg_device_dispatch_event(gpointer userdata)
 {
-  PwgNodeEvent *event = userdata;
-  PwgNode *self = event->node;
+  PwgDeviceEvent *event = userdata;
+  PwgDevice *self = event->device;
 
   if (!self->running || event->generation != self->generation)
     return G_SOURCE_REMOVE;
 
-  if (event->type == PWG_NODE_EVENT_INFO) {
-    pwg_node_update_param_infos(self, event->param_infos);
-  } else if (event->type == PWG_NODE_EVENT_PARAM) {
+  if (event->type == PWG_DEVICE_EVENT_INFO) {
+    pwg_device_update_param_infos(self, event->param_infos);
+  } else if (event->type == PWG_DEVICE_EVENT_PARAM) {
     if (event->param != NULL) {
       g_list_store_append(self->params, event->param);
       g_signal_emit(self, signals[SIGNAL_PARAM], 0, event->param);
     }
   } else {
-    pwg_node_stop(self);
+    pwg_device_stop(self);
   }
 
   return G_SOURCE_REMOVE;
 }
 
 static void
-pwg_node_on_core_connected_notify(GObject *object,
-                                  GParamSpec *pspec,
-                                  gpointer userdata)
+pwg_device_on_core_connected_notify(GObject *object,
+                                    GParamSpec *pspec,
+                                    gpointer userdata)
 {
-  PwgNode *self = PWG_NODE(userdata);
+  PwgDevice *self = PWG_DEVICE(userdata);
 
   (void) pspec;
 
   if (!pwg_core_get_connected(PWG_CORE(object)))
-    pwg_node_reset(self);
+    pwg_device_reset(self);
 }
 
 static void
-pwg_node_get_property(GObject *object,
-                      unsigned int property_id,
-                      GValue *value,
-                      GParamSpec *pspec)
+pwg_device_get_property(GObject *object,
+                        unsigned int property_id,
+                        GValue *value,
+                        GParamSpec *pspec)
 {
-  PwgNode *self = PWG_NODE(object);
+  PwgDevice *self = PWG_DEVICE(object);
 
   switch (property_id) {
   case PROP_CORE:
@@ -317,12 +317,12 @@ pwg_node_get_property(GObject *object,
 }
 
 static void
-pwg_node_set_property(GObject *object,
-                      unsigned int property_id,
-                      const GValue *value,
-                      GParamSpec *pspec)
+pwg_device_set_property(GObject *object,
+                        unsigned int property_id,
+                        const GValue *value,
+                        GParamSpec *pspec)
 {
-  PwgNode *self = PWG_NODE(object);
+  PwgDevice *self = PWG_DEVICE(object);
 
   switch (property_id) {
   case PROP_CORE:
@@ -337,30 +337,30 @@ pwg_node_set_property(GObject *object,
 }
 
 static void
-pwg_node_constructed(GObject *object)
+pwg_device_constructed(GObject *object)
 {
-  PwgNode *self = PWG_NODE(object);
+  PwgDevice *self = PWG_DEVICE(object);
 
-  G_OBJECT_CLASS(pwg_node_parent_class)->constructed(object);
+  G_OBJECT_CLASS(pwg_device_parent_class)->constructed(object);
 
   if (self->core != NULL) {
     self->core_connected_notify_id = g_signal_connect(
       self->core,
       "notify::connected",
-      G_CALLBACK(pwg_node_on_core_connected_notify),
+      G_CALLBACK(pwg_device_on_core_connected_notify),
       self);
   }
 
   if (self->global != NULL)
-    self->node_id = pwg_global_get_id(self->global);
+    self->device_id = pwg_global_get_id(self->global);
 }
 
 static void
-pwg_node_dispose(GObject *object)
+pwg_device_dispose(GObject *object)
 {
-  PwgNode *self = PWG_NODE(object);
+  PwgDevice *self = PWG_DEVICE(object);
 
-  pwg_node_stop(self);
+  pwg_device_stop(self);
 
   if (self->core != NULL && self->core_connected_notify_id != 0) {
     g_signal_handler_disconnect(self->core, self->core_connected_notify_id);
@@ -372,34 +372,34 @@ pwg_node_dispose(GObject *object)
   g_clear_object(&self->param_infos);
   g_clear_object(&self->params);
 
-  G_OBJECT_CLASS(pwg_node_parent_class)->dispose(object);
+  G_OBJECT_CLASS(pwg_device_parent_class)->dispose(object);
 }
 
 static void
-pwg_node_finalize(GObject *object)
+pwg_device_finalize(GObject *object)
 {
-  PwgNode *self = PWG_NODE(object);
+  PwgDevice *self = PWG_DEVICE(object);
 
   g_clear_pointer(&self->main_context, g_main_context_unref);
 
-  G_OBJECT_CLASS(pwg_node_parent_class)->finalize(object);
+  G_OBJECT_CLASS(pwg_device_parent_class)->finalize(object);
 }
 
 static void
-pwg_node_class_init(PwgNodeClass *klass)
+pwg_device_class_init(PwgDeviceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
-  object_class->constructed = pwg_node_constructed;
-  object_class->get_property = pwg_node_get_property;
-  object_class->set_property = pwg_node_set_property;
-  object_class->dispose = pwg_node_dispose;
-  object_class->finalize = pwg_node_finalize;
+  object_class->constructed = pwg_device_constructed;
+  object_class->get_property = pwg_device_get_property;
+  object_class->set_property = pwg_device_set_property;
+  object_class->dispose = pwg_device_dispose;
+  object_class->finalize = pwg_device_finalize;
 
   /**
-   * PwgNode:core:
+   * PwgDevice:core:
    *
-   * PipeWire core used by this node wrapper.
+   * PipeWire core used by this device wrapper.
    *
    * Since: 0.1
    * Stability: Unstable
@@ -407,14 +407,14 @@ pwg_node_class_init(PwgNodeClass *klass)
   properties[PROP_CORE] = g_param_spec_object(
     "core",
     "Core",
-    "PipeWire core used by this node wrapper.",
+    "PipeWire core used by this device wrapper.",
     PWG_TYPE_CORE,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
   /**
-   * PwgNode:global:
+   * PwgDevice:global:
    *
-   * PipeWire node global used by this node wrapper.
+   * PipeWire device global used by this device wrapper.
    *
    * Since: 0.1
    * Stability: Unstable
@@ -422,14 +422,14 @@ pwg_node_class_init(PwgNodeClass *klass)
   properties[PROP_GLOBAL] = g_param_spec_object(
     "global",
     "Global",
-    "PipeWire node global used by this node wrapper.",
+    "PipeWire device global used by this device wrapper.",
     PWG_TYPE_GLOBAL,
     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
 
   /**
-   * PwgNode:running:
+   * PwgDevice:running:
    *
-   * Whether the node wrapper is running.
+   * Whether the device wrapper is running.
    *
    * Since: 0.1
    * Stability: Unstable
@@ -437,14 +437,14 @@ pwg_node_class_init(PwgNodeClass *klass)
   properties[PROP_RUNNING] = g_param_spec_boolean(
     "running",
     "Running",
-    "Whether the node wrapper is running.",
+    "Whether the device wrapper is running.",
     FALSE,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   /**
-   * PwgNode:bound:
+   * PwgDevice:bound:
    *
-   * Whether the node proxy is currently bound.
+   * Whether the device proxy is currently bound.
    *
    * Since: 0.1
    * Stability: Unstable
@@ -452,12 +452,12 @@ pwg_node_class_init(PwgNodeClass *klass)
   properties[PROP_BOUND] = g_param_spec_boolean(
     "bound",
     "Bound",
-    "Whether the node proxy is currently bound.",
+    "Whether the device proxy is currently bound.",
     FALSE,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   /**
-   * PwgNode:param-infos:
+   * PwgDevice:param-infos:
    *
    * A [iface@Gio.ListModel] of [class@Pwg.ParamInfo] objects.
    *
@@ -472,7 +472,7 @@ pwg_node_class_init(PwgNodeClass *klass)
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   /**
-   * PwgNode:params:
+   * PwgDevice:params:
    *
    * A [iface@Gio.ListModel] of [class@Pwg.Param] objects from the most recent
    * enumeration request.
@@ -490,12 +490,12 @@ pwg_node_class_init(PwgNodeClass *klass)
   g_object_class_install_properties(object_class, N_PROPS, properties);
 
   /**
-   * PwgNode::param:
-   * @self: the node wrapper.
+   * PwgDevice::param:
+   * @self: the device wrapper.
    * @param: the copied parameter returned by enumeration or subscription.
    *
    * Emitted from the object's construction thread-default main context when a
-   * node parameter enumeration result or subscribed update arrives.
+   * device parameter enumeration result or subscribed update arrives.
    *
    * Since: 0.1
    * Stability: Unstable
@@ -514,7 +514,7 @@ pwg_node_class_init(PwgNodeClass *klass)
 }
 
 static void
-pwg_node_init(PwgNode *self)
+pwg_device_init(PwgDevice *self)
 {
   self->param_infos = g_list_store_new(PWG_TYPE_PARAM_INFO);
   self->params = g_list_store_new(PWG_TYPE_PARAM);
@@ -522,38 +522,38 @@ pwg_node_init(PwgNode *self)
   self->next_seq = 1;
 }
 
-PwgNode *
-pwg_node_new(PwgCore *core, PwgGlobal *global)
+PwgDevice *
+pwg_device_new(PwgCore *core, PwgGlobal *global)
 {
   g_return_val_if_fail(PWG_IS_CORE(core), NULL);
   g_return_val_if_fail(PWG_IS_GLOBAL(global), NULL);
 
-  if (!pwg_global_is_node(global))
+  if (!pwg_global_is_device(global))
     return NULL;
 
-  return g_object_new(PWG_TYPE_NODE, "core", core, "global", global, NULL);
+  return g_object_new(PWG_TYPE_DEVICE, "core", core, "global", global, NULL);
 }
 
 bool
-pwg_node_start(PwgNode *self, GError **error)
+pwg_device_start(PwgDevice *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
   struct pw_core *core;
   unsigned int version;
   int result;
 
-  g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
 
   if (self->running)
     return TRUE;
 
   if (self->core == NULL || self->global == NULL) {
-    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Node has no PipeWire core or global");
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Device has no PipeWire core or global");
     return FALSE;
   }
 
-  if (!pwg_global_is_node(self->global)) {
-    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Global is not a PipeWire node");
+  if (!pwg_global_is_device(self->global)) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Global is not a PipeWire device");
     return FALSE;
   }
 
@@ -581,34 +581,34 @@ pwg_node_start(PwgNode *self, GError **error)
   self->has_registry_listener = TRUE;
 
   version = pwg_global_get_version(self->global);
-  self->node = pw_registry_bind(
+  self->device = pw_registry_bind(
     self->registry,
     pwg_global_get_id(self->global),
-    PW_TYPE_INTERFACE_Node,
-    version < PW_VERSION_NODE ? version : PW_VERSION_NODE,
+    PW_TYPE_INTERFACE_Device,
+    version < PW_VERSION_DEVICE ? version : PW_VERSION_DEVICE,
     0);
-  if (self->node == NULL) {
+  if (self->device == NULL) {
     pw_thread_loop_unlock(thread_loop);
-    pwg_node_destroy_pipewire_objects(self);
-    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "Could not bind PipeWire node");
+    pwg_device_destroy_pipewire_objects(self);
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "Could not bind PipeWire device");
     return FALSE;
   }
 
-  spa_zero(self->node_listener);
-  result = pw_node_add_listener(self->node, &self->node_listener, &node_events, self);
+  spa_zero(self->device_listener);
+  result = pw_device_add_listener(self->device, &self->device_listener, &device_events, self);
   if (result < 0) {
     pw_thread_loop_unlock(thread_loop);
-    pwg_node_destroy_pipewire_objects(self);
+    pwg_device_destroy_pipewire_objects(self);
     g_set_error(
       error,
       PWG_ERROR,
       PWG_ERROR_PIPEWIRE,
-      "Could not listen to PipeWire node: %s",
+      "Could not listen to PipeWire device: %s",
       g_strerror(-result));
     return FALSE;
   }
 
-  self->has_node_listener = TRUE;
+  self->has_device_listener = TRUE;
   self->generation++;
   self->running = TRUE;
   self->bound = TRUE;
@@ -620,15 +620,15 @@ pwg_node_start(PwgNode *self, GError **error)
 }
 
 void
-pwg_node_stop(PwgNode *self)
+pwg_device_stop(PwgDevice *self)
 {
-  g_return_if_fail(PWG_IS_NODE(self));
+  g_return_if_fail(PWG_IS_DEVICE(self));
 
-  if (!self->running && self->registry == NULL && self->node == NULL)
+  if (!self->running && self->registry == NULL && self->device == NULL)
     return;
 
   self->generation++;
-  pwg_node_destroy_pipewire_objects(self);
+  pwg_device_destroy_pipewire_objects(self);
 
   if (self->bound) {
     self->bound = FALSE;
@@ -645,62 +645,62 @@ pwg_node_stop(PwgNode *self)
 }
 
 PwgCore *
-pwg_node_get_core(PwgNode *self)
+pwg_device_get_core(PwgDevice *self)
 {
-  g_return_val_if_fail(PWG_IS_NODE(self), NULL);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), NULL);
 
   return self->core;
 }
 
 PwgGlobal *
-pwg_node_get_global(PwgNode *self)
+pwg_device_get_global(PwgDevice *self)
 {
-  g_return_val_if_fail(PWG_IS_NODE(self), NULL);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), NULL);
 
   return self->global;
 }
 
 bool
-pwg_node_get_running(PwgNode *self)
+pwg_device_get_running(PwgDevice *self)
 {
-  g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
 
   return self->running;
 }
 
 bool
-pwg_node_get_bound(PwgNode *self)
+pwg_device_get_bound(PwgDevice *self)
 {
-  g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
 
   return self->bound;
 }
 
 GListModel *
-pwg_node_get_param_infos(PwgNode *self)
+pwg_device_get_param_infos(PwgDevice *self)
 {
-  g_return_val_if_fail(PWG_IS_NODE(self), NULL);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), NULL);
 
   return G_LIST_MODEL(self->param_infos);
 }
 
 GListModel *
-pwg_node_get_params(PwgNode *self)
+pwg_device_get_params(PwgDevice *self)
 {
-  g_return_val_if_fail(PWG_IS_NODE(self), NULL);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), NULL);
 
   return G_LIST_MODEL(self->params);
 }
 
 bool
-pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error)
+pwg_device_subscribe_params(PwgDevice *self, GVariant *ids, GError **error)
 {
   struct pw_thread_loop *thread_loop;
   g_autofree uint32_t *param_ids = NULL;
   gsize n_ids;
   int result;
 
-  g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
   g_return_val_if_fail(ids != NULL, FALSE);
 
   if (!g_variant_is_of_type(ids, G_VARIANT_TYPE("au"))) {
@@ -708,8 +708,8 @@ pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error)
     return FALSE;
   }
 
-  if (self->node == NULL || !self->bound) {
-    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Node object is not bound");
+  if (self->device == NULL || !self->bound) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Device object is not bound");
     return FALSE;
   }
 
@@ -732,7 +732,7 @@ pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error)
   }
 
   pw_thread_loop_lock(thread_loop);
-  result = pw_node_subscribe_params(self->node, param_ids, (uint32_t) n_ids);
+  result = pw_device_subscribe_params(self->device, param_ids, (uint32_t) n_ids);
   pw_thread_loop_unlock(thread_loop);
 
   if (result < 0) {
@@ -740,7 +740,7 @@ pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error)
       error,
       PWG_ERROR,
       PWG_ERROR_PIPEWIRE,
-      "Could not subscribe to PipeWire node params: %s",
+      "Could not subscribe to PipeWire device params: %s",
       g_strerror(-result));
     return FALSE;
   }
@@ -749,20 +749,20 @@ pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error)
 }
 
 int
-pwg_node_enum_params(PwgNode *self,
-                     unsigned int id,
-                     unsigned int start,
-                     unsigned int num,
-                     GError **error)
+pwg_device_enum_params(PwgDevice *self,
+                       unsigned int id,
+                       unsigned int start,
+                       unsigned int num,
+                       GError **error)
 {
   struct pw_thread_loop *thread_loop;
   int seq;
   int result;
 
-  g_return_val_if_fail(PWG_IS_NODE(self), -1);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), -1);
 
-  if (self->node == NULL || !self->bound) {
-    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Node object is not bound");
+  if (self->device == NULL || !self->bound) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Device object is not bound");
     return -1;
   }
 
@@ -776,7 +776,7 @@ pwg_node_enum_params(PwgNode *self,
 
   seq = self->next_seq++;
   pw_thread_loop_lock(thread_loop);
-  result = pw_node_enum_params(self->node, seq, id, start, num == 0 ? UINT32_MAX : num, NULL);
+  result = pw_device_enum_params(self->device, seq, id, start, num == 0 ? UINT32_MAX : num, NULL);
   pw_thread_loop_unlock(thread_loop);
 
   if (result < 0) {
@@ -784,7 +784,7 @@ pwg_node_enum_params(PwgNode *self,
       error,
       PWG_ERROR,
       PWG_ERROR_PIPEWIRE,
-      "Could not enumerate PipeWire node params: %s",
+      "Could not enumerate PipeWire device params: %s",
       g_strerror(-result));
     return -1;
   }
@@ -793,23 +793,23 @@ pwg_node_enum_params(PwgNode *self,
 }
 
 int
-pwg_node_enum_all_params(PwgNode *self, GError **error)
+pwg_device_enum_all_params(PwgDevice *self, GError **error)
 {
-  return pwg_node_enum_params(self, PW_ID_ANY, 0, 0, error);
+  return pwg_device_enum_params(self, PW_ID_ANY, 0, 0, error);
 }
 
 bool
-pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error)
+pwg_device_set_param(PwgDevice *self, PwgParam *param, GError **error)
 {
   struct pw_thread_loop *thread_loop;
   const struct spa_pod *pod;
   int result;
 
-  g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
   g_return_val_if_fail(PWG_IS_PARAM(param), FALSE);
 
-  if (self->node == NULL || !self->bound) {
-    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Node object is not bound");
+  if (self->device == NULL || !self->bound) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Device object is not bound");
     return FALSE;
   }
 
@@ -826,7 +826,7 @@ pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error)
   }
 
   pw_thread_loop_lock(thread_loop);
-  result = pw_node_set_param(self->node, pwg_param_get_id(param), 0, pod);
+  result = pw_device_set_param(self->device, pwg_param_get_id(param), 0, pod);
   pw_thread_loop_unlock(thread_loop);
 
   if (result < 0) {
@@ -834,7 +834,7 @@ pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error)
       error,
       PWG_ERROR,
       PWG_ERROR_PIPEWIRE,
-      "Could not set PipeWire node param: %s",
+      "Could not set PipeWire device param: %s",
       g_strerror(-result));
     return FALSE;
   }

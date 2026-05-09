@@ -19,6 +19,10 @@ G_BEGIN_DECLS
  * Parameter objects own copied POD bytes and do not expose PipeWire or SPA
  * memory ownership to language bindings.
  *
+ * Constructors are intentionally limited to typed helpers for common app-facing
+ * updates. Applications can inspect copied raw bytes when needed, but arbitrary
+ * SPA POD construction is not exposed as a stable binding API.
+ *
  * Since: 0.1
  * Stability: Unstable
  */

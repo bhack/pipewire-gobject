@@ -5,7 +5,7 @@ gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
 Pwg.init()
-assert Pwg.get_library_version() == "0.3.4"
+assert Pwg.get_library_version() == "0.3.5"
 assert isinstance(Pwg.get_pipewire_library_version(), str)
 
 core = Pwg.Core.new()
@@ -20,6 +20,7 @@ except GLib.Error:
 else:
     raise AssertionError("empty PipeWire core property key was accepted")
 assert hasattr(Pwg, "ClientInfo")
+assert hasattr(Pwg, "Device")
 assert hasattr(Pwg, "DeviceInfo")
 assert hasattr(Pwg, "ImplModule")
 assert hasattr(Pwg, "LinkInfo")
@@ -28,6 +29,9 @@ assert hasattr(Pwg, "NodeInfo")
 assert hasattr(Pwg, "Param")
 assert hasattr(Pwg, "ParamInfo")
 assert hasattr(Pwg, "PortInfo")
+assert hasattr(Pwg, "RouteInfo")
+assert hasattr(Pwg.Device, "subscribe_params")
+assert hasattr(Pwg.Node, "subscribe_params")
 
 registry = Pwg.Registry.new(core)
 assert registry.get_core() == core
@@ -121,10 +125,4 @@ assert stream.get_deliver_audio_blocks() is False
 stream.set_deliver_audio_blocks(True)
 assert stream.get_deliver_audio_blocks() is True
 
-capture = Pwg.AudioCapture.new(None, True)
-assert capture.get_running() is False
-assert capture.get_monitor() is True
-assert capture.get_rate() == 0
-assert capture.get_channels() == 0
-assert capture.get_peak() == 0.0
 print("Pwg import ok")

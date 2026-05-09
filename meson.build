@@ -1,7 +1,7 @@
 project(
   'pipewire-gobject',
   'c',
-  version: '0.3.4',
+  version: '0.3.5',
   meson_version: '>=1.0',
   default_options: ['warning_level=2', 'werror=false'],
 )
@@ -29,10 +29,10 @@ pwg_inc = include_directories('src')
 pwg_sources = [
   'src/pwg.c',
   'src/pwg-audio-block.c',
-  'src/pwg-audio-capture.c',
   'src/pwg-audio-format.c',
   'src/pwg-client-info.c',
   'src/pwg-core.c',
+  'src/pwg-device.c',
   'src/pwg-device-info.c',
   'src/pwg-error.c',
   'src/pwg-global.c',
@@ -45,15 +45,16 @@ pwg_sources = [
   'src/pwg-param-info.c',
   'src/pwg-port-info.c',
   'src/pwg-registry.c',
+  'src/pwg-route-info.c',
   'src/pwg-stream.c',
 ]
 
 pwg_headers = [
   'src/pwg-audio-block.h',
-  'src/pwg-audio-capture.h',
   'src/pwg-audio-format.h',
   'src/pwg-client-info.h',
   'src/pwg-core.h',
+  'src/pwg-device.h',
   'src/pwg-device-info.h',
   'src/pwg-defs.h',
   'src/pwg-error.h',
@@ -68,6 +69,7 @@ pwg_headers = [
   'src/pwg-port-info.h',
   'src/pwg.h',
   'src/pwg-registry.h',
+  'src/pwg-route-info.h',
   'src/pwg-stream.h',
 ]
 

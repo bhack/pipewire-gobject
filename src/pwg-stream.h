@@ -15,8 +15,9 @@ G_BEGIN_DECLS
  *
  * App-owned PipeWire stream wrapper.
  *
- * The initial stream constructor supports audio capture and reports negotiated
- * format, reduced level data, and optional copied audio blocks to bindings.
+ * This is the primary API for app-owned audio streams. The current constructor
+ * supports capture streams and reports negotiated format, reduced level data,
+ * and optional copied audio blocks to bindings.
  *
  * Since: 0.1
  * Stability: Unstable

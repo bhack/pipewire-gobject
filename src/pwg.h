@@ -47,10 +47,10 @@ const char *pwg_get_pipewire_library_version(void);
 G_END_DECLS
 
 #include "pwg-audio-block.h"
-#include "pwg-audio-capture.h"
 #include "pwg-audio-format.h"
 #include "pwg-client-info.h"
 #include "pwg-core.h"
+#include "pwg-device.h"
 #include "pwg-device-info.h"
 #include "pwg-error.h"
 #include "pwg-global.h"
@@ -63,4 +63,5 @@ G_END_DECLS
 #include "pwg-param-info.h"
 #include "pwg-port-info.h"
 #include "pwg-registry.h"
+#include "pwg-route-info.h"
 #include "pwg-stream.h"

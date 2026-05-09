@@ -52,7 +52,6 @@ public API and ABI as unstable unless a future release policy says otherwise.
 - `src/pwg-audio-format.*`: immutable audio format descriptor.
 - `src/pwg-audio-block.*`: immutable copied audio sample block.
 - `src/pwg-stream.*`: high-level PipeWire stream wrapper.
-- `src/pwg-audio-capture.*`: compatibility audio capture wrapper.
 - `src/pwg-client-info.*`: immutable client-focused view of a registry global.
 - `src/pwg-defs.h`: public export macros for the C ABI.
 - `src/pwg-device-info.*`: immutable device-focused view of a registry global.

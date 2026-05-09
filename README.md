@@ -191,7 +191,7 @@ python3 tests/test_live_pipewire.py
 
 The script prints the wrapper/PipeWire versions and checks core lifecycle,
 registry discovery, metadata helpers, node inspection, stream start/stop, and
-the compatibility capture wrapper against a running PipeWire daemon.
+app-owned capture streams against a running PipeWire daemon.
 
 ## License
 

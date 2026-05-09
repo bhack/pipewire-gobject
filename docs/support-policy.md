@@ -46,7 +46,7 @@ used for core connection, app-owned implementation module load/unload, registry
 discovery, metadata binding/change delivery, default audio node-name helpers,
 registry lookup/filter helpers, typed client/device/node/port/link views for
 discovered globals, node parameter inspection, stream start/stop, and the
-compatibility capture wrapper.
+app-owned capture stream path.
 
 A deterministic stream dispatch test covers negotiated format updates, `level`
 signals, and copied `audio-block` signal delivery from known F32 sample data. A

@@ -143,33 +143,7 @@ assert stream_audio_format.find("gir:return-value/gir:type", GIR_NS).attrib["nam
 assert stream.find("gir:property[@name='deliver-audio-blocks']", GIR_NS) is not None
 assert stream.find("gir:property[@name='audio-format']", GIR_NS) is not None
 
-audio_capture = namespace.find("gir:class[@name='AudioCapture']", GIR_NS)
-assert audio_capture is not None
-assert audio_capture.attrib[f"{{{C_URI}}}type"] == "PwgAudioCapture"
-assert audio_capture.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_audio_capture_get_type"
-
-constructor = audio_capture.find("gir:constructor[@name='new']", GIR_NS)
-assert constructor is not None
-assert constructor.attrib["version"] == "0.1"
-assert constructor.attrib["stability"] == "Unstable"
-target_param = constructor.find("gir:parameters/gir:parameter[@name='target_object']", GIR_NS)
-assert target_param is not None
-assert target_param.attrib.get("nullable") == "1"
-
-start_method = audio_capture.find("gir:method[@name='start']", GIR_NS)
-assert start_method is not None
-assert start_method.attrib.get("throws") == "1"
-
-level_signal = audio_capture.find(
-    "glib:signal[@name='level']",
-    GIR_NS,
-)
-assert level_signal is not None
-assert level_signal.attrib["version"] == "0.1"
-assert level_signal.attrib["stability"] == "Unstable"
-peak_param = level_signal.find("gir:parameters/gir:parameter[@name='peak']", GIR_NS)
-assert peak_param is not None
-assert peak_param.find("gir:type", GIR_NS).attrib["name"] == "gdouble"
+assert namespace.find("gir:class[@name='AudioCapture']", GIR_NS) is None
 
 core = namespace.find("gir:class[@name='Core']", GIR_NS)
 assert core is not None
@@ -419,6 +393,12 @@ assert node_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
 node_start = node.find("gir:method[@name='start']", GIR_NS)
 assert node_start is not None
 assert node_start.attrib.get("throws") == "1"
+node_subscribe_params = node.find("gir:method[@name='subscribe_params']", GIR_NS)
+assert node_subscribe_params is not None
+assert node_subscribe_params.attrib.get("throws") == "1"
+node_subscribe_ids_arg = node_subscribe_params.find("gir:parameters/gir:parameter[@name='ids']", GIR_NS)
+assert node_subscribe_ids_arg is not None
+assert node_subscribe_ids_arg.find("gir:type", GIR_NS).attrib["name"] == "GLib.Variant"
 node_enum_params = node.find("gir:method[@name='enum_params']", GIR_NS)
 assert node_enum_params is not None
 assert node_enum_params.attrib.get("throws") == "1"
@@ -453,6 +433,64 @@ assert node_param_signal is not None
 node_param_signal_param = node_param_signal.find("gir:parameters/gir:parameter[@name='param']", GIR_NS)
 assert node_param_signal_param is not None
 assert node_param_signal_param.find("gir:type", GIR_NS).attrib["name"] == "Param"
+
+device = namespace.find("gir:class[@name='Device']", GIR_NS)
+assert device is not None
+assert device.attrib[f"{{{C_URI}}}type"] == "PwgDevice"
+assert device.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_device_get_type"
+device_constructor = device.find("gir:constructor[@name='new']", GIR_NS)
+assert device_constructor is not None
+assert device_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert device_constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+device_core_param = device_constructor.find("gir:parameters/gir:parameter[@name='core']", GIR_NS)
+assert device_core_param is not None
+assert device_core_param.find("gir:type", GIR_NS).attrib["name"] == "Core"
+device_global_param = device_constructor.find("gir:parameters/gir:parameter[@name='global']", GIR_NS)
+assert device_global_param is not None
+assert device_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
+device_start = device.find("gir:method[@name='start']", GIR_NS)
+assert device_start is not None
+assert device_start.attrib.get("throws") == "1"
+device_subscribe_params = device.find("gir:method[@name='subscribe_params']", GIR_NS)
+assert device_subscribe_params is not None
+assert device_subscribe_params.attrib.get("throws") == "1"
+device_subscribe_ids_arg = device_subscribe_params.find("gir:parameters/gir:parameter[@name='ids']", GIR_NS)
+assert device_subscribe_ids_arg is not None
+assert device_subscribe_ids_arg.find("gir:type", GIR_NS).attrib["name"] == "GLib.Variant"
+device_enum_params = device.find("gir:method[@name='enum_params']", GIR_NS)
+assert device_enum_params is not None
+assert device_enum_params.attrib.get("throws") == "1"
+device_enum_all_params = device.find("gir:method[@name='enum_all_params']", GIR_NS)
+assert device_enum_all_params is not None
+assert device_enum_all_params.attrib.get("throws") == "1"
+for method_name in (
+    "get_core",
+    "get_global",
+    "get_running",
+    "get_bound",
+    "get_param_infos",
+    "get_params",
+    "set_param",
+):
+    assert device.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+device_set_param = device.find("gir:method[@name='set_param']", GIR_NS)
+assert device_set_param is not None
+assert device_set_param.attrib.get("throws") == "1"
+device_set_param_arg = device_set_param.find("gir:parameters/gir:parameter[@name='param']", GIR_NS)
+assert device_set_param_arg is not None
+assert device_set_param_arg.find("gir:type", GIR_NS).attrib["name"] == "Param"
+for property_name in (
+    "running",
+    "bound",
+    "param-infos",
+    "params",
+):
+    assert device.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
+device_param_signal = device.find("glib:signal[@name='param']", GIR_NS)
+assert device_param_signal is not None
+device_param_signal_param = device_param_signal.find("gir:parameters/gir:parameter[@name='param']", GIR_NS)
+assert device_param_signal_param is not None
+assert device_param_signal_param.find("gir:type", GIR_NS).attrib["name"] == "Param"
 
 param = namespace.find("gir:class[@name='Param']", GIR_NS)
 assert param is not None
@@ -535,6 +573,56 @@ for property_name in (
     "summary",
 ):
     assert param.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
+
+route_info = namespace.find("gir:class[@name='RouteInfo']", GIR_NS)
+assert route_info is not None
+assert route_info.attrib[f"{{{C_URI}}}type"] == "PwgRouteInfo"
+assert route_info.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_route_info_get_type"
+route_info_constructor = route_info.find("gir:constructor[@name='new_from_param']", GIR_NS)
+assert route_info_constructor is not None
+assert route_info_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert route_info_constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+route_info_param = route_info_constructor.find("gir:parameters/gir:parameter[@name='param']", GIR_NS)
+assert route_info_param is not None
+assert route_info_param.find("gir:type", GIR_NS).attrib["name"] == "Param"
+for method_name in (
+    "get_index",
+    "get_device",
+    "get_profile",
+    "get_priority",
+    "get_direction_id",
+    "dup_direction",
+    "dup_name",
+    "dup_description",
+    "dup_availability",
+    "get_info",
+):
+    assert route_info.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+for method_name in (
+    "dup_direction",
+    "dup_name",
+    "dup_description",
+    "dup_availability",
+):
+    route_dup = route_info.find(f"gir:method[@name='{method_name}']", GIR_NS)
+    assert route_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+    assert route_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+route_info_variant = route_info.find("gir:method[@name='get_info']", GIR_NS)
+assert route_info_variant.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert route_info_variant.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "GLib.Variant"
+for property_name in (
+    "index",
+    "device",
+    "profile",
+    "priority",
+    "direction-id",
+    "direction",
+    "name",
+    "description",
+    "availability",
+    "info",
+):
+    assert route_info.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
 
 param_info = namespace.find("gir:class[@name='ParamInfo']", GIR_NS)
 assert param_info is not None
@@ -773,7 +861,6 @@ def iter_public_callables():
 
 
 allowed_nullable_transfer_none_returns = {
-    ("AudioCapture", "get_target_object"),
     ("ImplModule", "get_arguments"),
     ("Stream", "get_audio_format"),
     ("Stream", "get_target_object"),
