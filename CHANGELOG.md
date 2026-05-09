@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.4 - 2026-05-09
+
+- Publish legacy Python package license metadata alongside the existing MIT
+  project license so dependency review tools can classify the package license.
+
 ## 0.3.3 - 2026-05-08
 
 - Add bindable PipeWire property overrides for `Pwg.Core` and `Pwg.Stream` so
