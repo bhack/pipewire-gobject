@@ -515,6 +515,22 @@ pwg_registry_start(PwgRegistry *self, GError **error)
   return TRUE;
 }
 
+bool
+pwg_registry_sync(PwgRegistry *self, unsigned int timeout_msec, GError **error)
+{
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), false);
+
+  if (!self->running && !pwg_registry_start(self, error))
+    return false;
+
+  if (self->core == NULL) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Registry has no PipeWire core");
+    return false;
+  }
+
+  return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
+}
+
 void
 pwg_registry_stop(PwgRegistry *self)
 {

@@ -5,7 +5,7 @@ gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
 Pwg.init()
-assert Pwg.get_library_version() == "0.3.5"
+assert Pwg.get_library_version() == "0.3.6"
 assert isinstance(Pwg.get_pipewire_library_version(), str)
 
 core = Pwg.Core.new()
@@ -13,6 +13,7 @@ assert core.get_connected() is False
 assert isinstance(core.get_library_version(), str)
 assert core.set_pipewire_property("application.name", "Pwg Test") is True
 assert core.set_pipewire_property("application.name", None) is True
+assert hasattr(Pwg.Core, "sync")
 try:
     core.set_pipewire_property("", "bad")
 except GLib.Error:
@@ -31,12 +32,17 @@ assert hasattr(Pwg, "ParamInfo")
 assert hasattr(Pwg, "PortInfo")
 assert hasattr(Pwg, "RouteInfo")
 assert hasattr(Pwg.Device, "subscribe_params")
+assert hasattr(Pwg.Device, "sync")
+assert hasattr(Pwg.Device, "enum_params_sync")
 assert hasattr(Pwg.Node, "subscribe_params")
+assert hasattr(Pwg.Node, "sync")
+assert hasattr(Pwg.Node, "enum_params_sync")
 
 registry = Pwg.Registry.new(core)
 assert registry.get_core() == core
 assert registry.get_running() is False
 assert registry.get_globals().get_n_items() == 0
+assert hasattr(Pwg.Registry, "sync")
 assert registry.lookup_global(0) is None
 assert registry.lookup_global_by_property("node.name", "missing") is None
 assert registry.lookup_global_by_object_serial("1") is None
@@ -49,6 +55,7 @@ assert metadata.get_core() == core
 assert metadata.get_name() == "default"
 assert metadata.get_running() is False
 assert metadata.get_bound() is False
+assert hasattr(Pwg.Metadata, "sync")
 assert metadata.dup_value(0, "default.audio.sink") is None
 assert metadata.dup_value_type(0, "default.audio.sink") is None
 assert metadata.dup_default_audio_sink_name() is None

@@ -10,6 +10,8 @@ print("pipewire-version", Pwg.get_pipewire_library_version())
 core = Pwg.Core.new()
 print("version", core.get_library_version())
 print("core", core.connect())
+assert core.sync(2000) is True
+print("core-sync", True)
 
 module = core.load_module("libpipewire-module-profiler", None)
 assert module.get_core() == core
@@ -23,26 +25,7 @@ print("module-loaded-after-unload", module.get_loaded())
 
 registry = Pwg.Registry.new(core)
 print("registry-start", registry.start())
-
-loop = GLib.MainLoop()
-
-
-def maybe_done(*_args):
-    if registry.get_globals().get_n_items() > 0:
-        loop.quit()
-        return False
-    return True
-
-
-def timeout():
-    loop.quit()
-    return False
-
-
-registry.connect("global-added", maybe_done)
-GLib.timeout_add(50, maybe_done)
-GLib.timeout_add(2000, timeout)
-loop.run()
+print("registry-sync", registry.sync(2000))
 
 globals_model = registry.get_globals()
 count = globals_model.get_n_items()
@@ -67,20 +50,7 @@ print("registry-first", first.get_id(), first.get_interface_type())
 
 node_probe_stream = Pwg.Stream.new_audio_capture(None, True)
 assert node_probe_stream.start()
-node_loop = GLib.MainLoop()
-
-
-def node_maybe_done(*_args):
-    if registry.dup_globals_by_interface("PipeWire:Interface:Node").get_n_items() > 0:
-        node_loop.quit()
-        return False
-    return True
-
-
-registry.connect("global-added", node_maybe_done)
-GLib.timeout_add(50, node_maybe_done)
-GLib.timeout_add(2000, node_loop.quit)
-node_loop.run()
+print("registry-sync-after-stream", registry.sync(2000))
 node_globals = registry.dup_globals_by_interface("PipeWire:Interface:Node")
 node_count = node_globals.get_n_items()
 print("registry-node-count", node_count)
@@ -105,21 +75,7 @@ assert node.get_params().get_n_items() == 0
 print("node-start", node.start())
 assert node.get_running() is True
 assert node.get_bound() is True
-
-node_info_loop = GLib.MainLoop()
-
-
-def node_info_maybe_done(*_args):
-    if node.get_param_infos().get_n_items() > 0:
-        node_info_loop.quit()
-        return False
-    return True
-
-
-node.get_param_infos().connect("items-changed", node_info_maybe_done)
-GLib.timeout_add(50, node_info_maybe_done)
-GLib.timeout_add(500, node_info_loop.quit)
-node_info_loop.run()
+print("node-sync", node.sync(2000))
 node_param_info_count = node.get_param_infos().get_n_items()
 print("node-param-info-count", node_param_info_count)
 for index in range(min(node_param_info_count, 3)):
@@ -131,15 +87,6 @@ for index in range(min(node_param_info_count, 3)):
         param_info.get_readable(),
         param_info.get_writable(),
     )
-
-node_param_loop = GLib.MainLoop()
-
-
-def node_param_maybe_done(*_args):
-    if node.get_params().get_n_items() > 0:
-        node_param_loop.quit()
-        return False
-    return True
 
 
 def on_node_param(_node, param):
@@ -162,21 +109,20 @@ def on_node_param(_node, param):
             audio_format.get_rate(),
             audio_format.get_channels(),
         )
-    node_param_loop.quit()
 
 
 node.connect("param", on_node_param)
-try:
-    node_param_seq = node.enum_all_params()
-except GLib.GError as exc:
-    print("node-enum-all-params-error", exc.message)
-else:
-    print("node-enum-all-params", node_param_seq)
-    node.get_params().connect("items-changed", node_param_maybe_done)
-    GLib.timeout_add(50, node_param_maybe_done)
-    GLib.timeout_add(500, node_param_loop.quit)
-    node_param_loop.run()
-    print("node-param-count", node.get_params().get_n_items())
+for index in range(node_param_info_count):
+    param_info = node.get_param_infos().get_item(index)
+    if not param_info.get_readable():
+        continue
+    try:
+        node_params = node.enum_params_sync(param_info.get_id(), 0, 0, 2000)
+    except GLib.GError as exc:
+        print("node-enum-params-sync-error", exc.message)
+    else:
+        print("node-enum-params-sync", param_info.get_id(), node_params.get_n_items())
+    break
 node.stop()
 print("node-running-after-stop", node.get_running())
 
@@ -209,6 +155,27 @@ for index in range(device_count):
         device_info.dup_description() or "",
         device_info.dup_api() or "",
     )
+
+if device_count > 0:
+    device = Pwg.Device.new(core, device_globals.get_item(0))
+    assert device is not None
+    print("device-start", device.start())
+    print("device-sync", device.sync(2000))
+    device_param_info_count = device.get_param_infos().get_n_items()
+    print("device-param-info-count", device_param_info_count)
+    for index in range(device_param_info_count):
+        param_info = device.get_param_infos().get_item(index)
+        if not param_info.get_readable():
+            continue
+        try:
+            device_params = device.enum_params_sync(param_info.get_id(), 0, 0, 2000)
+        except GLib.GError as exc:
+            print("device-enum-params-sync-error", exc.message)
+        else:
+            print("device-enum-params-sync", param_info.get_id(), device_params.get_n_items())
+        break
+    device.stop()
+    print("device-running-after-stop", device.get_running())
 
 port_globals = registry.dup_globals_by_interface("PipeWire:Interface:Port")
 port_count = port_globals.get_n_items()
@@ -251,56 +218,26 @@ metadata = Pwg.Metadata.new(core, "settings")
 assert metadata.get_name() == "settings"
 print("metadata-start", metadata.start())
 print("metadata-running", metadata.get_running())
-
-metadata_loop = GLib.MainLoop()
-
-
-def metadata_maybe_done(*_args):
-    if metadata.get_bound():
-        metadata_loop.quit()
-        return False
-    return True
-
-
-metadata.connect("notify::bound", metadata_maybe_done)
-GLib.timeout_add(50, metadata_maybe_done)
-GLib.timeout_add(2000, metadata_loop.quit)
-metadata_loop.run()
-
+print("metadata-sync", metadata.sync(2000))
 print("metadata-bound", metadata.get_bound())
 assert metadata.get_bound()
-
-changed_loop = GLib.MainLoop()
 
 
 def on_metadata_changed(_metadata, subject, key, value_type, value):
     print("metadata-changed", subject, key, value_type, value)
-    if subject == 0 and key == "pwg.test":
-        changed_loop.quit()
 
 
 metadata.connect("changed", on_metadata_changed)
 print("metadata-set", metadata.set(0, "pwg.test", "Spa:String", "test-value"))
-GLib.timeout_add(2000, changed_loop.quit)
-changed_loop.run()
+print("metadata-sync-after-set", metadata.sync(2000))
 assert metadata.dup_value(0, "pwg.test") == "test-value"
 assert metadata.dup_value_type(0, "pwg.test") == "Spa:String"
 
-default_node_loop = GLib.MainLoop()
-
-
-def on_default_node_changed(_metadata, subject, key, _value_type, _value):
-    if subject == 0 and key == "default.audio.sink":
-        default_node_loop.quit()
-
-
-metadata.connect("changed", on_default_node_changed)
 print(
     "metadata-set-default-audio-sink",
     metadata.set(0, "default.audio.sink", "Spa:String:JSON", '{"name":"pwg-test-sink"}'),
 )
-GLib.timeout_add(2000, default_node_loop.quit)
-default_node_loop.run()
+print("metadata-sync-after-default-set", metadata.sync(2000))
 assert metadata.dup_default_audio_sink_name() == "pwg-test-sink"
 assert metadata.dup_default_audio_source_name() is None
 assert metadata.dup_configured_audio_sink_name() is None

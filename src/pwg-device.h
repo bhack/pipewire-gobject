@@ -67,6 +67,24 @@ PWG_API
 bool pwg_device_start(PwgDevice *self, GError **error);
 
 /**
+ * pwg_device_sync:
+ * @self: a device wrapper.
+ * @timeout_msec: timeout in milliseconds, or 0 to wait indefinitely.
+ * @error: return location for a #GError.
+ *
+ * Starts the device proxy if needed, performs a PipeWire core roundtrip, and
+ * dispatches device info and parameter updates queued before the matching
+ * roundtrip completion on this object's main context.
+ *
+ * Returns: %TRUE when the device proxy is synchronized.
+ *
+ * Since: 0.3.6
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_device_sync(PwgDevice *self, unsigned int timeout_msec, GError **error);
+
+/**
  * pwg_device_stop:
  * @self: a device wrapper.
  *
@@ -198,7 +216,8 @@ bool pwg_device_subscribe_params(PwgDevice *self, GVariant *ids, GError **error)
  * appended to [method@Pwg.Device.get_params] and emitted through the
  * [signal@Pwg.Device::param] signal.
  *
- * Returns: the PipeWire request sequence number, or -1 on failure.
+ * Returns: the PipeWire reply sequence number used by emitted params, or -1 on
+ *   failure.
  *
  * Since: 0.1
  * Stability: Unstable
@@ -211,13 +230,39 @@ int pwg_device_enum_params(PwgDevice *self,
                            GError **error);
 
 /**
+ * pwg_device_enum_params_sync:
+ * @self: a device wrapper.
+ * @id: the SPA parameter id to enumerate.
+ * @start: the starting enumeration index.
+ * @num: maximum number of params to request, or 0 for all.
+ * @timeout_msec: timeout in milliseconds, or 0 to wait indefinitely.
+ * @error: return location for a #GError.
+ *
+ * Requests read-only enumeration of device parameters and returns a snapshot
+ * containing only the copied [class@Pwg.Param] values for this request.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgParam objects.
+ *
+ * Since: 0.3.6
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_device_enum_params_sync(PwgDevice *self,
+                                        unsigned int id,
+                                        unsigned int start,
+                                        unsigned int num,
+                                        unsigned int timeout_msec,
+                                        GError **error);
+
+/**
  * pwg_device_enum_all_params:
  * @self: a device wrapper.
  * @error: return location for a #GError.
  *
  * Requests read-only enumeration of all available device parameter ids.
  *
- * Returns: the PipeWire request sequence number, or -1 on failure.
+ * Returns: the PipeWire reply sequence number used by emitted params, or -1 on
+ *   failure.
  *
  * Since: 0.1
  * Stability: Unstable

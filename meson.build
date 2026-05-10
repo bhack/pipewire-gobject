@@ -1,7 +1,7 @@
 project(
   'pipewire-gobject',
   'c',
-  version: '0.3.5',
+  version: '0.3.6',
   meson_version: '>=1.0',
   default_options: ['warning_level=2', 'werror=false'],
 )
@@ -144,7 +144,13 @@ endif
 
 gi_docgen = find_program('gi-docgen', required: false)
 if gi_docgen.found()
-  docs_config = files('docs/pwg.toml')
+  docs_config_data = configuration_data()
+  docs_config_data.set('PROJECT_VERSION', meson.project_version())
+  docs_config = configure_file(
+    input: 'docs/pwg.toml.in',
+    output: 'pwg.toml',
+    configuration: docs_config_data,
+  )
   docs_content = files(
     'docs/api/getting-started.md',
     'docs/api/main-loop-and-registry.md',

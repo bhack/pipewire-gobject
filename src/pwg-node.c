@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <pipewire/node.h>
 #include <pipewire/pipewire.h>
+#include <spa/utils/result.h>
 
 #include "pwg-core-private.h"
 #include "pwg-error.h"
@@ -619,6 +620,22 @@ pwg_node_start(PwgNode *self, GError **error)
   return TRUE;
 }
 
+bool
+pwg_node_sync(PwgNode *self, unsigned int timeout_msec, GError **error)
+{
+  g_return_val_if_fail(PWG_IS_NODE(self), false);
+
+  if (!self->running && !pwg_node_start(self, error))
+    return false;
+
+  if (self->core == NULL) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Node has no PipeWire core");
+    return false;
+  }
+
+  return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
+}
+
 void
 pwg_node_stop(PwgNode *self)
 {
@@ -789,7 +806,50 @@ pwg_node_enum_params(PwgNode *self,
     return -1;
   }
 
-  return seq;
+  return SPA_RESULT_IS_ASYNC(result) ? result : seq;
+}
+
+static GListModel *
+pwg_node_dup_params_for_seq(PwgNode *self, int seq)
+{
+  g_autoptr(GListStore) params = NULL;
+  unsigned int n_items;
+
+  params = g_list_store_new(PWG_TYPE_PARAM);
+  n_items = g_list_model_get_n_items(G_LIST_MODEL(self->params));
+  for (unsigned int i = 0; i < n_items; i++) {
+    g_autoptr(PwgParam) param = g_list_model_get_item(G_LIST_MODEL(self->params), i);
+
+    if (pwg_param_get_seq(param) == seq)
+      g_list_store_append(params, param);
+  }
+
+  return G_LIST_MODEL(g_steal_pointer(&params));
+}
+
+GListModel *
+pwg_node_enum_params_sync(PwgNode *self,
+                          unsigned int id,
+                          unsigned int start,
+                          unsigned int num,
+                          unsigned int timeout_msec,
+                          GError **error)
+{
+  int seq;
+
+  g_return_val_if_fail(PWG_IS_NODE(self), NULL);
+
+  if (!self->running && !pwg_node_start(self, error))
+    return NULL;
+
+  seq = pwg_node_enum_params(self, id, start, num, error);
+  if (seq < 0)
+    return NULL;
+
+  if (!pwg_node_sync(self, timeout_msec, error))
+    return NULL;
+
+  return pwg_node_dup_params_for_seq(self, seq);
 }
 
 int

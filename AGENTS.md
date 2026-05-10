@@ -45,7 +45,7 @@ public API and ABI as unstable unless a future release policy says otherwise.
   GitHub prerelease publisher.
 - `.github/dependabot.yml`: weekly GitHub Actions dependency updates.
 - `Dockerfile`: canonical Debian trixie development and validation image.
-- `docs/pwg.toml` and `docs/api/`: gi-docgen configuration and additional
+- `docs/pwg.toml.in` and `docs/api/`: gi-docgen configuration and additional
   generated API reference content.
 - `ruff.toml`: Python lint configuration for tests and examples.
 - `src/pwg-core.*`: minimal PipeWire core/context wrapper.

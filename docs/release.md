@@ -2,11 +2,17 @@
 
 This checklist is for experimental public `0.x` releases.
 
-1. Verify the version in `meson.build` and `CHANGELOG.md`.
+1. Verify release metadata consistency.
    Curate `CHANGELOG.md` when preparing a release. It should read like release
    notes, not a commit log: summarize user-visible changes, public API/ABI
    changes, compatibility notes, and release-significant build or documentation
-   changes. Ordinary cleanup PRs do not need changelog entries.
+   changes. Ordinary cleanup PRs do not need changelog entries. The generated
+   gi-docgen config takes its version from Meson's project version; do not add a
+   second literal version there.
+
+   ```bash
+   python3 tools/check_release_metadata.py --expected-version X.Y.Z
+   ```
 2. Run the local test suite:
 
    ```bash

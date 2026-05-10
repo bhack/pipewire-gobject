@@ -4,11 +4,13 @@ SPDX-FileCopyrightText: 2026 pipewire-gobject contributors
 
 # Main Loop And Registry Discovery
 
-PipeWire registry updates are delivered through a GLib main context. A program
-that starts [class@Pwg.Registry] should run a [struct@GLib.MainLoop] or otherwise
-iterate the thread-default main context. Live wrappers such as [class@Pwg.Node],
-[class@Pwg.Device], [class@Pwg.Metadata], and [class@Pwg.Stream] deliver their
-signals through the same context.
+PipeWire registry updates are delivered through a GLib main context. A live
+application that starts [class@Pwg.Registry] should run a [struct@GLib.MainLoop]
+or otherwise iterate the thread-default main context. For command-style setup
+or tests, wrapper-level `sync()` methods perform a PipeWire roundtrip and
+dispatch queued updates on the wrapper's main context. Live wrappers such as
+[class@Pwg.Node], [class@Pwg.Device], [class@Pwg.Metadata], and
+[class@Pwg.Stream] deliver their signals through the same context.
 
 ```python
 import gi
@@ -22,6 +24,7 @@ Pwg.init()
 core = Pwg.Core.new()
 registry = Pwg.Registry.new(core)
 registry.start()
+registry.sync(2000)
 
 loop = GLib.MainLoop()
 
@@ -103,6 +106,7 @@ arrive:
 node = Pwg.Node.new(core, nodes.get_item(0))
 if node is not None:
     node.start()
+    node.sync(2000)
 
     for index in range(node.get_param_infos().get_n_items()):
         param_info = node.get_param_infos().get_item(index)
@@ -124,8 +128,13 @@ if node is not None:
                 audio_format.get_channels(),
             )
 
-    node.connect("param", on_param)
-    node.enum_all_params()
+    for index in range(node.get_param_infos().get_n_items()):
+        param_info = node.get_param_infos().get_item(index)
+        if param_info.get_readable():
+            params = node.enum_params_sync(param_info.get_id(), 0, 0, 2000)
+            for param_index in range(params.get_n_items()):
+                on_param(node, params.get_item(param_index))
+            break
 ```
 
 To observe later node parameter changes, subscribe to the parameter ids that the
@@ -168,6 +177,7 @@ application code:
 device_proxy = Pwg.Device.new(core, devices.get_item(0))
 if device_proxy is not None:
     device_proxy.start()
+    device_proxy.sync(2000)
 
     route_ids = []
     for index in range(device_proxy.get_param_infos().get_n_items()):
@@ -186,9 +196,12 @@ if device_proxy is not None:
                 route.dup_availability() or "",
             )
 
-    device_proxy.connect("param", on_device_param)
     for route_id in route_ids:
-        device_proxy.enum_params(route_id, 0, 0)
+        routes = device_proxy.enum_params_sync(route_id, 0, 0, 2000)
+        for index in range(routes.get_n_items()):
+            on_device_param(device_proxy, routes.get_item(index))
+
+    device_proxy.connect("param", on_device_param)
     device_proxy.subscribe_params(GLib.Variant("au", route_ids))
 ```
 

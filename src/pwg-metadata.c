@@ -159,33 +159,47 @@ pwg_metadata_dup_name_from_json(const char *value)
     return NULL;
 
   while ((json_value_length = spa_json_next(&object, &json_value)) > 0) {
-    g_autofree char *key = NULL;
-    g_autofree char *name = NULL;
+    char *key = NULL;
+    char *name = NULL;
 
-    key = g_malloc((gsize) json_value_length + 1);
+    key = g_malloc((size_t) json_value_length + 1);
     if (spa_json_parse_stringn(
           json_value,
           json_value_length,
           key,
-          json_value_length + 1) <= 0)
+          json_value_length + 1) <= 0) {
+      g_free(key);
       return NULL;
+    }
 
     json_value_length = spa_json_next(&object, &json_value);
-    if (json_value_length <= 0)
+    if (json_value_length <= 0) {
+      g_free(key);
       return NULL;
+    }
 
-    if (g_strcmp0(key, "name") != 0)
+    if (g_strcmp0(key, "name") != 0) {
+      g_free(key);
       continue;
+    }
+    g_free(key);
 
-    name = g_malloc((gsize) json_value_length + 1);
+    name = g_malloc((size_t) json_value_length + 1);
     if (spa_json_parse_stringn(
           json_value,
           json_value_length,
           name,
-          json_value_length + 1) <= 0)
+          json_value_length + 1) <= 0) {
+      g_free(name);
       return NULL;
+    }
 
-    return name[0] != '\0' ? g_steal_pointer(&name) : NULL;
+    if (name[0] == '\0') {
+      g_free(name);
+      return NULL;
+    }
+
+    return name;
   }
 
   return NULL;
@@ -760,6 +774,31 @@ pwg_metadata_start(PwgMetadata *self, GError **error)
 
   g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_RUNNING]);
   return TRUE;
+}
+
+bool
+pwg_metadata_sync(PwgMetadata *self, unsigned int timeout_msec, GError **error)
+{
+  bool was_bound;
+
+  g_return_val_if_fail(PWG_IS_METADATA(self), false);
+
+  if (!self->running && !pwg_metadata_start(self, error))
+    return false;
+
+  if (self->core == NULL) {
+    g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Metadata has no PipeWire core");
+    return false;
+  }
+
+  was_bound = self->bound;
+  if (!pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error))
+    return false;
+
+  if (!was_bound && self->bound)
+    return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
+
+  return true;
 }
 
 void
