@@ -63,6 +63,24 @@ PWG_API
 bool pwg_node_start(PwgNode *self, GError **error);
 
 /**
+ * pwg_node_sync:
+ * @self: a node wrapper.
+ * @timeout_msec: timeout in milliseconds, or 0 to wait indefinitely.
+ * @error: return location for a #GError.
+ *
+ * Starts the node proxy if needed, performs a PipeWire core roundtrip, and
+ * dispatches node info and parameter updates queued before the matching
+ * roundtrip completion on this object's main context.
+ *
+ * Returns: %TRUE when the node proxy is synchronized.
+ *
+ * Since: 0.3.6
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_node_sync(PwgNode *self, unsigned int timeout_msec, GError **error);
+
+/**
  * pwg_node_stop:
  * @self: a node wrapper.
  *
@@ -194,7 +212,8 @@ bool pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error);
  * appended to [method@Pwg.Node.get_params] and emitted through the
  * [signal@Pwg.Node::param] signal.
  *
- * Returns: the PipeWire request sequence number, or -1 on failure.
+ * Returns: the PipeWire reply sequence number used by emitted params, or -1 on
+ *   failure.
  *
  * Since: 0.1
  * Stability: Unstable
@@ -207,13 +226,39 @@ int pwg_node_enum_params(PwgNode *self,
                          GError **error);
 
 /**
+ * pwg_node_enum_params_sync:
+ * @self: a node wrapper.
+ * @id: the SPA parameter id to enumerate.
+ * @start: the starting enumeration index.
+ * @num: maximum number of params to request, or 0 for all.
+ * @timeout_msec: timeout in milliseconds, or 0 to wait indefinitely.
+ * @error: return location for a #GError.
+ *
+ * Requests read-only enumeration of node parameters and returns a snapshot
+ * containing only the copied [class@Pwg.Param] values for this request.
+ *
+ * Returns: (transfer full): a #GListModel of #PwgParam objects.
+ *
+ * Since: 0.3.6
+ * Stability: Unstable
+ */
+PWG_API
+GListModel *pwg_node_enum_params_sync(PwgNode *self,
+                                      unsigned int id,
+                                      unsigned int start,
+                                      unsigned int num,
+                                      unsigned int timeout_msec,
+                                      GError **error);
+
+/**
  * pwg_node_enum_all_params:
  * @self: a node wrapper.
  * @error: return location for a #GError.
  *
  * Requests read-only enumeration of all available node parameter ids.
  *
- * Returns: the PipeWire request sequence number, or -1 on failure.
+ * Returns: the PipeWire reply sequence number used by emitted params, or -1 on
+ *   failure.
  *
  * Since: 0.1
  * Stability: Unstable

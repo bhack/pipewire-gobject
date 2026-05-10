@@ -121,6 +121,9 @@ jobs:
           ref: ${{ steps.release.outputs.tag_name }}
           fetch-depth: 0
 
+      - name: Check release metadata
+        run: python3 tools/check_release_metadata.py --expected-version "${{ steps.release.outputs.version }}"
+
       - name: Build and test release archive
         id: dist
         shell: bash

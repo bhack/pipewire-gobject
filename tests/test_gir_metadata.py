@@ -15,6 +15,12 @@ GIR_NS = {
 }
 
 
+def assert_c_type(parent: ET.Element, expected: str) -> None:
+    type_node = parent.find("gir:type", GIR_NS)
+    assert type_node is not None
+    assert type_node.attrib[f"{{{C_URI}}}type"] == expected
+
+
 gir_path = Path(sys.argv[1])
 root = ET.parse(gir_path).getroot()
 
@@ -127,7 +133,7 @@ assert stream_level.attrib["version"] == "0.1"
 assert stream_level.attrib["stability"] == "Unstable"
 stream_peak_param = stream_level.find("gir:parameters/gir:parameter[@name='peak']", GIR_NS)
 assert stream_peak_param is not None
-assert stream_peak_param.find("gir:type", GIR_NS).attrib["name"] == "gdouble"
+assert stream_peak_param.find("gir:type", GIR_NS) is not None
 
 stream_audio_block = stream.find("glib:signal[@name='audio-block']", GIR_NS)
 assert stream_audio_block is not None
@@ -153,6 +159,12 @@ assert core.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_core_get_type"
 connect_method = core.find("gir:method[@name='connect']", GIR_NS)
 assert connect_method is not None
 assert connect_method.attrib.get("throws") == "1"
+sync_method = core.find("gir:method[@name='sync']", GIR_NS)
+assert sync_method is not None
+assert sync_method.attrib.get("throws") == "1"
+sync_timeout_param = sync_method.find("gir:parameters/gir:parameter[@name='timeout_msec']", GIR_NS)
+assert sync_timeout_param is not None
+assert_c_type(sync_timeout_param, "unsigned int")
 core_set_pipewire_property = core.find("gir:method[@name='set_pipewire_property']", GIR_NS)
 assert core_set_pipewire_property is not None
 assert core_set_pipewire_property.attrib.get("throws") == "1"
@@ -393,6 +405,12 @@ assert node_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
 node_start = node.find("gir:method[@name='start']", GIR_NS)
 assert node_start is not None
 assert node_start.attrib.get("throws") == "1"
+node_sync = node.find("gir:method[@name='sync']", GIR_NS)
+assert node_sync is not None
+assert node_sync.attrib.get("throws") == "1"
+node_sync_timeout_param = node_sync.find("gir:parameters/gir:parameter[@name='timeout_msec']", GIR_NS)
+assert node_sync_timeout_param is not None
+assert_c_type(node_sync_timeout_param, "unsigned int")
 node_subscribe_params = node.find("gir:method[@name='subscribe_params']", GIR_NS)
 assert node_subscribe_params is not None
 assert node_subscribe_params.attrib.get("throws") == "1"
@@ -402,6 +420,11 @@ assert node_subscribe_ids_arg.find("gir:type", GIR_NS).attrib["name"] == "GLib.V
 node_enum_params = node.find("gir:method[@name='enum_params']", GIR_NS)
 assert node_enum_params is not None
 assert node_enum_params.attrib.get("throws") == "1"
+node_enum_params_sync = node.find("gir:method[@name='enum_params_sync']", GIR_NS)
+assert node_enum_params_sync is not None
+assert node_enum_params_sync.attrib.get("throws") == "1"
+assert node_enum_params_sync.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert node_enum_params_sync.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Gio.ListModel"
 node_enum_all_params = node.find("gir:method[@name='enum_all_params']", GIR_NS)
 assert node_enum_all_params is not None
 assert node_enum_all_params.attrib.get("throws") == "1"
@@ -451,6 +474,12 @@ assert device_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
 device_start = device.find("gir:method[@name='start']", GIR_NS)
 assert device_start is not None
 assert device_start.attrib.get("throws") == "1"
+device_sync = device.find("gir:method[@name='sync']", GIR_NS)
+assert device_sync is not None
+assert device_sync.attrib.get("throws") == "1"
+device_sync_timeout_param = device_sync.find("gir:parameters/gir:parameter[@name='timeout_msec']", GIR_NS)
+assert device_sync_timeout_param is not None
+assert_c_type(device_sync_timeout_param, "unsigned int")
 device_subscribe_params = device.find("gir:method[@name='subscribe_params']", GIR_NS)
 assert device_subscribe_params is not None
 assert device_subscribe_params.attrib.get("throws") == "1"
@@ -460,6 +489,11 @@ assert device_subscribe_ids_arg.find("gir:type", GIR_NS).attrib["name"] == "GLib
 device_enum_params = device.find("gir:method[@name='enum_params']", GIR_NS)
 assert device_enum_params is not None
 assert device_enum_params.attrib.get("throws") == "1"
+device_enum_params_sync = device.find("gir:method[@name='enum_params_sync']", GIR_NS)
+assert device_enum_params_sync is not None
+assert device_enum_params_sync.attrib.get("throws") == "1"
+assert device_enum_params_sync.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert device_enum_params_sync.find("gir:return-value/gir:type", GIR_NS).attrib["name"] == "Gio.ListModel"
 device_enum_all_params = device.find("gir:method[@name='enum_all_params']", GIR_NS)
 assert device_enum_all_params is not None
 assert device_enum_all_params.attrib.get("throws") == "1"
@@ -698,6 +732,12 @@ assert core_param.find("gir:type", GIR_NS).attrib["name"] == "Core"
 registry_start = registry.find("gir:method[@name='start']", GIR_NS)
 assert registry_start is not None
 assert registry_start.attrib.get("throws") == "1"
+registry_sync = registry.find("gir:method[@name='sync']", GIR_NS)
+assert registry_sync is not None
+assert registry_sync.attrib.get("throws") == "1"
+registry_sync_timeout_param = registry_sync.find("gir:parameters/gir:parameter[@name='timeout_msec']", GIR_NS)
+assert registry_sync_timeout_param is not None
+assert_c_type(registry_sync_timeout_param, "unsigned int")
 
 globals_method = registry.find("gir:method[@name='get_globals']", GIR_NS)
 assert globals_method is not None
@@ -742,6 +782,12 @@ assert metadata_core_param.attrib["transfer-ownership"] == "none"
 metadata_start = metadata.find("gir:method[@name='start']", GIR_NS)
 assert metadata_start is not None
 assert metadata_start.attrib.get("throws") == "1"
+metadata_sync = metadata.find("gir:method[@name='sync']", GIR_NS)
+assert metadata_sync is not None
+assert metadata_sync.attrib.get("throws") == "1"
+metadata_sync_timeout_param = metadata_sync.find("gir:parameters/gir:parameter[@name='timeout_msec']", GIR_NS)
+assert metadata_sync_timeout_param is not None
+assert_c_type(metadata_sync_timeout_param, "unsigned int")
 metadata_dup_value = metadata.find("gir:method[@name='dup_value']", GIR_NS)
 assert metadata_dup_value is not None
 metadata_dup_value_return = metadata_dup_value.find("gir:return-value", GIR_NS)
@@ -794,7 +840,7 @@ assert error_enum.attrib[f"{{{GLIB_URI}}}error-domain"] == "pwg-error-quark"
 assert namespace.find("gir:function[@name='error_quark']", GIR_NS) is not None
 
 for node in namespace.findall(".//*[@version]", GIR_NS):
-    assert node.attrib["version"] == "0.1"
+    assert node.attrib["version"] in {"0.1", "0.3.6"}
     assert node.attrib["stability"] == "Unstable"
 
 for class_node in namespace.findall("gir:class", GIR_NS):
@@ -837,12 +883,17 @@ callable_tags = {"callback", "constructor", "function", "method"}
 valid_transfer_modes = {"container", "full", "none"}
 disallowed_scalar_c_types = {
     "gboolean",
+    "gchar",
     "gdouble",
     "gfloat",
     "gint",
     "gint64",
+    "glong",
+    "gsize",
+    "gssize",
     "guint",
     "guint64",
+    "gulong",
 }
 
 

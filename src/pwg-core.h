@@ -100,6 +100,26 @@ PWG_API
 bool pwg_core_get_connected(PwgCore *self);
 
 /**
+ * pwg_core_sync:
+ * @self: a core wrapper.
+ * @timeout_msec: timeout in milliseconds, or 0 to wait indefinitely.
+ * @error: return location for a #GError.
+ *
+ * Performs a PipeWire core roundtrip.
+ *
+ * When this returns successfully, the PipeWire server has processed all
+ * operations sent on this core before the sync request and emitted the matching
+ * Core::Done event.
+ *
+ * Returns: %TRUE when the roundtrip completed.
+ *
+ * Since: 0.1
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_core_sync(PwgCore *self, unsigned int timeout_msec, GError **error);
+
+/**
  * pwg_core_get_library_version:
  * @self: a core wrapper.
  *

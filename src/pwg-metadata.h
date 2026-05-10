@@ -55,6 +55,26 @@ PWG_API
 bool pwg_metadata_start(PwgMetadata *self, GError **error);
 
 /**
+ * pwg_metadata_sync:
+ * @self: a metadata wrapper.
+ * @timeout_msec: timeout in milliseconds, or 0 to wait indefinitely.
+ * @error: return location for a #GError.
+ *
+ * Starts metadata discovery if needed, performs the PipeWire roundtrips needed
+ * to make the discovered metadata object and its queued values visible on this
+ * object's main context.
+ *
+ * Returns: %TRUE when metadata discovery is synchronized. Use
+ *   [method@Pwg.Metadata.get_bound] to check whether the named metadata object
+ *   exists.
+ *
+ * Since: 0.3.6
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_metadata_sync(PwgMetadata *self, unsigned int timeout_msec, GError **error);
+
+/**
  * pwg_metadata_stop:
  * @self: a metadata wrapper.
  *

@@ -28,6 +28,7 @@ core.connect()
 
 registry = Pwg.Registry.new(core)
 registry.start()
+registry.sync(2000)
 ```
 
 The API is experimental while the project is in `0.x`. Prefer using small

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.6 - 2026-05-11
+
+- Add `Pwg.Core.sync()` plus object-level `sync()` helpers for registry,
+  metadata, node, and device wrappers so GI applications can wait for
+  app-visible state without ad hoc timing or retry loops.
+- Add synchronous node/device parameter enumeration helpers that return a
+  request-scoped `GListModel` snapshot.
+- Add clang-tidy-based C static analysis to CI and document the repository's
+  local GLib/GObject C style.
+- Generate the gi-docgen config version from Meson and add release metadata
+  consistency checks so release-facing versions cannot drift silently.
+
 ## 0.3.5 - 2026-05-09
 
 - Add `Pwg.Device` for live device parameter inspection and limited copied

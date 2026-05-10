@@ -68,7 +68,7 @@ jobs:
 
             while IFS= read -r path; do
               case "$path" in
-                src/*|tests/*|examples/*|python/*|meson.build|meson_options.txt|pyproject.toml|Dockerfile|.dockerignore|ruff.toml|.github/workflows/ci.yml)
+                src/*|tests/*|examples/*|python/*|tools/*|meson.build|meson_options.txt|pyproject.toml|Dockerfile|.dockerignore|.clang-tidy|.editorconfig|ruff.toml|.github/workflows/ci.yml)
                   run_build=true
                   run_docs=true
                   ;;
@@ -99,6 +99,9 @@ jobs:
 
       - name: Ruff
         run: /tmp/ruff/bin/ruff check .
+
+      - name: Release metadata consistency
+        run: python3 tools/check_release_metadata.py
 
   api-docs:
     name: API docs
@@ -164,6 +167,7 @@ jobs:
           apt-get install -y --no-install-recommends \
             build-essential \
             ca-certificates \
+            clang-tidy \
             gi-docgen \
             git \
             meson \
@@ -189,6 +193,10 @@ jobs:
         run: |
           meson setup build
           meson compile -C build
+
+      - name: C static analysis
+        if: env.RUN_BUILD == 'true'
+        run: python3 tools/run_clang_tidy.py --build-dir build
 
       - name: Test
         if: env.RUN_BUILD == 'true'

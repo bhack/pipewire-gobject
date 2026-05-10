@@ -55,6 +55,24 @@ PWG_API
 bool pwg_registry_start(PwgRegistry *self, GError **error);
 
 /**
+ * pwg_registry_sync:
+ * @self: a registry wrapper.
+ * @timeout_msec: timeout in milliseconds, or 0 to wait indefinitely.
+ * @error: return location for a #GError.
+ *
+ * Starts registry discovery if needed, performs a PipeWire core roundtrip, and
+ * dispatches registry updates queued before the matching roundtrip completion
+ * on this object's main context.
+ *
+ * Returns: %TRUE when discovery is synchronized.
+ *
+ * Since: 0.3.6
+ * Stability: Unstable
+ */
+PWG_API
+bool pwg_registry_sync(PwgRegistry *self, unsigned int timeout_msec, GError **error);
+
+/**
  * pwg_registry_stop:
  * @self: a registry wrapper.
  *
