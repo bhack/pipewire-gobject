@@ -119,6 +119,9 @@ Once the object model holds up, grow toward high-level app workflows:
   support them cleanly;
 - volume/mute helpers where they can be modeled cleanly;
 - richer default-node metadata and control helpers;
+- documented async/main-context convenience patterns for reacting to metadata
+  and graph-change signals without doing blocking PipeWire sync work inside the
+  signal callback;
 - app stream lists suitable for panel applets;
 - mixer-friendly node and route views;
 - examples that cover both audio-tool workflows and pavucontrol-like
