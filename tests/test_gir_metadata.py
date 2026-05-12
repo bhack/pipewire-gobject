@@ -358,6 +358,54 @@ for method_name in (
     assert link_dup.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
     assert link_dup.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
 
+link = namespace.find("gir:class[@name='Link']", GIR_NS)
+assert link is not None
+assert link.attrib[f"{{{C_URI}}}type"] == "PwgLink"
+assert link.attrib[f"{{{GLIB_URI}}}get-type"] == "pwg_link_get_type"
+link_constructor = link.find("gir:constructor[@name='new']", GIR_NS)
+assert link_constructor is not None
+assert link_constructor.find("gir:return-value", GIR_NS).attrib["transfer-ownership"] == "full"
+assert link_constructor.find("gir:return-value", GIR_NS).attrib.get("nullable") == "1"
+link_core_param = link_constructor.find("gir:parameters/gir:parameter[@name='core']", GIR_NS)
+assert link_core_param is not None
+assert link_core_param.find("gir:type", GIR_NS).attrib["name"] == "Core"
+link_global_param = link_constructor.find("gir:parameters/gir:parameter[@name='global']", GIR_NS)
+assert link_global_param is not None
+assert link_global_param.find("gir:type", GIR_NS).attrib["name"] == "Global"
+link_start = link.find("gir:method[@name='start']", GIR_NS)
+assert link_start is not None
+assert link_start.attrib.get("throws") == "1"
+link_sync = link.find("gir:method[@name='sync']", GIR_NS)
+assert link_sync is not None
+assert link_sync.attrib.get("throws") == "1"
+link_sync_timeout_param = link_sync.find("gir:parameters/gir:parameter[@name='timeout_msec']", GIR_NS)
+assert link_sync_timeout_param is not None
+assert_c_type(link_sync_timeout_param, "unsigned int")
+for method_name in (
+    "get_core",
+    "get_global",
+    "get_running",
+    "get_bound",
+    "get_state",
+    "dup_error",
+):
+    assert link.find(f"gir:method[@name='{method_name}']", GIR_NS) is not None
+for property_name in (
+    "running",
+    "bound",
+    "state",
+    "error",
+):
+    assert link.find(f"gir:property[@name='{property_name}']", GIR_NS) is not None
+link_state_return = link.find("gir:method[@name='get_state']/gir:return-value", GIR_NS)
+assert link_state_return is not None
+assert link_state_return.attrib["transfer-ownership"] == "none"
+assert link_state_return.attrib.get("nullable") == "1"
+link_error_return = link.find("gir:method[@name='dup_error']/gir:return-value", GIR_NS)
+assert link_error_return is not None
+assert link_error_return.attrib["transfer-ownership"] == "full"
+assert link_error_return.attrib.get("nullable") == "1"
+
 node_info = namespace.find("gir:class[@name='NodeInfo']", GIR_NS)
 assert node_info is not None
 assert node_info.attrib[f"{{{C_URI}}}type"] == "PwgNodeInfo"
@@ -840,7 +888,7 @@ assert error_enum.attrib[f"{{{GLIB_URI}}}error-domain"] == "pwg-error-quark"
 assert namespace.find("gir:function[@name='error_quark']", GIR_NS) is not None
 
 for node in namespace.findall(".//*[@version]", GIR_NS):
-    assert node.attrib["version"] in {"0.1", "0.3.6"}
+    assert node.attrib["version"] in {"0.1", "0.3.6", "0.3.7"}
     assert node.attrib["stability"] == "Unstable"
 
 for class_node in namespace.findall("gir:class", GIR_NS):
@@ -913,6 +961,7 @@ def iter_public_callables():
 
 allowed_nullable_transfer_none_returns = {
     ("ImplModule", "get_arguments"),
+    ("Link", "get_state"),
     ("Stream", "get_audio_format"),
     ("Stream", "get_target_object"),
 }

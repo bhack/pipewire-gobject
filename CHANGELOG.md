@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.7 - 2026-05-12
+
+- Add `Pwg.Link` as a live PipeWire link proxy that exposes copied link state
+  changes through the `state` property, so applications can react to link
+  activation without polling or timing guesses.
+
 ## 0.3.6 - 2026-05-11
 
 - Add `Pwg.Core.sync()` plus object-level `sync()` helpers for registry,

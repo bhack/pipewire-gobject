@@ -1,7 +1,7 @@
 project(
   'pipewire-gobject',
   'c',
-  version: '0.3.6',
+  version: '0.3.7',
   meson_version: '>=1.0',
   default_options: ['warning_level=2', 'werror=false'],
 )
@@ -37,6 +37,7 @@ pwg_sources = [
   'src/pwg-error.c',
   'src/pwg-global.c',
   'src/pwg-impl-module.c',
+  'src/pwg-link.c',
   'src/pwg-link-info.c',
   'src/pwg-metadata.c',
   'src/pwg-node.c',
@@ -60,6 +61,7 @@ pwg_headers = [
   'src/pwg-error.h',
   'src/pwg-global.h',
   'src/pwg-impl-module.h',
+  'src/pwg-link.h',
   'src/pwg-link-info.h',
   'src/pwg-metadata.h',
   'src/pwg-node.h',

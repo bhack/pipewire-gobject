@@ -229,8 +229,31 @@ GI bindable API guidance and annotations reference:
 
 - <https://gi.readthedocs.io/en/latest/writingbindableapis.html>
 - <https://gi.readthedocs.io/en/latest/annotations/index.html>
+- <https://www.bassi.io/articles/2023/02/20/bindable-api-2023/>
 
 The following rules apply when adding public `Pwg` API.
+
+### Bindable API Gate
+
+Before adding or changing public API, review the new header and generated GIR
+as a binding contract, not only as C code. This is a release gate for new
+symbols:
+
+- Public headers should expose plain C/C99 scalar types (`bool`, `int`,
+  `unsigned int`, `uint64_t`, `double`, `const char *`) rather than GLib scalar
+  aliases (`gboolean`, `gint`, `guint`, `guint64`, `gdouble`, `gchar *`).
+- Public API should not expose GLib container types (`GArray`, `GPtrArray`,
+  `GByteArray`, `GList`, `GSList`, `GQueue`, `GHashTable`). Keep those internal
+  and wrap the public result as `Gio.ListModel`, `GLib.Bytes`, `GVariant`, or a
+  small `Pwg` object with clear ownership.
+- Private implementation can still use GLib types where they fit the local C
+  code, and GLib callback signatures should keep the exact GLib ABI they
+  implement.
+- The generated GIR may use introspection names such as `gboolean` for binding
+  fundamental types. What matters for this rule is the public C signature and
+  callable `c:type`, which `tests/test_gir_metadata.py` checks.
+- If a reviewer flags `gdouble`, `guint`, or similar types, fix the public API
+  boundary first. Do not paper over it in the Mini EQ consumer.
 
 ### API Shape
 
@@ -245,9 +268,6 @@ The following rules apply when adding public `Pwg` API.
   library.
 - Avoid varargs, in-out parameters, multiple out parameters, callback-heavy
   entry points, and public struct fields.
-- Use standard C/C99 scalar types in public signatures, such as `bool`, `int`,
-  `unsigned int`, `uint64_t`, and `double`, instead of GLib scalar aliases
-  such as `gboolean`, `gint`, `guint`, `guint64`, and `gdouble`.
 - Use accessors, properties, signals, and simple return values instead of
   direct C structure access.
 - Use `GError` for fallible methods and keep error quark names aligned with the
