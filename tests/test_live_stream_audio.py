@@ -103,6 +103,50 @@ def link_ports(source: str, sink: str, env: dict[str, str]) -> None:
         ) from exc
 
 
+def stop_live_link_probes(link_probes: list) -> None:
+    for link in link_probes:
+        link.stop()
+        assert link.get_running() is False
+        assert link.get_bound() is False
+
+
+def start_live_link_probes(pwg_module, core, registry, minimum_count: int) -> list:
+    if not registry.sync(2000):
+        return []
+
+    link_globals = registry.dup_globals_by_interface("PipeWire:Interface:Link")
+    if link_globals.get_n_items() < minimum_count:
+        return []
+
+    link_probes = []
+    for index in range(link_globals.get_n_items()):
+        link = pwg_module.Link.new(core, link_globals.get_item(index))
+        assert link is not None
+        assert link.get_running() is False
+        assert link.get_bound() is False
+        assert link.start()
+        assert link.get_running() is True
+        assert link.get_bound() is True
+        link_probes.append(link)
+
+    return link_probes
+
+
+def collect_live_link_states(link_probes: list) -> list[str]:
+    states: list[str] = []
+    for link in link_probes:
+        assert link.sync(2000)
+        state = link.get_state()
+        error = link.dup_error()
+        print("link-state", state or "", error or "")
+        if state == "error":
+            raise RuntimeError(f"PipeWire link entered error state: {error or 'unknown error'}")
+        if state is not None:
+            states.append(state)
+
+    return states
+
+
 def print_log(label: str, path: Path) -> None:
     print(f"{label}:")
     if not path.exists():
@@ -205,6 +249,9 @@ def main() -> int:
         wireplumber = None
         playback = None
         stop_playback = threading.Event()
+        core = None
+        registry = None
+        link_probes = []
         stream = None
 
         try:
@@ -299,6 +346,24 @@ def main() -> int:
             if not seen["nonzero"]:
                 raise RuntimeError("stream did not receive non-silent audio")
 
+            core = Pwg.Core.new()
+            assert core.connect()
+            registry = Pwg.Registry.new(core)
+            assert registry.start()
+            observed_link_states: list[str] = []
+
+            def saw_live_link_states() -> bool:
+                nonlocal link_probes
+                if not link_probes:
+                    link_probes = start_live_link_probes(Pwg, core, registry, CHANNELS)
+                    if not link_probes:
+                        return False
+                observed_link_states[:] = collect_live_link_states(link_probes)
+                return observed_link_states.count("active") >= CHANNELS
+
+            wait_for("Pwg.Link active state updates", saw_live_link_states)
+            print("live-link-states", ",".join(observed_link_states))
+
             print(
                 "live-stream-audio-ok "
                 f"levels={seen['level']} blocks={seen['block']}"
@@ -314,6 +379,11 @@ def main() -> int:
             terminate(playback)
             if stream is not None:
                 stream.stop()
+            stop_live_link_probes(link_probes)
+            if registry is not None:
+                registry.stop()
+            if core is not None:
+                core.disconnect()
             terminate(wireplumber)
             terminate(pipewire)
 
