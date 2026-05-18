@@ -11,9 +11,9 @@ on:
         required: true
         type: string
       create_github_release:
-        description: "Create or update the GitHub release with CI-built assets"
+        description: "Create or update the GitHub release with CI-built assets; keep false when publishing to package indexes"
         required: true
-        default: true
+        default: false
         type: boolean
       draft:
         description: "Create a draft GitHub release when the release does not exist"
@@ -61,11 +61,15 @@ jobs:
             create_release="${{ inputs.create_github_release }}"
             draft="${{ inputs.draft }}"
             prerelease="${{ inputs.prerelease }}"
+            publish_testpypi="${{ inputs.publish_testpypi }}"
+            publish_pypi="${{ inputs.publish_pypi }}"
           else
             tag_name="${GITHUB_REF_NAME}"
             create_release="true"
             draft="true"
             prerelease="true"
+            publish_testpypi="false"
+            publish_pypi="false"
           fi
 
           if [ -z "$tag_name" ]; then
@@ -81,6 +85,13 @@ jobs:
           if ! [[ "$tag_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9][A-Za-z0-9.-]*)?$ ]]; then
             echo "::error::Tag must look like a version, for example 0.1.0"
             exit 1
+          fi
+
+          if [ "$publish_testpypi" = "true" ] || [ "$publish_pypi" = "true" ]; then
+            if [ "$create_release" = "true" ]; then
+              echo "::error::Package-index publishing must be dispatched separately from GitHub release asset creation; rerun with create_github_release=false."
+              exit 1
+            fi
           fi
 
           {

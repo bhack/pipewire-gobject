@@ -96,8 +96,19 @@ This checklist is for experimental public `0.x` releases.
    git push origin "$version"
    ```
 
-   To rerun the release build for an existing tag, dispatch the workflow
-   manually:
+   To rerun the release build for an existing tag without touching the GitHub
+   release, dispatch the workflow manually. Manual dispatch defaults
+   `create_github_release` to `false`; pass it explicitly in commands so the
+   intent is visible:
+
+   ```bash
+   gh workflow run release.yml --ref main \
+     -f tag_name="$version" \
+     -f create_github_release=false
+   ```
+
+   To deliberately create or update GitHub release assets from an existing tag,
+   opt in:
 
    ```bash
    gh workflow run release.yml --ref main \
@@ -111,7 +122,9 @@ This checklist is for experimental public `0.x` releases.
    configure the corresponding GitHub environment and trusted publisher, then
    dispatch the release workflow with `publish_testpypi=true` or
    `publish_pypi=true`. The publish jobs upload only
-   `dist/pipewire_gobject-X.Y.Z.tar.gz`.
+   `dist/pipewire_gobject-X.Y.Z.tar.gz`. The workflow rejects package-index
+   publishing when `create_github_release=true`, so PyPI/TestPyPI runs cannot
+   accidentally replace GitHub release assets.
 
 7. Verify CI has passed against:
 

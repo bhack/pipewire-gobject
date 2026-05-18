@@ -5,7 +5,7 @@ gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
 Pwg.init()
-assert Pwg.get_library_version() == "0.3.7"
+assert Pwg.get_library_version() == "0.3.8"
 assert isinstance(Pwg.get_pipewire_library_version(), str)
 
 core = Pwg.Core.new()
@@ -38,6 +38,8 @@ assert hasattr(Pwg.Device, "enum_params_sync")
 assert hasattr(Pwg.Node, "subscribe_params")
 assert hasattr(Pwg.Node, "sync")
 assert hasattr(Pwg.Node, "enum_params_sync")
+assert hasattr(Pwg.Node, "get_state")
+assert hasattr(Pwg.Node, "dup_error")
 assert hasattr(Pwg.Link, "sync")
 
 registry = Pwg.Registry.new(core)

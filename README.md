@@ -25,7 +25,7 @@ default-device behavior, and session-manager logic. See
 
 | Area | Status |
 | --- | --- |
-| Latest preview | [`0.3.7`](https://github.com/bhack/pipewire-gobject/releases/tag/0.3.7), experimental and intended for API feedback. |
+| Latest preview | [`0.3.8`](https://github.com/bhack/pipewire-gobject/releases/tag/0.3.8), experimental and intended for API feedback. |
 | Works today | GIR/typelib generation, PyGObject import, registry/global discovery, explicit object synchronization, metadata helpers, typed global views, link state observation, node/device param inspection, route inspection, limited copied param updates, app-owned module handles, and F32 capture streams with copied audio blocks. |
 | Still maturing | Stream ergonomics, live graph/data-plane tests, confirmed control workflows, real consumer validation, and higher-level app examples. |
 | Not in scope | WirePlumber session-manager policy, routing/default-device policy, smart-filter policy, Lua replacement, or raw PipeWire/SPA ownership in bindings. |
