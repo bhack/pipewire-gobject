@@ -88,6 +88,12 @@ Already landed in `0.2.0`:
 - app-owned PipeWire implementation module handles for loopback/filter-chain
   style workflows.
 
+Already landed after the initial `0.3.x` API cleanup:
+
+- live link state and node state/error observation for applications that need
+  to react to graph activation, idle, suspend, or error transitions without
+  polling.
+
 Remaining work:
 
 - deterministic graph tests for live stream negotiation and delivery;

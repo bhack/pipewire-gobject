@@ -149,6 +149,35 @@ PWG_API
 bool pwg_node_get_bound(PwgNode *self);
 
 /**
+ * pwg_node_get_state:
+ * @self: a node wrapper.
+ *
+ * Gets the latest copied PipeWire node state string.
+ *
+ * Returns: (nullable) (transfer none): the current node state, or %NULL before
+ *   the first state update.
+ *
+ * Since: 0.3.8
+ * Stability: Unstable
+ */
+PWG_API
+const char *pwg_node_get_state(PwgNode *self);
+
+/**
+ * pwg_node_dup_error:
+ * @self: a node wrapper.
+ *
+ * Copies the latest PipeWire node state error message.
+ *
+ * Returns: (nullable) (transfer full): the latest node error, or %NULL.
+ *
+ * Since: 0.3.8
+ * Stability: Unstable
+ */
+PWG_API
+char *pwg_node_dup_error(PwgNode *self);
+
+/**
  * pwg_node_get_param_infos:
  * @self: a node wrapper.
  *

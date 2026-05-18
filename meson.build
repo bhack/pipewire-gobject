@@ -1,7 +1,7 @@
 project(
   'pipewire-gobject',
   'c',
-  version: '0.3.7',
+  version: '0.3.8',
   meson_version: '>=1.0',
   default_options: ['warning_level=2', 'werror=false'],
 )

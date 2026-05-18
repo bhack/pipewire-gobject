@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.8 - 2026-05-18
+
+- Add copied PipeWire node state and error accessors to `Pwg.Node`, mirroring
+  the existing `Pwg.Link` state API for applications that need to react to
+  node idle, running, suspended, or error transitions.
+
 ## 0.3.7 - 2026-05-12
 
 - Add `Pwg.Link` as a live PipeWire link proxy that exposes copied link state

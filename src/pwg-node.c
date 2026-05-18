@@ -25,6 +25,9 @@ typedef struct {
   PwgNode *node;
   unsigned int generation;
   PwgNodeEventType type;
+  gboolean state_changed;
+  char *state;
+  char *error;
   GArray *param_infos;
   PwgParam *param;
 } PwgNodeEvent;
@@ -35,6 +38,8 @@ struct _PwgNode {
   PwgGlobal *global;
   gboolean running;
   gboolean bound;
+  char *state;
+  char *error;
   GListStore *param_infos;
   GListStore *params;
   GMainContext *main_context;
@@ -58,6 +63,8 @@ enum {
   PROP_GLOBAL,
   PROP_RUNNING,
   PROP_BOUND,
+  PROP_STATE,
+  PROP_ERROR,
   PROP_PARAM_INFOS,
   PROP_PARAMS,
   N_PROPS,
@@ -77,6 +84,8 @@ static void
 pwg_node_event_free(PwgNodeEvent *event)
 {
   g_clear_object(&event->node);
+  g_free(event->state);
+  g_free(event->error);
   g_clear_pointer(&event->param_infos, g_array_unref);
   g_clear_object(&event->param);
   g_free(event);
@@ -101,16 +110,27 @@ pwg_node_on_info(void *userdata, const struct pw_node_info *info)
 {
   PwgNode *self = PWG_NODE(userdata);
   PwgNodeEvent *event;
+  gboolean state_changed;
+  gboolean params_changed;
 
   if (info == NULL)
     return;
 
-  if (info->params == NULL && (info->change_mask & PW_NODE_CHANGE_MASK_PARAMS) == 0)
+  state_changed = (info->change_mask & PW_NODE_CHANGE_MASK_STATE) != 0;
+  params_changed = info->params != NULL || (info->change_mask & PW_NODE_CHANGE_MASK_PARAMS) != 0;
+  if (!state_changed && !params_changed)
     return;
 
   event = g_new0(PwgNodeEvent, 1);
   event->type = PWG_NODE_EVENT_INFO;
-  event->param_infos = g_array_sized_new(FALSE, FALSE, sizeof(PwgNodeParamInfoCopy), info->n_params);
+  event->state_changed = state_changed;
+  if (state_changed) {
+    event->state = g_strdup(pw_node_state_as_string(info->state));
+    event->error = g_strdup(info->error);
+  }
+
+  if (params_changed)
+    event->param_infos = g_array_sized_new(FALSE, FALSE, sizeof(PwgNodeParamInfoCopy), info->n_params);
 
   if (info->params != NULL) {
     for (uint32_t i = 0; i < info->n_params; i++) {
@@ -228,8 +248,34 @@ pwg_node_reset(PwgNode *self)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_RUNNING]);
   }
 
+  if (self->state != NULL) {
+    g_clear_pointer(&self->state, g_free);
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_STATE]);
+  }
+
+  if (self->error != NULL) {
+    g_clear_pointer(&self->error, g_free);
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ERROR]);
+  }
+
   g_list_store_remove_all(self->param_infos);
   g_list_store_remove_all(self->params);
+}
+
+static void
+pwg_node_update_state(PwgNode *self, const char *state, const char *error)
+{
+  if (g_strcmp0(self->state, state) != 0) {
+    g_free(self->state);
+    self->state = g_strdup(state);
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_STATE]);
+  }
+
+  if (g_strcmp0(self->error, error) != 0) {
+    g_free(self->error);
+    self->error = g_strdup(error);
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ERROR]);
+  }
 }
 
 static void
@@ -259,7 +305,10 @@ pwg_node_dispatch_event(gpointer userdata)
     return G_SOURCE_REMOVE;
 
   if (event->type == PWG_NODE_EVENT_INFO) {
-    pwg_node_update_param_infos(self, event->param_infos);
+    if (event->state_changed)
+      pwg_node_update_state(self, event->state, event->error);
+    if (event->param_infos != NULL)
+      pwg_node_update_param_infos(self, event->param_infos);
   } else if (event->type == PWG_NODE_EVENT_PARAM) {
     if (event->param != NULL) {
       g_list_store_append(self->params, event->param);
@@ -305,6 +354,12 @@ pwg_node_get_property(GObject *object,
     break;
   case PROP_BOUND:
     g_value_set_boolean(value, self->bound);
+    break;
+  case PROP_STATE:
+    g_value_set_string(value, self->state);
+    break;
+  case PROP_ERROR:
+    g_value_set_string(value, self->error);
     break;
   case PROP_PARAM_INFOS:
     g_value_set_object(value, self->param_infos);
@@ -381,6 +436,8 @@ pwg_node_finalize(GObject *object)
 {
   PwgNode *self = PWG_NODE(object);
 
+  g_clear_pointer(&self->state, g_free);
+  g_clear_pointer(&self->error, g_free);
   g_clear_pointer(&self->main_context, g_main_context_unref);
 
   G_OBJECT_CLASS(pwg_node_parent_class)->finalize(object);
@@ -455,6 +512,36 @@ pwg_node_class_init(PwgNodeClass *klass)
     "Bound",
     "Whether the node proxy is currently bound.",
     FALSE,
+    G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  /**
+   * PwgNode:state:
+   *
+   * The latest copied PipeWire node state string.
+   *
+   * Since: 0.3.8
+   * Stability: Unstable
+   */
+  properties[PROP_STATE] = g_param_spec_string(
+    "state",
+    "State",
+    "The latest copied PipeWire node state string.",
+    NULL,
+    G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  /**
+   * PwgNode:error:
+   *
+   * The latest copied PipeWire node state error message.
+   *
+   * Since: 0.3.8
+   * Stability: Unstable
+   */
+  properties[PROP_ERROR] = g_param_spec_string(
+    "error",
+    "Error",
+    "The latest copied PipeWire node state error message.",
+    NULL,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   /**
@@ -657,6 +744,16 @@ pwg_node_stop(PwgNode *self)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_RUNNING]);
   }
 
+  if (self->state != NULL) {
+    g_clear_pointer(&self->state, g_free);
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_STATE]);
+  }
+
+  if (self->error != NULL) {
+    g_clear_pointer(&self->error, g_free);
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_ERROR]);
+  }
+
   g_list_store_remove_all(self->param_infos);
   g_list_store_remove_all(self->params);
 }
@@ -691,6 +788,22 @@ pwg_node_get_bound(PwgNode *self)
   g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
 
   return self->bound;
+}
+
+const char *
+pwg_node_get_state(PwgNode *self)
+{
+  g_return_val_if_fail(PWG_IS_NODE(self), NULL);
+
+  return self->state;
+}
+
+char *
+pwg_node_dup_error(PwgNode *self)
+{
+  g_return_val_if_fail(PWG_IS_NODE(self), NULL);
+
+  return g_strdup(self->error);
 }
 
 GListModel *

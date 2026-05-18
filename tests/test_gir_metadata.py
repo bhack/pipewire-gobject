@@ -481,6 +481,8 @@ for method_name in (
     "get_global",
     "get_running",
     "get_bound",
+    "get_state",
+    "dup_error",
     "get_param_infos",
     "get_params",
     "set_param",
@@ -495,6 +497,8 @@ assert node_set_param_arg.find("gir:type", GIR_NS).attrib["name"] == "Param"
 for property_name in (
     "running",
     "bound",
+    "state",
+    "error",
     "param-infos",
     "params",
 ):
@@ -888,7 +892,7 @@ assert error_enum.attrib[f"{{{GLIB_URI}}}error-domain"] == "pwg-error-quark"
 assert namespace.find("gir:function[@name='error_quark']", GIR_NS) is not None
 
 for node in namespace.findall(".//*[@version]", GIR_NS):
-    assert node.attrib["version"] in {"0.1", "0.3.6", "0.3.7"}
+    assert node.attrib["version"] in {"0.1", "0.3.6", "0.3.7", "0.3.8"}
     assert node.attrib["stability"] == "Unstable"
 
 for class_node in namespace.findall("gir:class", GIR_NS):
@@ -962,6 +966,7 @@ def iter_public_callables():
 allowed_nullable_transfer_none_returns = {
     ("ImplModule", "get_arguments"),
     ("Link", "get_state"),
+    ("Node", "get_state"),
     ("Stream", "get_audio_format"),
     ("Stream", "get_target_object"),
 }

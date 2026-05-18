@@ -70,12 +70,16 @@ assert node.get_core() == core
 assert node.get_global().get_id() == node_info.get_id()
 assert node.get_running() is False
 assert node.get_bound() is False
+assert node.get_state() is None
+assert node.dup_error() is None
 assert node.get_param_infos().get_n_items() == 0
 assert node.get_params().get_n_items() == 0
 print("node-start", node.start())
 assert node.get_running() is True
 assert node.get_bound() is True
 print("node-sync", node.sync(2000))
+print("node-state", node.get_state() or "", node.dup_error() or "")
+assert node.get_state() in ("creating", "suspended", "idle", "running")
 node_param_info_count = node.get_param_infos().get_n_items()
 print("node-param-info-count", node_param_info_count)
 for index in range(min(node_param_info_count, 3)):
@@ -125,6 +129,9 @@ for index in range(node_param_info_count):
     break
 node.stop()
 print("node-running-after-stop", node.get_running())
+assert node.get_running() is False
+assert node.get_state() is None
+assert node.dup_error() is None
 
 client_globals = registry.dup_globals_by_interface("PipeWire:Interface:Client")
 client_count = client_globals.get_n_items()
