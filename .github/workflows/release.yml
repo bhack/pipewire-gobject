@@ -87,6 +87,11 @@ jobs:
             exit 1
           fi
 
+          if [ "$publish_testpypi" = "true" ] && [ "$publish_pypi" = "true" ]; then
+            echo "::error::Publish to TestPyPI and PyPI in separate workflow dispatches; PyPI promotion is irreversible."
+            exit 1
+          fi
+
           if [ "$publish_testpypi" = "true" ] || [ "$publish_pypi" = "true" ]; then
             if [ "$create_release" = "true" ]; then
               echo "::error::Package-index publishing must be dispatched separately from GitHub release asset creation; rerun with create_github_release=false."

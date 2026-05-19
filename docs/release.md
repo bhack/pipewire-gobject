@@ -118,13 +118,35 @@ This checklist is for experimental public `0.x` releases.
      -f prerelease=true
    ```
 
+   Review the draft release notes and assets, then publish the GitHub
+   prerelease when they are ready:
+
+   ```bash
+   gh release view "$version" --json url,isDraft,isPrerelease,tagName,assets
+   gh release edit "$version" --draft=false --prerelease=true
+   ```
+
    To publish the Python source distribution to TestPyPI or PyPI, first
    configure the corresponding GitHub environment and trusted publisher, then
    dispatch the release workflow with `publish_testpypi=true` or
    `publish_pypi=true`. The publish jobs upload only
-   `dist/pipewire_gobject-X.Y.Z.tar.gz`. The workflow rejects package-index
+   `dist/pipewire_gobject-X.Y.Z.tar.gz`. Dispatch TestPyPI and PyPI as separate
+   promotion steps; the workflow rejects setting both publish flags in one run
+   because PyPI uploads are irreversible. It also rejects package-index
    publishing when `create_github_release=true`, so PyPI/TestPyPI runs cannot
    accidentally replace GitHub release assets.
+
+   ```bash
+   gh workflow run release.yml --ref main \
+     -f tag_name="$version" \
+     -f create_github_release=false \
+     -f publish_testpypi=true
+
+   gh workflow run release.yml --ref main \
+     -f tag_name="$version" \
+     -f create_github_release=false \
+     -f publish_pypi=true
+   ```
 
 7. Verify CI has passed against:
 
