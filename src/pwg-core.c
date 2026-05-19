@@ -44,7 +44,7 @@ pwg_core_sync_on_main_context_done(gpointer userdata)
   PwgCoreSyncData *data = userdata;
 
   g_atomic_int_set(&data->main_context_done, 1);
-  return false;
+  return FALSE;
 }
 
 static void
@@ -172,7 +172,7 @@ pwg_core_new(void)
   return g_object_new(PWG_TYPE_CORE, NULL);
 }
 
-bool
+gboolean
 pwg_core_connect(PwgCore *self, GError **error)
 {
   struct pw_properties *connect_properties = NULL;
@@ -235,7 +235,7 @@ pwg_core_connect(PwgCore *self, GError **error)
   return TRUE;
 }
 
-bool
+gboolean
 pwg_core_set_pipewire_property(PwgCore *self,
                                const char *key,
                                const char *value,
@@ -302,7 +302,7 @@ pwg_core_disconnect(PwgCore *self)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_CONNECTED]);
 }
 
-bool
+gboolean
 pwg_core_get_connected(PwgCore *self)
 {
   g_return_val_if_fail(PWG_IS_CORE(self), FALSE);
@@ -310,13 +310,13 @@ pwg_core_get_connected(PwgCore *self)
   return self->connected;
 }
 
-bool
+gboolean
 pwg_core_sync(PwgCore *self, unsigned int timeout_msec, GError **error)
 {
   return pwg_core_sync_main_context_internal(self, NULL, timeout_msec, error);
 }
 
-bool
+gboolean
 pwg_core_sync_main_context_internal(PwgCore *self,
                                     GMainContext *main_context,
                                     unsigned int timeout_msec,
@@ -328,14 +328,14 @@ pwg_core_sync_main_context_internal(PwgCore *self,
   int result;
   int wait_result = 0;
 
-  g_return_val_if_fail(PWG_IS_CORE(self), false);
+  g_return_val_if_fail(PWG_IS_CORE(self), FALSE);
 
   if (!self->connected && !pwg_core_connect(self, error))
-    return false;
+    return FALSE;
 
   if (self->thread_loop == NULL || self->core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "PipeWire core is not connected");
-    return false;
+    return FALSE;
   }
 
   if (pw_thread_loop_in_thread(self->thread_loop)) {
@@ -344,7 +344,7 @@ pwg_core_sync_main_context_internal(PwgCore *self,
       PWG_ERROR,
       PWG_ERROR_FAILED,
       "PipeWire core sync cannot run from the PipeWire thread loop");
-    return false;
+    return FALSE;
   }
 
   if (timeout_msec > 0) {
@@ -359,7 +359,7 @@ pwg_core_sync_main_context_internal(PwgCore *self,
         PWG_ERROR_PIPEWIRE,
         "Could not calculate PipeWire core sync timeout: %s",
         g_strerror(-result));
-      return false;
+      return FALSE;
     }
   }
 
@@ -380,7 +380,7 @@ pwg_core_sync_main_context_internal(PwgCore *self,
       PWG_ERROR_PIPEWIRE,
       "Could not listen for PipeWire core sync completion: %s",
       g_strerror(-result));
-    return false;
+    return FALSE;
   }
 
   data.seq = pw_core_sync(self->core, PW_ID_CORE, 0);
@@ -394,7 +394,7 @@ pwg_core_sync_main_context_internal(PwgCore *self,
       PWG_ERROR_PIPEWIRE,
       "Could not send PipeWire core sync request: %s",
       g_strerror(-data.seq));
-    return false;
+    return FALSE;
   }
 
   while (!data.done && data.error_result == 0) {
@@ -421,7 +421,7 @@ pwg_core_sync_main_context_internal(PwgCore *self,
       data.error_message != NULL ? data.error_message : "");
     g_free(data.error_message);
     g_clear_pointer(&data.main_context, g_main_context_unref);
-    return false;
+    return FALSE;
   }
 
   g_free(data.error_message);
@@ -440,14 +440,14 @@ pwg_core_sync_main_context_internal(PwgCore *self,
       g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "PipeWire core sync did not complete");
     }
     g_clear_pointer(&data.main_context, g_main_context_unref);
-    return false;
+    return FALSE;
   }
 
   while (data.main_context != NULL && !g_atomic_int_get(&data.main_context_done))
     g_main_context_iteration(data.main_context, true);
 
   g_clear_pointer(&data.main_context, g_main_context_unref);
-  return true;
+  return TRUE;
 }
 
 const char *

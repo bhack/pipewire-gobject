@@ -535,7 +535,7 @@ pwg_device_new(PwgCore *core, PwgGlobal *global)
   return g_object_new(PWG_TYPE_DEVICE, "core", core, "global", global, NULL);
 }
 
-bool
+gboolean
 pwg_device_start(PwgDevice *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -620,17 +620,17 @@ pwg_device_start(PwgDevice *self, GError **error)
   return TRUE;
 }
 
-bool
+gboolean
 pwg_device_sync(PwgDevice *self, unsigned int timeout_msec, GError **error)
 {
-  g_return_val_if_fail(PWG_IS_DEVICE(self), false);
+  g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
 
   if (!self->running && !pwg_device_start(self, error))
-    return false;
+    return FALSE;
 
   if (self->core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Device has no PipeWire core");
-    return false;
+    return FALSE;
   }
 
   return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
@@ -677,7 +677,7 @@ pwg_device_get_global(PwgDevice *self)
   return self->global;
 }
 
-bool
+gboolean
 pwg_device_get_running(PwgDevice *self)
 {
   g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
@@ -685,7 +685,7 @@ pwg_device_get_running(PwgDevice *self)
   return self->running;
 }
 
-bool
+gboolean
 pwg_device_get_bound(PwgDevice *self)
 {
   g_return_val_if_fail(PWG_IS_DEVICE(self), FALSE);
@@ -709,7 +709,7 @@ pwg_device_get_params(PwgDevice *self)
   return G_LIST_MODEL(self->params);
 }
 
-bool
+gboolean
 pwg_device_subscribe_params(PwgDevice *self, GVariant *ids, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -858,7 +858,7 @@ pwg_device_enum_all_params(PwgDevice *self, GError **error)
   return pwg_device_enum_params(self, PW_ID_ANY, 0, 0, error);
 }
 
-bool
+gboolean
 pwg_device_set_param(PwgDevice *self, PwgParam *param, GError **error)
 {
   struct pw_thread_loop *thread_loop;

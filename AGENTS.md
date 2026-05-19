@@ -15,7 +15,11 @@ public API and ABI as unstable unless a future release policy says otherwise.
 ## Design Rules
 
 - Keep the binding GLib/GObject-first. Public APIs should be introspectable and
-  natural from PyGObject, GJS, and Vala.
+  natural from PyGObject, GJS, and Vala. Use `gboolean` for public
+  GI-visible boolean parameters and return values so the generated ABI matches
+  the boolean type bindings expect; use ordinary C scalar types for the
+  remaining plain numeric values unless a GLib/GObject type carries clearer
+  binding semantics.
 - Do not expose raw PipeWire or SPA buffer ownership to language bindings.
 - The intended scope is broader than app-owned streams: core lifecycle,
   registry/discovery, globals, metadata, properties, limited params, and streams
@@ -239,9 +243,13 @@ Before adding or changing public API, review the new header and generated GIR
 as a binding contract, not only as C code. This is a release gate for new
 symbols:
 
-- Public headers should expose plain C/C99 scalar types (`bool`, `int`,
-  `unsigned int`, `uint64_t`, `double`, `const char *`) rather than GLib scalar
-  aliases (`gboolean`, `gint`, `guint`, `guint64`, `gdouble`, `gchar *`).
+- Public headers should expose `gboolean` for GI-visible boolean parameters and
+  return values. C99 `_Bool`/`bool` does not match the GLib boolean ABI that
+  PyGObject, GJS, Vala, and GIR metadata expect.
+- Public headers should expose ordinary C/C99 scalar types (`int`,
+  `unsigned int`, `uint64_t`, `double`, `const char *`) for the remaining plain
+  values rather than GLib scalar aliases (`gint`, `guint`, `guint64`, `gdouble`,
+  `gchar *`).
 - Public API should not expose GLib container types (`GArray`, `GPtrArray`,
   `GByteArray`, `GList`, `GSList`, `GQueue`, `GHashTable`). Keep those internal
   and wrap the public result as `Gio.ListModel`, `GLib.Bytes`, `GVariant`, or a
@@ -249,11 +257,12 @@ symbols:
 - Private implementation can still use GLib types where they fit the local C
   code, and GLib callback signatures should keep the exact GLib ABI they
   implement.
-- The generated GIR may use introspection names such as `gboolean` for binding
-  fundamental types. What matters for this rule is the public C signature and
-  callable `c:type`, which `tests/test_gir_metadata.py` checks.
-- If a reviewer flags `gdouble`, `guint`, or similar types, fix the public API
-  boundary first. Do not paper over it in the Mini EQ consumer.
+- The generated GIR may use introspection names for binding fundamental types.
+  What matters for this rule is the public C signature and callable `c:type`,
+  which `tests/test_gir_metadata.py` checks. It should preserve `gboolean` for
+  booleans and reject C99 `_Bool`.
+- If a reviewer flags `_Bool`, `gdouble`, `guint`, or similar types, fix the
+  public API boundary first. Do not paper over it in the Mini EQ consumer.
 
 ### API Shape
 

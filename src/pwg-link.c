@@ -460,7 +460,7 @@ pwg_link_new(PwgCore *core, PwgGlobal *global)
   return g_object_new(PWG_TYPE_LINK, "core", core, "global", global, NULL);
 }
 
-bool
+gboolean
 pwg_link_start(PwgLink *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -468,29 +468,29 @@ pwg_link_start(PwgLink *self, GError **error)
   unsigned int version;
   int result;
 
-  g_return_val_if_fail(PWG_IS_LINK(self), false);
+  g_return_val_if_fail(PWG_IS_LINK(self), FALSE);
 
   if (self->running)
-    return true;
+    return TRUE;
 
   if (self->core == NULL || self->global == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Link has no PipeWire core or global");
-    return false;
+    return FALSE;
   }
 
   if (!pwg_global_is_link(self->global)) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Global is not a PipeWire link");
-    return false;
+    return FALSE;
   }
 
   if (!pwg_core_get_connected(self->core) && !pwg_core_connect(self->core, error))
-    return false;
+    return FALSE;
 
   thread_loop = pwg_core_get_thread_loop_internal(self->core);
   core = pwg_core_get_pw_core_internal(self->core);
   if (thread_loop == NULL || core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "PipeWire core is not connected");
-    return false;
+    return FALSE;
   }
 
   pw_thread_loop_lock(thread_loop);
@@ -499,7 +499,7 @@ pwg_link_start(PwgLink *self, GError **error)
   if (self->registry == NULL) {
     pw_thread_loop_unlock(thread_loop);
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "Could not create PipeWire registry");
-    return false;
+    return FALSE;
   }
 
   spa_zero(self->registry_listener);
@@ -517,7 +517,7 @@ pwg_link_start(PwgLink *self, GError **error)
     pw_thread_loop_unlock(thread_loop);
     pwg_link_destroy_pipewire_objects(self);
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_PIPEWIRE, "Could not bind PipeWire link");
-    return false;
+    return FALSE;
   }
 
   spa_zero(self->link_listener);
@@ -531,7 +531,7 @@ pwg_link_start(PwgLink *self, GError **error)
       PWG_ERROR_PIPEWIRE,
       "Could not listen to PipeWire link: %s",
       g_strerror(-result));
-    return false;
+    return FALSE;
   }
 
   self->has_link_listener = true;
@@ -542,20 +542,20 @@ pwg_link_start(PwgLink *self, GError **error)
 
   g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_RUNNING]);
   g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_BOUND]);
-  return true;
+  return TRUE;
 }
 
-bool
+gboolean
 pwg_link_sync(PwgLink *self, unsigned int timeout_msec, GError **error)
 {
-  g_return_val_if_fail(PWG_IS_LINK(self), false);
+  g_return_val_if_fail(PWG_IS_LINK(self), FALSE);
 
   if (!self->running && !pwg_link_start(self, error))
-    return false;
+    return FALSE;
 
   if (self->core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Link has no PipeWire core");
-    return false;
+    return FALSE;
   }
 
   return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
@@ -601,18 +601,18 @@ pwg_link_get_global(PwgLink *self)
   return self->global;
 }
 
-bool
+gboolean
 pwg_link_get_running(PwgLink *self)
 {
-  g_return_val_if_fail(PWG_IS_LINK(self), false);
+  g_return_val_if_fail(PWG_IS_LINK(self), FALSE);
 
   return self->running;
 }
 
-bool
+gboolean
 pwg_link_get_bound(PwgLink *self)
 {
-  g_return_val_if_fail(PWG_IS_LINK(self), false);
+  g_return_val_if_fail(PWG_IS_LINK(self), FALSE);
 
   return self->bound;
 }

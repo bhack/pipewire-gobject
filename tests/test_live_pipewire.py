@@ -3,6 +3,30 @@ import gi
 gi.require_version("Pwg", "0.1")
 from gi.repository import GLib, Pwg
 
+INTERFACE_HELPERS = {
+    "PipeWire:Interface:Client": "is_client",
+    "PipeWire:Interface:Device": "is_device",
+    "PipeWire:Interface:Link": "is_link",
+    "PipeWire:Interface:Metadata": "is_metadata",
+    "PipeWire:Interface:Node": "is_node",
+    "PipeWire:Interface:Port": "is_port",
+}
+
+
+def assert_global_interface_helpers(global_):
+    interface_type = global_.get_interface_type()
+
+    assert global_.is_interface(interface_type) is True
+    assert global_.is_interface("PipeWire:Interface:PwgMissing") is False
+    for expected_type, helper_name in INTERFACE_HELPERS.items():
+        expected = interface_type == expected_type
+        actual = getattr(global_, helper_name)()
+        assert actual is expected, (
+            f"global {global_.get_id()} {interface_type} returned {actual} "
+            f"from {helper_name}()"
+        )
+
+
 Pwg.init()
 print("pwg-version", Pwg.get_library_version())
 print("pipewire-version", Pwg.get_pipewire_library_version())
@@ -37,7 +61,7 @@ assert first.get_id() >= 0
 assert isinstance(first.get_interface_type(), str)
 assert first.get_properties() is not None
 assert registry.lookup_global(first.get_id()) is not None
-assert first.is_interface(first.get_interface_type()) is True
+assert_global_interface_helpers(first)
 print("registry-first-name", first.dup_name() or "")
 print("registry-first-description", first.dup_description() or "")
 print("registry-first-media-class", first.dup_media_class() or "")
@@ -47,6 +71,9 @@ assert matching_interface.get_n_items() > 0
 if first.dup_object_serial() is not None:
     assert registry.lookup_global_by_object_serial(first.dup_object_serial()) is not None
 print("registry-first", first.get_id(), first.get_interface_type())
+
+for index in range(count):
+    assert_global_interface_helpers(globals_model.get_item(index))
 
 node_probe_stream = Pwg.Stream.new_audio_capture(None, True)
 assert node_probe_stream.start()

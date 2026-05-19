@@ -934,7 +934,6 @@ for type_node in namespace.findall(".//gir:type", GIR_NS):
 callable_tags = {"callback", "constructor", "function", "method"}
 valid_transfer_modes = {"container", "full", "none"}
 disallowed_scalar_c_types = {
-    "gboolean",
     "gchar",
     "gdouble",
     "gfloat",
@@ -994,6 +993,7 @@ for owner_name, callable_node in iter_public_callables():
         c_type = type_node.attrib.get(f"{{{C_URI}}}type", "")
         c_type = c_type.removeprefix("const ").replace("*", "").strip()
         assert c_type not in disallowed_scalar_c_types
+        assert c_type != "_Bool"
 
     out_parameters = 0
     for parameter in callable_node.findall("gir:parameters/gir:parameter", GIR_NS):

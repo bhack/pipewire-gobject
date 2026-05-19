@@ -791,7 +791,7 @@ pwg_stream_init(PwgStream *self)
 }
 
 PwgStream *
-pwg_stream_new_audio_capture(const char *target_object, bool monitor)
+pwg_stream_new_audio_capture(const char *target_object, gboolean monitor)
 {
   return g_object_new(
     PWG_TYPE_STREAM,
@@ -800,7 +800,7 @@ pwg_stream_new_audio_capture(const char *target_object, bool monitor)
     NULL);
 }
 
-bool
+gboolean
 pwg_stream_set_requested_format(PwgStream *self,
                                 const char *sample_format,
                                 unsigned int rate,
@@ -830,7 +830,7 @@ pwg_stream_set_requested_format(PwgStream *self,
   return TRUE;
 }
 
-bool
+gboolean
 pwg_stream_start(PwgStream *self, GError **error)
 {
   struct pw_properties *props;
@@ -990,7 +990,7 @@ pwg_stream_stop(PwgStream *self)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_RUNNING]);
 }
 
-bool
+gboolean
 pwg_stream_get_running(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
@@ -998,7 +998,7 @@ pwg_stream_get_running(PwgStream *self)
   return self->running;
 }
 
-bool
+gboolean
 pwg_stream_set_pipewire_property(PwgStream *self,
                                  const char *key,
                                  const char *value,
@@ -1041,7 +1041,7 @@ pwg_stream_get_target_object(PwgStream *self)
   return self->target_object;
 }
 
-bool
+gboolean
 pwg_stream_get_monitor(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
@@ -1105,7 +1105,7 @@ pwg_stream_get_audio_format(PwgStream *self)
   return self->audio_format;
 }
 
-bool
+gboolean
 pwg_stream_get_deliver_audio_blocks(PwgStream *self)
 {
   g_return_val_if_fail(PWG_IS_STREAM(self), FALSE);
@@ -1114,7 +1114,7 @@ pwg_stream_get_deliver_audio_blocks(PwgStream *self)
 }
 
 void
-pwg_stream_set_deliver_audio_blocks(PwgStream *self, bool deliver_audio_blocks)
+pwg_stream_set_deliver_audio_blocks(PwgStream *self, gboolean deliver_audio_blocks)
 {
   g_return_if_fail(PWG_IS_STREAM(self));
 

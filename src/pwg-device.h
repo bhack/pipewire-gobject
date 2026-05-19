@@ -64,7 +64,7 @@ PwgDevice *pwg_device_new(PwgCore *core, PwgGlobal *global);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_device_start(PwgDevice *self, GError **error);
+gboolean pwg_device_start(PwgDevice *self, GError **error);
 
 /**
  * pwg_device_sync:
@@ -82,7 +82,7 @@ bool pwg_device_start(PwgDevice *self, GError **error);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_device_sync(PwgDevice *self, unsigned int timeout_msec, GError **error);
+gboolean pwg_device_sync(PwgDevice *self, unsigned int timeout_msec, GError **error);
 
 /**
  * pwg_device_stop:
@@ -136,7 +136,7 @@ PwgGlobal *pwg_device_get_global(PwgDevice *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_device_get_running(PwgDevice *self);
+gboolean pwg_device_get_running(PwgDevice *self);
 
 /**
  * pwg_device_get_bound:
@@ -150,7 +150,7 @@ bool pwg_device_get_running(PwgDevice *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_device_get_bound(PwgDevice *self);
+gboolean pwg_device_get_bound(PwgDevice *self);
 
 /**
  * pwg_device_get_param_infos:
@@ -202,7 +202,7 @@ GListModel *pwg_device_get_params(PwgDevice *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_device_subscribe_params(PwgDevice *self, GVariant *ids, GError **error);
+gboolean pwg_device_subscribe_params(PwgDevice *self, GVariant *ids, GError **error);
 
 /**
  * pwg_device_enum_params:
@@ -287,6 +287,6 @@ int pwg_device_enum_all_params(PwgDevice *self, GError **error);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_device_set_param(PwgDevice *self, PwgParam *param, GError **error);
+gboolean pwg_device_set_param(PwgDevice *self, PwgParam *param, GError **error);
 
 G_END_DECLS

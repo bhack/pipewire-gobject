@@ -73,7 +73,7 @@ unsigned int pwg_param_info_get_flags(PwgParamInfo *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_param_info_get_readable(PwgParamInfo *self);
+gboolean pwg_param_info_get_readable(PwgParamInfo *self);
 
 /**
  * pwg_param_info_get_writable:
@@ -87,7 +87,7 @@ bool pwg_param_info_get_readable(PwgParamInfo *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_param_info_get_writable(PwgParamInfo *self);
+gboolean pwg_param_info_get_writable(PwgParamInfo *self);
 
 /**
  * pwg_param_info_get_serial:
@@ -101,6 +101,6 @@ bool pwg_param_info_get_writable(PwgParamInfo *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_param_info_get_serial(PwgParamInfo *self);
+gboolean pwg_param_info_get_serial(PwgParamInfo *self);
 
 G_END_DECLS
