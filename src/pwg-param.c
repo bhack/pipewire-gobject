@@ -671,7 +671,7 @@ pwg_param_new_props_volume(double volume)
 }
 
 PwgParam *
-pwg_param_new_props_mute(bool mute)
+pwg_param_new_props_mute(gboolean mute)
 {
   return pwg_param_new_props(FALSE, 0.0, TRUE, mute);
 }

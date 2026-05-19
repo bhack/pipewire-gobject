@@ -177,7 +177,7 @@ char *pwg_global_dup_object_serial(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
+gboolean pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
 
 /**
  * pwg_global_is_node:
@@ -191,7 +191,7 @@ bool pwg_global_is_interface(PwgGlobal *self, const char *interface_type);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_global_is_node(PwgGlobal *self);
+gboolean pwg_global_is_node(PwgGlobal *self);
 
 /**
  * pwg_global_is_client:
@@ -205,7 +205,7 @@ bool pwg_global_is_node(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_global_is_client(PwgGlobal *self);
+gboolean pwg_global_is_client(PwgGlobal *self);
 
 /**
  * pwg_global_is_device:
@@ -219,7 +219,7 @@ bool pwg_global_is_client(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_global_is_device(PwgGlobal *self);
+gboolean pwg_global_is_device(PwgGlobal *self);
 
 /**
  * pwg_global_is_link:
@@ -233,7 +233,7 @@ bool pwg_global_is_device(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_global_is_link(PwgGlobal *self);
+gboolean pwg_global_is_link(PwgGlobal *self);
 
 /**
  * pwg_global_is_port:
@@ -247,7 +247,7 @@ bool pwg_global_is_link(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_global_is_port(PwgGlobal *self);
+gboolean pwg_global_is_port(PwgGlobal *self);
 
 /**
  * pwg_global_is_metadata:
@@ -261,6 +261,6 @@ bool pwg_global_is_port(PwgGlobal *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_global_is_metadata(PwgGlobal *self);
+gboolean pwg_global_is_metadata(PwgGlobal *self);
 
 G_END_DECLS

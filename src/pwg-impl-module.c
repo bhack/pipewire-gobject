@@ -252,7 +252,7 @@ pwg_impl_module_get_arguments(PwgImplModule *self)
   return self->arguments;
 }
 
-bool
+gboolean
 pwg_impl_module_get_loaded(PwgImplModule *self)
 {
   g_return_val_if_fail(PWG_IS_IMPL_MODULE(self), FALSE);

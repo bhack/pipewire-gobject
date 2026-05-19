@@ -622,7 +622,7 @@ pwg_node_new(PwgCore *core, PwgGlobal *global)
   return g_object_new(PWG_TYPE_NODE, "core", core, "global", global, NULL);
 }
 
-bool
+gboolean
 pwg_node_start(PwgNode *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -707,17 +707,17 @@ pwg_node_start(PwgNode *self, GError **error)
   return TRUE;
 }
 
-bool
+gboolean
 pwg_node_sync(PwgNode *self, unsigned int timeout_msec, GError **error)
 {
-  g_return_val_if_fail(PWG_IS_NODE(self), false);
+  g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
 
   if (!self->running && !pwg_node_start(self, error))
-    return false;
+    return FALSE;
 
   if (self->core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Node has no PipeWire core");
-    return false;
+    return FALSE;
   }
 
   return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
@@ -774,7 +774,7 @@ pwg_node_get_global(PwgNode *self)
   return self->global;
 }
 
-bool
+gboolean
 pwg_node_get_running(PwgNode *self)
 {
   g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
@@ -782,7 +782,7 @@ pwg_node_get_running(PwgNode *self)
   return self->running;
 }
 
-bool
+gboolean
 pwg_node_get_bound(PwgNode *self)
 {
   g_return_val_if_fail(PWG_IS_NODE(self), FALSE);
@@ -822,7 +822,7 @@ pwg_node_get_params(PwgNode *self)
   return G_LIST_MODEL(self->params);
 }
 
-bool
+gboolean
 pwg_node_subscribe_params(PwgNode *self, GVariant *ids, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -971,7 +971,7 @@ pwg_node_enum_all_params(PwgNode *self, GError **error)
   return pwg_node_enum_params(self, PW_ID_ANY, 0, 0, error);
 }
 
-bool
+gboolean
 pwg_node_set_param(PwgNode *self, PwgParam *param, GError **error)
 {
   struct pw_thread_loop *thread_loop;

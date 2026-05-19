@@ -57,7 +57,7 @@ PwgParam *pwg_param_new_props_volume(double volume);
  * Stability: Unstable
  */
 PWG_API
-PwgParam *pwg_param_new_props_mute(bool mute);
+PwgParam *pwg_param_new_props_mute(gboolean mute);
 
 /**
  * pwg_param_new_props_controls:

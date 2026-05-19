@@ -228,7 +228,7 @@ pwg_param_info_get_flags(PwgParamInfo *self)
   return self->flags;
 }
 
-bool
+gboolean
 pwg_param_info_get_readable(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), FALSE);
@@ -236,7 +236,7 @@ pwg_param_info_get_readable(PwgParamInfo *self)
   return (self->flags & SPA_PARAM_INFO_READ) != 0;
 }
 
-bool
+gboolean
 pwg_param_info_get_writable(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), FALSE);
@@ -244,7 +244,7 @@ pwg_param_info_get_writable(PwgParamInfo *self)
   return (self->flags & SPA_PARAM_INFO_WRITE) != 0;
 }
 
-bool
+gboolean
 pwg_param_info_get_serial(PwgParamInfo *self)
 {
   g_return_val_if_fail(PWG_IS_PARAM_INFO(self), FALSE);

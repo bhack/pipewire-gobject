@@ -53,7 +53,7 @@ PwgCore *pwg_core_new(void);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_core_set_pipewire_property(PwgCore *self,
+gboolean pwg_core_set_pipewire_property(PwgCore *self,
                                     const char *key,
                                     const char *value,
                                     GError **error);
@@ -71,7 +71,7 @@ bool pwg_core_set_pipewire_property(PwgCore *self,
  * Stability: Unstable
  */
 PWG_API
-bool pwg_core_connect(PwgCore *self, GError **error);
+gboolean pwg_core_connect(PwgCore *self, GError **error);
 
 /**
  * pwg_core_disconnect:
@@ -97,7 +97,7 @@ void pwg_core_disconnect(PwgCore *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_core_get_connected(PwgCore *self);
+gboolean pwg_core_get_connected(PwgCore *self);
 
 /**
  * pwg_core_sync:
@@ -117,7 +117,7 @@ bool pwg_core_get_connected(PwgCore *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_core_sync(PwgCore *self, unsigned int timeout_msec, GError **error);
+gboolean pwg_core_sync(PwgCore *self, unsigned int timeout_msec, GError **error);
 
 /**
  * pwg_core_get_library_version:

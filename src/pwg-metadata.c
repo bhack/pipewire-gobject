@@ -726,7 +726,7 @@ pwg_metadata_new(PwgCore *core, const char *name)
   return g_object_new(PWG_TYPE_METADATA, "core", core, "name", name, NULL);
 }
 
-bool
+gboolean
 pwg_metadata_start(PwgMetadata *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -776,29 +776,29 @@ pwg_metadata_start(PwgMetadata *self, GError **error)
   return TRUE;
 }
 
-bool
+gboolean
 pwg_metadata_sync(PwgMetadata *self, unsigned int timeout_msec, GError **error)
 {
   bool was_bound;
 
-  g_return_val_if_fail(PWG_IS_METADATA(self), false);
+  g_return_val_if_fail(PWG_IS_METADATA(self), FALSE);
 
   if (!self->running && !pwg_metadata_start(self, error))
-    return false;
+    return FALSE;
 
   if (self->core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Metadata has no PipeWire core");
-    return false;
+    return FALSE;
   }
 
   was_bound = self->bound;
   if (!pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error))
-    return false;
+    return FALSE;
 
   if (!was_bound && self->bound)
     return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
 
-  return true;
+  return TRUE;
 }
 
 void
@@ -854,7 +854,7 @@ pwg_metadata_get_name(PwgMetadata *self)
   return self->name;
 }
 
-bool
+gboolean
 pwg_metadata_get_running(PwgMetadata *self)
 {
   g_return_val_if_fail(PWG_IS_METADATA(self), FALSE);
@@ -862,7 +862,7 @@ pwg_metadata_get_running(PwgMetadata *self)
   return self->running;
 }
 
-bool
+gboolean
 pwg_metadata_get_bound(PwgMetadata *self)
 {
   g_return_val_if_fail(PWG_IS_METADATA(self), FALSE);
@@ -918,7 +918,7 @@ pwg_metadata_dup_configured_audio_source_name(PwgMetadata *self)
   return pwg_metadata_dup_default_node_name(self, PWG_DEFAULT_CONFIGURED_AUDIO_SOURCE_KEY);
 }
 
-bool
+gboolean
 pwg_metadata_set(PwgMetadata *self,
                  unsigned int subject,
                  const char *key,
@@ -960,7 +960,7 @@ pwg_metadata_set(PwgMetadata *self,
   return TRUE;
 }
 
-bool
+gboolean
 pwg_metadata_clear(PwgMetadata *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;

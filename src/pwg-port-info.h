@@ -131,7 +131,7 @@ char *pwg_port_info_dup_direction(PwgPortInfo *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_port_info_get_physical(PwgPortInfo *self);
+gboolean pwg_port_info_get_physical(PwgPortInfo *self);
 
 /**
  * pwg_port_info_dup_audio_channel:

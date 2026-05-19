@@ -54,7 +54,7 @@ PwgLink *pwg_link_new(PwgCore *core, PwgGlobal *global);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_link_start(PwgLink *self, GError **error);
+gboolean pwg_link_start(PwgLink *self, GError **error);
 
 /**
  * pwg_link_sync:
@@ -72,7 +72,7 @@ bool pwg_link_start(PwgLink *self, GError **error);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_link_sync(PwgLink *self, unsigned int timeout_msec, GError **error);
+gboolean pwg_link_sync(PwgLink *self, unsigned int timeout_msec, GError **error);
 
 /**
  * pwg_link_stop:
@@ -126,7 +126,7 @@ PwgGlobal *pwg_link_get_global(PwgLink *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_link_get_running(PwgLink *self);
+gboolean pwg_link_get_running(PwgLink *self);
 
 /**
  * pwg_link_get_bound:
@@ -140,7 +140,7 @@ bool pwg_link_get_running(PwgLink *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_link_get_bound(PwgLink *self);
+gboolean pwg_link_get_bound(PwgLink *self);
 
 /**
  * pwg_link_get_state:

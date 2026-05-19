@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.9 - 2026-05-19
+
+- Use GLib's `gboolean` ABI for public introspected boolean parameters and
+  return values, fixing PyGObject boolean marshalling for registry helpers such
+  as `Pwg.Global.is_node()` under live graph churn.
+
 ## 0.3.8 - 2026-05-18
 
 - Add copied PipeWire node state and error accessors to `Pwg.Node`, mirroring

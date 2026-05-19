@@ -52,7 +52,7 @@ PwgRegistry *pwg_registry_new(PwgCore *core);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_registry_start(PwgRegistry *self, GError **error);
+gboolean pwg_registry_start(PwgRegistry *self, GError **error);
 
 /**
  * pwg_registry_sync:
@@ -70,7 +70,7 @@ bool pwg_registry_start(PwgRegistry *self, GError **error);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_registry_sync(PwgRegistry *self, unsigned int timeout_msec, GError **error);
+gboolean pwg_registry_sync(PwgRegistry *self, unsigned int timeout_msec, GError **error);
 
 /**
  * pwg_registry_stop:
@@ -110,7 +110,7 @@ PwgCore *pwg_registry_get_core(PwgRegistry *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_registry_get_running(PwgRegistry *self);
+gboolean pwg_registry_get_running(PwgRegistry *self);
 
 /**
  * pwg_registry_get_globals:

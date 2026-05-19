@@ -52,7 +52,7 @@ PwgMetadata *pwg_metadata_new(PwgCore *core, const char *name);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_metadata_start(PwgMetadata *self, GError **error);
+gboolean pwg_metadata_start(PwgMetadata *self, GError **error);
 
 /**
  * pwg_metadata_sync:
@@ -72,7 +72,7 @@ bool pwg_metadata_start(PwgMetadata *self, GError **error);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_metadata_sync(PwgMetadata *self, unsigned int timeout_msec, GError **error);
+gboolean pwg_metadata_sync(PwgMetadata *self, unsigned int timeout_msec, GError **error);
 
 /**
  * pwg_metadata_stop:
@@ -126,7 +126,7 @@ const char *pwg_metadata_get_name(PwgMetadata *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_metadata_get_running(PwgMetadata *self);
+gboolean pwg_metadata_get_running(PwgMetadata *self);
 
 /**
  * pwg_metadata_get_bound:
@@ -140,7 +140,7 @@ bool pwg_metadata_get_running(PwgMetadata *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_metadata_get_bound(PwgMetadata *self);
+gboolean pwg_metadata_get_bound(PwgMetadata *self);
 
 /**
  * pwg_metadata_dup_value:
@@ -256,7 +256,7 @@ char *pwg_metadata_dup_configured_audio_source_name(PwgMetadata *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_metadata_set(PwgMetadata *self,
+gboolean pwg_metadata_set(PwgMetadata *self,
                       unsigned int subject,
                       const char *key,
                       const char *type,
@@ -276,6 +276,6 @@ bool pwg_metadata_set(PwgMetadata *self,
  * Stability: Unstable
  */
 PWG_API
-bool pwg_metadata_clear(PwgMetadata *self, GError **error);
+gboolean pwg_metadata_clear(PwgMetadata *self, GError **error);
 
 G_END_DECLS

@@ -367,7 +367,7 @@ pwg_global_dup_object_serial(PwgGlobal *self)
   return pwg_global_dup_property(self, PW_KEY_OBJECT_SERIAL);
 }
 
-bool
+gboolean
 pwg_global_is_interface(PwgGlobal *self, const char *interface_type)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -376,7 +376,7 @@ pwg_global_is_interface(PwgGlobal *self, const char *interface_type)
   return g_strcmp0(self->interface_type, interface_type) == 0;
 }
 
-bool
+gboolean
 pwg_global_is_node(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -384,7 +384,7 @@ pwg_global_is_node(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Node);
 }
 
-bool
+gboolean
 pwg_global_is_client(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -392,7 +392,7 @@ pwg_global_is_client(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Client);
 }
 
-bool
+gboolean
 pwg_global_is_device(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -400,7 +400,7 @@ pwg_global_is_device(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Device);
 }
 
-bool
+gboolean
 pwg_global_is_link(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -408,7 +408,7 @@ pwg_global_is_link(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Link);
 }
 
-bool
+gboolean
 pwg_global_is_port(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);
@@ -416,7 +416,7 @@ pwg_global_is_port(PwgGlobal *self)
   return pwg_global_is_interface(self, PW_TYPE_INTERFACE_Port);
 }
 
-bool
+gboolean
 pwg_global_is_metadata(PwgGlobal *self)
 {
   g_return_val_if_fail(PWG_IS_GLOBAL(self), FALSE);

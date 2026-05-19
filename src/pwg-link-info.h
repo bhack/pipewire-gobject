@@ -145,7 +145,7 @@ char *pwg_link_info_dup_input_port_id(PwgLinkInfo *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_link_info_get_passive(PwgLinkInfo *self);
+gboolean pwg_link_info_get_passive(PwgLinkInfo *self);
 
 /**
  * pwg_link_info_get_feedback:
@@ -159,7 +159,7 @@ bool pwg_link_info_get_passive(PwgLinkInfo *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_link_info_get_feedback(PwgLinkInfo *self);
+gboolean pwg_link_info_get_feedback(PwgLinkInfo *self);
 
 /**
  * pwg_link_info_dup_object_serial:

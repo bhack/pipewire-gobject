@@ -39,7 +39,7 @@ G_DECLARE_FINAL_TYPE(PwgStream, pwg_stream, PWG, STREAM, GObject)
  * Stability: Unstable
  */
 PWG_API
-PwgStream *pwg_stream_new_audio_capture(const char *target_object, bool monitor);
+PwgStream *pwg_stream_new_audio_capture(const char *target_object, gboolean monitor);
 
 /**
  * pwg_stream_set_requested_format:
@@ -61,7 +61,7 @@ PwgStream *pwg_stream_new_audio_capture(const char *target_object, bool monitor)
  * Stability: Unstable
  */
 PWG_API
-bool pwg_stream_set_requested_format(PwgStream *self,
+gboolean pwg_stream_set_requested_format(PwgStream *self,
                                      const char *sample_format,
                                      unsigned int rate,
                                      unsigned int channels,
@@ -80,7 +80,7 @@ bool pwg_stream_set_requested_format(PwgStream *self,
  * Stability: Unstable
  */
 PWG_API
-bool pwg_stream_start(PwgStream *self, GError **error);
+gboolean pwg_stream_start(PwgStream *self, GError **error);
 
 /**
  * pwg_stream_stop:
@@ -106,7 +106,7 @@ void pwg_stream_stop(PwgStream *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_stream_get_running(PwgStream *self);
+gboolean pwg_stream_get_running(PwgStream *self);
 
 /**
  * pwg_stream_set_pipewire_property:
@@ -126,7 +126,7 @@ bool pwg_stream_get_running(PwgStream *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_stream_set_pipewire_property(PwgStream *self,
+gboolean pwg_stream_set_pipewire_property(PwgStream *self,
                                       const char *key,
                                       const char *value,
                                       GError **error);
@@ -157,7 +157,7 @@ const char *pwg_stream_get_target_object(PwgStream *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_stream_get_monitor(PwgStream *self);
+gboolean pwg_stream_get_monitor(PwgStream *self);
 
 /**
  * pwg_stream_get_requested_sample_format:
@@ -270,7 +270,7 @@ PwgAudioFormat *pwg_stream_get_audio_format(PwgStream *self);
  * Stability: Unstable
  */
 PWG_API
-bool pwg_stream_get_deliver_audio_blocks(PwgStream *self);
+gboolean pwg_stream_get_deliver_audio_blocks(PwgStream *self);
 
 /**
  * pwg_stream_set_deliver_audio_blocks:
@@ -285,6 +285,6 @@ bool pwg_stream_get_deliver_audio_blocks(PwgStream *self);
  * Stability: Unstable
  */
 PWG_API
-void pwg_stream_set_deliver_audio_blocks(PwgStream *self, bool deliver_audio_blocks);
+void pwg_stream_set_deliver_audio_blocks(PwgStream *self, gboolean deliver_audio_blocks);
 
 G_END_DECLS

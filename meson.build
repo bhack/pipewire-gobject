@@ -1,7 +1,7 @@
 project(
   'pipewire-gobject',
   'c',
-  version: '0.3.8',
+  version: '0.3.9',
   meson_version: '>=1.0',
   default_options: ['warning_level=2', 'werror=false'],
 )
@@ -232,6 +232,16 @@ if build_tests
     find_program('python3'),
     args: [files('tests/test_symbols.py'), meson.current_build_dir()],
     depends: pwg_lib,
+  )
+
+  test(
+    'registry-churn-fatal-criticals',
+    find_program('python3'),
+    args: [files('tests/test_registry_churn.py')],
+    env: test_env,
+    depends: pwg_typelib,
+    suite: 'live',
+    timeout: 90,
   )
 
   stream_dispatch_test = executable(

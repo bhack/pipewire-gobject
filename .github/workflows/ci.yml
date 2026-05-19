@@ -295,6 +295,10 @@ jobs:
           GI_TYPELIB_PATH="$PWD/build" \
           LD_LIBRARY_PATH="$PWD/build" \
           python3 tests/test_live_pipewire.py
+          PWG_RUN_REGISTRY_CHURN=1 \
+          GI_TYPELIB_PATH="$PWD/build" \
+          LD_LIBRARY_PATH="$PWD/build" \
+          python3 tests/test_registry_churn.py
 
       - name: Live stream audio smoke test
         if: env.RUN_BUILD == 'true'

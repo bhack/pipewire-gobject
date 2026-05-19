@@ -470,7 +470,7 @@ pwg_registry_new(PwgCore *core)
   return g_object_new(PWG_TYPE_REGISTRY, "core", core, NULL);
 }
 
-bool
+gboolean
 pwg_registry_start(PwgRegistry *self, GError **error)
 {
   struct pw_thread_loop *thread_loop;
@@ -515,17 +515,17 @@ pwg_registry_start(PwgRegistry *self, GError **error)
   return TRUE;
 }
 
-bool
+gboolean
 pwg_registry_sync(PwgRegistry *self, unsigned int timeout_msec, GError **error)
 {
-  g_return_val_if_fail(PWG_IS_REGISTRY(self), false);
+  g_return_val_if_fail(PWG_IS_REGISTRY(self), FALSE);
 
   if (!self->running && !pwg_registry_start(self, error))
-    return false;
+    return FALSE;
 
   if (self->core == NULL) {
     g_set_error_literal(error, PWG_ERROR, PWG_ERROR_FAILED, "Registry has no PipeWire core");
-    return false;
+    return FALSE;
   }
 
   return pwg_core_sync_main_context_internal(self->core, self->main_context, timeout_msec, error);
@@ -571,7 +571,7 @@ pwg_registry_get_core(PwgRegistry *self)
   return self->core;
 }
 
-bool
+gboolean
 pwg_registry_get_running(PwgRegistry *self)
 {
   g_return_val_if_fail(PWG_IS_REGISTRY(self), FALSE);

@@ -93,6 +93,9 @@ Already landed after the initial `0.3.x` API cleanup:
 - live link state and node state/error observation for applications that need
   to react to graph activation, idle, suspend, or error transitions without
   polling.
+- public GI-visible boolean parameters and return values were moved from C99
+  `_Bool`/`bool` to GLib's `gboolean` ABI after live registry churn exposed
+  incorrect boolean marshalling in PyGObject.
 
 Remaining work:
 
