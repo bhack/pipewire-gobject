@@ -41,7 +41,7 @@ jobs:
             libgirepository1.0-dev \
             python3-gi
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Build API docs
         run: |

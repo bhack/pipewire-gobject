@@ -132,7 +132,7 @@ jobs:
             python3-venv
 
       - name: Check out release tag
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.release.outputs.tag_name }}
           fetch-depth: 0
