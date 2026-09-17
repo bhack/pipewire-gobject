@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.10 - 2026-09-17
+
+- Add `Pwg.Stream.get_graph_rate()` and `notify::graph-rate` to observe the
+  runtime graph clock independently of the negotiated capture format.
+  Notifications are marshalled to the stream's GLib main context. The API
+  remains experimental, like the rest of the 0.x API/ABI.
+
 ## 0.3.9 - 2026-05-19
 
 - Use GLib's `gboolean` ABI for public introspected boolean parameters and

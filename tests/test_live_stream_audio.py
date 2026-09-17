@@ -61,6 +61,7 @@ context.objects = [
     }}
   }}
 ]
+context.properties = {{ default.clock.allowed-rates = [ 44100 48000 96000 192000 ] }}
 """
 
 
@@ -221,7 +222,7 @@ def start_playback(env: dict[str, str], stderr_path: Path) -> tuple[subprocess.P
 
 
 def main() -> int:
-    require_commands(["pipewire", "wireplumber", "pw-cat", "pw-link"])
+    require_commands(["pipewire", "wireplumber", "pw-cat", "pw-link", "pw-metadata"])
     reexec_with_session_bus()
     faulthandler.enable()
     faulthandler.dump_traceback_later(30.0, exit=True)
@@ -345,6 +346,33 @@ def main() -> int:
                 raise RuntimeError("stream format was not negotiated")
             if not seen["nonzero"]:
                 raise RuntimeError("stream did not receive non-silent audio")
+
+            # Capture remains 48 kHz even while the graph clock changes. A
+            # negotiated-format getter must not be mistaken for graph timing.
+            graph_notifications = []
+            main_thread = threading.get_ident()
+
+            def on_graph_rate(current_stream, _pspec):
+                assert threading.get_ident() == main_thread
+                graph_notifications.append(current_stream.get_graph_rate())
+
+            stream.connect("notify::graph-rate", on_graph_rate)
+            stream.set_deliver_audio_blocks(False)
+            for graph_rate in (192000, 96000, 44100, 48000):
+                subprocess.run(
+                    ["pw-metadata", "-n", "settings", "0", "clock.force-rate", str(graph_rate)],
+                    env=env, check=True, capture_output=True,
+                )
+
+                def observed_rate():
+                    while GLib.MainContext.default().iteration(False):
+                        pass
+                    return stream.get_graph_rate() == graph_rate
+
+                wait_for(f"graph rate {graph_rate}", observed_rate)
+                assert stream.get_rate() == RATE
+                assert graph_rate in graph_notifications
+                print(f"graph-rate {graph_rate}Hz; capture-rate {stream.get_rate()}Hz")
 
             core = Pwg.Core.new()
             assert core.connect()

@@ -44,6 +44,15 @@ stream = Pwg.Stream.new_audio_capture(None, True)
 stream.start()
 ```
 
+The negotiated audio rate (`stream.get_rate()`) describes delivered samples.
+The graph clock rate (`stream.get_graph_rate()`, since 0.3.10) describes the
+graph driving the stream. Resampling can make these different. Subscribe to
+`notify::graph-rate` for changes on the stream's GLib main context; the value
+is zero before processing and after stopping, and otherwise is the last
+observed rate. It is not a hardware sample-rate setting. Use the audio block's
+format rate for sample analysis, and graph timing only for graph-related
+calculations.
+
 ## Installed Files
 
 A normal installation provides:
