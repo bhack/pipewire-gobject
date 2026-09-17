@@ -93,6 +93,11 @@ assert stream_target_param is not None
 assert stream_target_param.attrib.get("nullable") == "1"
 
 stream_start = stream.find("gir:method[@name='start']", GIR_NS)
+graph_rate = stream.find("gir:method[@name='get_graph_rate']", GIR_NS)
+assert graph_rate is not None
+assert graph_rate.attrib["version"] == "0.3.10"
+assert graph_rate.find("gir:return-value/gir:type", GIR_NS).attrib[f"{{{C_URI}}}type"] == "unsigned int"
+assert stream.find("gir:property[@name='graph-rate']", GIR_NS) is not None
 assert stream_start is not None
 assert stream_start.attrib.get("throws") == "1"
 
@@ -892,7 +897,7 @@ assert error_enum.attrib[f"{{{GLIB_URI}}}error-domain"] == "pwg-error-quark"
 assert namespace.find("gir:function[@name='error_quark']", GIR_NS) is not None
 
 for node in namespace.findall(".//*[@version]", GIR_NS):
-    assert node.attrib["version"] in {"0.1", "0.3.6", "0.3.7", "0.3.8"}
+    assert node.attrib["version"] in {"0.1", "0.3.6", "0.3.7", "0.3.8", "0.3.10"}
     assert node.attrib["stability"] == "Unstable"
 
 for class_node in namespace.findall("gir:class", GIR_NS):

@@ -33,6 +33,11 @@ struct _PwgStream {
   unsigned int requested_channels;
   int deliver_audio_blocks;
   gboolean running;
+  unsigned int graph_rate;
+  unsigned int observed_graph_rate;
+  unsigned int pending_graph_rate;
+  gboolean has_pending_graph_rate;
+  uint64_t graph_rate_revision; /* Protected by dispatch_lock. */
   unsigned int rate;
   unsigned int channels;
   double peak;
@@ -66,6 +71,7 @@ enum {
   PROP_DELIVER_AUDIO_BLOCKS,
   PROP_RUNNING,
   PROP_RATE,
+  PROP_GRAPH_RATE,
   PROP_CHANNELS,
   PROP_PEAK,
   PROP_AUDIO_FORMAT,
@@ -237,6 +243,10 @@ pwg_stream_dispatch_pending(gpointer userdata)
   PwgStreamPendingBlock *block;
   gboolean has_peak;
   gboolean has_format;
+  gboolean has_graph_rate;
+  unsigned int graph_rate;
+  uint64_t graph_rate_revision;
+  gboolean graph_rate_changed = FALSE;
   char *sample_format;
   double peak;
   unsigned int rate;
@@ -246,6 +256,10 @@ pwg_stream_dispatch_pending(gpointer userdata)
   g_mutex_lock(&self->dispatch_lock);
   has_peak = self->has_pending_peak;
   has_format = self->has_pending_format;
+  has_graph_rate = self->has_pending_graph_rate;
+  graph_rate = self->pending_graph_rate;
+  graph_rate_revision = self->graph_rate_revision;
+  self->has_pending_graph_rate = FALSE;
   sample_format = g_steal_pointer(&self->pending_sample_format);
   peak = self->pending_peak;
   rate = self->pending_rate;
@@ -275,6 +289,18 @@ pwg_stream_dispatch_pending(gpointer userdata)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_AUDIO_FORMAT]);
   }
   g_free(sample_format);
+
+  /* Format handlers may dispatch newer observations or restart the stream.
+   * Never publish a snapshot superseded while those handlers ran. */
+  g_mutex_lock(&self->dispatch_lock);
+  if (has_graph_rate && self->running &&
+      graph_rate_revision == self->graph_rate_revision && self->graph_rate != graph_rate) {
+    self->graph_rate = graph_rate;
+    graph_rate_changed = TRUE;
+  }
+  g_mutex_unlock(&self->dispatch_lock);
+  if (graph_rate_changed)
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_GRAPH_RATE]);
 
   if (has_peak && self->running)
     pwg_stream_emit_peak(self, peak);
@@ -314,6 +340,21 @@ pwg_stream_queue_peak(PwgStream *self, double peak)
   g_mutex_lock(&self->dispatch_lock);
   self->pending_peak = self->has_pending_peak ? MAX(self->pending_peak, peak) : peak;
   self->has_pending_peak = TRUE;
+  pwg_stream_queue_dispatch_locked(self);
+  g_mutex_unlock(&self->dispatch_lock);
+}
+
+static void
+pwg_stream_queue_graph_rate(PwgStream *self, unsigned int rate)
+{
+  /* Only touched by the PipeWire callback, or after its thread is stopped. */
+  if (self->observed_graph_rate == rate)
+    return;
+  self->observed_graph_rate = rate;
+  g_mutex_lock(&self->dispatch_lock);
+  self->graph_rate_revision++;
+  self->pending_graph_rate = rate;
+  self->has_pending_graph_rate = TRUE;
   pwg_stream_queue_dispatch_locked(self);
   g_mutex_unlock(&self->dispatch_lock);
 }
@@ -418,6 +459,7 @@ static void
 pwg_stream_on_process(void *userdata)
 {
   PwgStream *self = PWG_STREAM(userdata);
+  struct pw_time time = { 0 };
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
   struct spa_data *spa_data;
@@ -425,6 +467,12 @@ pwg_stream_on_process(void *userdata)
   guint8 *audio_data;
   unsigned int n_channels;
   unsigned int rate;
+
+  if (pw_stream_get_time_n(self->stream, &time, sizeof(time)) == 0) {
+    unsigned int graph_rate = time.rate.num != 0 &&
+      time.rate.denom % time.rate.num == 0 ? time.rate.denom / time.rate.num : 0;
+    pwg_stream_queue_graph_rate(self, graph_rate);
+  }
 
   buffer = pw_stream_dequeue_buffer(self->stream);
   if (buffer == NULL)
@@ -457,6 +505,13 @@ done:
 }
 
 #ifdef PWG_STREAM_TESTING
+void
+_pwg_stream_test_push_graph_rate(PwgStream *self, unsigned int rate)
+{
+  self->running = TRUE;
+  pwg_stream_queue_graph_rate(self, rate);
+}
+
 void
 _pwg_stream_test_push_f32_audio(PwgStream *self,
                                 const float *samples,
@@ -525,6 +580,9 @@ pwg_stream_get_property(GObject *object,
     break;
   case PROP_RATE:
     g_value_set_uint(value, self->rate);
+    break;
+  case PROP_GRAPH_RATE:
+    g_value_set_uint(value, self->graph_rate);
     break;
   case PROP_CHANNELS:
     g_value_set_uint(value, self->channels);
@@ -676,6 +734,23 @@ pwg_stream_class_init(PwgStreamClass *klass)
     0,
     G_MAXUINT,
     0,
+    G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  /**
+   * PwgStream:graph-rate:
+   *
+   * Last observed graph clock ticks per second. Independent of the negotiated
+   * audio format rate; zero before processing and after stop. Notifications
+   * are delivered on the stream's GLib main context.
+   *
+   * Since: 0.3.10
+   * Stability: Unstable
+   */
+  properties[PROP_GRAPH_RATE] = g_param_spec_uint(
+    "graph-rate",
+    "Graph rate",
+    "Last observed graph clock ticks per second, or zero when unknown.",
+    0, G_MAXUINT, 0,
     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   /**
@@ -980,12 +1055,19 @@ pwg_stream_stop(PwgStream *self)
 
   g_mutex_lock(&self->dispatch_lock);
   self->has_pending_peak = FALSE;
+  self->has_pending_graph_rate = FALSE;
+  self->observed_graph_rate = 0;
+  self->graph_rate_revision++;
   self->pending_peak = 0.0;
   self->has_pending_format = FALSE;
   g_clear_pointer(&self->pending_sample_format, g_free);
   pwg_stream_clear_pending_blocks(&self->pending_blocks);
   g_mutex_unlock(&self->dispatch_lock);
 
+  if (self->graph_rate != 0) {
+    self->graph_rate = 0;
+    g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_GRAPH_RATE]);
+  }
   if (was_running)
     g_object_notify_by_pspec(G_OBJECT(self), properties[PROP_RUNNING]);
 }
@@ -1079,6 +1161,13 @@ pwg_stream_get_rate(PwgStream *self)
   g_return_val_if_fail(PWG_IS_STREAM(self), 0);
 
   return self->rate;
+}
+
+unsigned int
+pwg_stream_get_graph_rate(PwgStream *self)
+{
+  g_return_val_if_fail(PWG_IS_STREAM(self), 0);
+  return self->graph_rate;
 }
 
 unsigned int

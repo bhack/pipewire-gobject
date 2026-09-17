@@ -7,11 +7,90 @@
 #include "pwg-error.h"
 #include "pwg-stream.h"
 
+void _pwg_stream_test_push_graph_rate(PwgStream *self, unsigned int rate);
+
+static void
+on_graph_rate(GObject *object, GParamSpec *pspec, gpointer userdata)
+{
+  unsigned int *count = userdata;
+  (void) object;
+  (void) pspec;
+  (*count)++;
+}
+
+static void
+test_stream_graph_rate(void)
+{
+  g_autoptr(PwgStream) stream = pwg_stream_new_audio_capture(NULL, TRUE);
+  unsigned int count = 0;
+  g_signal_connect(stream, "notify::graph-rate", G_CALLBACK(on_graph_rate), &count);
+  g_assert_cmpuint(pwg_stream_get_graph_rate(stream), ==, 0);
+  _pwg_stream_test_push_graph_rate(stream, 48000);
+  _pwg_stream_test_push_graph_rate(stream, 192000);
+  g_assert_cmpuint(count, ==, 0);
+  while (g_main_context_iteration(NULL, FALSE));
+  g_assert_cmpuint(count, ==, 1);
+  g_assert_cmpuint(pwg_stream_get_graph_rate(stream), ==, 192000);
+  _pwg_stream_test_push_graph_rate(stream, 192000);
+  while (g_main_context_iteration(NULL, FALSE));
+  g_assert_cmpuint(count, ==, 1);
+  _pwg_stream_test_push_graph_rate(stream, 44100);
+  pwg_stream_stop(stream);
+  while (g_main_context_iteration(NULL, FALSE));
+  g_assert_cmpuint(pwg_stream_get_graph_rate(stream), ==, 0);
+  g_assert_cmpuint(count, ==, 2);
+}
+
 void _pwg_stream_test_push_f32_audio(PwgStream *self,
                                      const float *samples,
                                      guint n_samples,
                                      guint rate,
                                      guint channels);
+
+static void
+on_format_reenter(GObject *object, GParamSpec *pspec, gpointer userdata)
+{
+  PwgStream *stream = PWG_STREAM(object);
+  gboolean restart = GPOINTER_TO_INT(userdata);
+  const float samples[] = { 0.0f, 0.0f };
+  (void) pspec;
+
+  g_signal_handlers_disconnect_by_func(stream, on_format_reenter, userdata);
+  if (restart) {
+    pwg_stream_stop(stream);
+    /* Simulate a new running session before its first clock observation. */
+    _pwg_stream_test_push_f32_audio(stream, samples, 2, 48000, 2);
+  } else {
+    _pwg_stream_test_push_graph_rate(stream, 96000);
+  }
+  while (g_main_context_iteration(NULL, FALSE));
+  g_assert_cmpuint(pwg_stream_get_graph_rate(stream), ==, restart ? 0 : 96000);
+}
+
+static void
+test_stream_graph_rate_reentrant(gconstpointer userdata)
+{
+  gboolean restart = GPOINTER_TO_INT(userdata);
+  g_autoptr(PwgStream) stream = pwg_stream_new_audio_capture(NULL, TRUE);
+  const float samples[] = { 0.0f, 0.0f };
+  unsigned int count = 0;
+
+  g_signal_connect(stream, "notify::graph-rate", G_CALLBACK(on_graph_rate), &count);
+  g_signal_connect(stream, "notify::audio-format", G_CALLBACK(on_format_reenter),
+                   GINT_TO_POINTER(restart));
+  _pwg_stream_test_push_graph_rate(stream, 192000);
+  _pwg_stream_test_push_f32_audio(stream, samples, 2, 48000, 2);
+  while (g_main_context_iteration(NULL, FALSE));
+  g_assert_cmpuint(pwg_stream_get_graph_rate(stream), ==, restart ? 0 : 96000);
+  g_assert_cmpuint(count, ==, restart ? 0 : 1);
+
+  /* Duplicate clock observations must not be needed to repair stale state. */
+  _pwg_stream_test_push_graph_rate(stream, 96000);
+  while (g_main_context_iteration(NULL, FALSE));
+  g_assert_cmpuint(pwg_stream_get_graph_rate(stream), ==, 96000);
+  g_assert_cmpuint(count, ==, 1);
+  g_signal_handlers_disconnect_by_data(stream, &count);
+}
 
 typedef struct {
   GMainLoop *loop;
@@ -193,6 +272,11 @@ main(int argc, char *argv[])
 
   g_test_add_func("/pwg/stream/dispatch-f32-audio", test_stream_dispatch_f32_audio);
   g_test_add_func("/pwg/stream/requested-format", test_stream_requested_format);
+  g_test_add_func("/pwg/stream/graph-rate", test_stream_graph_rate);
+  g_test_add_data_func("/pwg/stream/graph-rate-reentrant", GINT_TO_POINTER(FALSE),
+                       test_stream_graph_rate_reentrant);
+  g_test_add_data_func("/pwg/stream/graph-rate-restart", GINT_TO_POINTER(TRUE),
+                       test_stream_graph_rate_reentrant);
 
   return g_test_run();
 }
