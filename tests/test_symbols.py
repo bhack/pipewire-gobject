@@ -238,6 +238,7 @@ EXPECTED_PUBLIC_SYMBOLS = {
     "pwg_stream_get_monitor",
     "pwg_stream_get_peak",
     "pwg_stream_get_rate",
+    "pwg_stream_get_graph_rate",
     "pwg_stream_get_requested_channels",
     "pwg_stream_get_requested_rate",
     "pwg_stream_get_requested_sample_format",

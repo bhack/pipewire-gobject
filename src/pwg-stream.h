@@ -216,6 +216,24 @@ PWG_API
 unsigned int pwg_stream_get_rate(PwgStream *self);
 
 /**
+ * pwg_stream_get_graph_rate:
+ * @self: a stream object.
+ *
+ * Gets the last observed graph clock rate, independently of the negotiated
+ * audio format rate. These can differ when the stream is resampled.
+ * Changes are notified on the stream's GLib main context. This is an
+ * observation of the graph driving this stream, not a device configuration.
+ *
+ * Returns: graph clock ticks per second, or 0 before processing, after stop,
+ *   or when the clock does not have an integral rate.
+ *
+ * Since: 0.3.10
+ * Stability: Unstable
+ */
+PWG_API
+unsigned int pwg_stream_get_graph_rate(PwgStream *self);
+
+/**
  * pwg_stream_get_channels:
  * @self: a stream object.
  *
