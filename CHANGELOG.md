@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.11 - 2026-11-17
+
+- Fix compilation with PipeWire 1.0.2 headers and recent GCC versions by
+  declaring the SPA hook type before including the metadata extension header.
+  The 0.x API and ABI remain experimental and may change.
+
 ## 0.3.10 - 2026-09-17
 
 - Add `Pwg.Stream.get_graph_rate()` and `notify::graph-rate` to observe the
