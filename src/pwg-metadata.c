@@ -1,5 +1,6 @@
 #include "pwg-metadata.h"
 
+#include <spa/utils/hook.h>
 #include <pipewire/extensions/metadata.h>
 #include <pipewire/pipewire.h>
 #include <spa/utils/json.h>
