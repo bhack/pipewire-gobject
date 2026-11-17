@@ -1,5 +1,6 @@
 #include "pwg-global.h"
 
+#include <spa/utils/hook.h>
 #include <pipewire/extensions/metadata.h>
 #include <pipewire/keys.h>
 #include <pipewire/pipewire.h>
